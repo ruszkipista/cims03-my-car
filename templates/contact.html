@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Flask Template</title>
+{% endblock %}
+
+{% block body %}
+<form method="POST" name="sentMessage">
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name">
+  <label for="message">Message:</label>
+  <textarea id="message" name="message"></textarea>
+  <button type="submit">Send</button>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul>
+      {% for message in messages%}
+      <li>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+</form>
+{% endblock %}

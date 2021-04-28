@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>To Do? or Not To Do?</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
+    <div class="form">
+        <form action="{{ request_path }}" method="POST" enctype="multipart/form-data">
+            <label for="Content">Task Description</label>
+            <br>
+            <input type="text" name="Content" id="Content" value="{% if last_task['Content'] %}{{ last_task['Content' ]}}{% endif %}">
+            <input type="checkbox" name="Completed" id="completed" {% if last_task['Completed'] == 1 %}checked{% endif %}>
+            <br>
+            <label for="SourceFileName">Select a file:</label>
+            <br>
+            <input type="file" name="SourceFileName" id="SourceFileName" value="{{ last_task['SourceFileName'] }}">
+            <br><br>
+            <button type="submit">{% if update==True %}Update Task{% else %}Add Task{% endif %}</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages%}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    {% if tasks|length < 1 %}
+    <br>
+    {% else %}
+    <table>
+        <tr>
+            <th>Image</th>
+            <th>Task</th>
+            <th>Completed</th>
+            <th>Added</th>
+            <th>Modified</th>
+            <th>Actions</th>
+        </tr>
+        {% for task in tasks %}
+            <tr>
+                <td>
+                    {% if task['LocalFileName'] %}
+                    <img src="{{ url_for('uploads', filename_local=task['LocalFileName']) }}" width="100px" alt="{{ task['Description'] }}"><br>
+                    <p>{{ task['SourceFileName'] }}</p>
+                    {% endif %}
+                </td>                           
+                <td>{% if task['Content'] %}{{ task['Content' ]}}{% endif %}</td>
+                <td><input type="checkbox" disabled {% if task['Completed'] == 1 %}checked{% endif %}></td>
+                <td>{{ task['DatTimIns']|unix_time_ago }}</td>
+                <td>{% if task['DatTimUpd'] %}{{ task['DatTimUpd']|unix_time_ago }}{% endif %}</td>
+                <td>
+                    <a href="{{ url_for('delete_task', task_id=task['TaskId']) }}">Delete</a>
+                    <br>
+                    <a href="{{ url_for('update_task', task_id=task['TaskId']) }}">Update</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

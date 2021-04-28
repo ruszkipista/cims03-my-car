@@ -1,0 +1,26 @@
+body, html {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+ul {
+    padding: 0;
+}
+nav > ul > li {
+    display: inline-block;
+    padding: 5px;
+}
+
+.content {
+    margin: 0 auto;
+}
+
+td, th {
+    margin: 0;
+    border: 1px solid #aaa;
+    text-align: center;
+    padding: 5px;
+}
+
+.form {
+    margin-top: 20px;
+}

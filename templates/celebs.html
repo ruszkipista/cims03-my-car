@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Celebrities</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    {% if last_celeb %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
+    <div class="form">
+        <form action="{{ request_path }}" method="POST" enctype="multipart/form-data">
+            <label for="first">First Name</label>
+            <input type="text" name="first" id="first" value="{{ last_celeb['first'] }}">
+            <label for="last">Last Name</label>
+            <input type="text" name="last" id="last" value="{{ last_celeb['last'] }}">
+            <label for="dob">Date of Birth</label>
+            <input type="date" name="dob" id="dob" value="{{ last_celeb['dob'] }}">
+            <br>
+            <label for="gender">Gender</label>
+            <input type="text" name="gender" id="gender" value="{{ last_celeb['gender'] }}">
+            <label for="hair_color">Hair Color</label>
+            <input type="text" name="hair_color" id="hair_color" value="{{ last_celeb['hair_color'] }}">
+            <label for="occupation">Occupation</label>
+            <input type="text" name="occupation" id="occupation" value="{{ last_celeb['occupation'] }}"><br>
+            <label for="nationality">Nationality</label>
+            <input type="text" name="nationality" id="nationality" value="{{ last_celeb['nationality'] }}"><br>
+
+            <br>
+            <label for="SourceFileName">Select a file:</label>
+            <br>
+            <input type="file" name="SourceFileName" id="SourceFileName" value="{{ last_celeb['SourceFileName'] }}">
+            <br><br>
+            <button type="submit">{% if update==True %}Update record{% else %}Add record{% endif %}</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages%}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    {% if celebs %}
+    <table>
+        <tr>
+            <th>Image</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Date Of Birth</th>
+            <th>Gender</th>
+            <th>Hair Color</th>
+            <th>Occupation</th>
+            <th>Nationality</th>
+            <th>Actions</th>
+        </tr>
+        {% for celeb in celebs %}
+            <tr>
+                <td>
+                    {% if celeb['Image'] %}
+                    <img src="{{ url_for('image_celeb', celeb_id=celeb['_id']) }}" width="100px" alt="{{ celeb['last'] }}"><br>
+                    {% endif %}
+                    <p>{{ celeb['SourceFileName'] }}</p>
+                </td>                           
+                <td>{{ celeb['first' ]}}</td>
+                <td>{{ celeb['last' ]}}</td>
+                <td>{{ celeb['dob' ]|isodate_to_str('%d/%m/%Y') }}</td>
+                <td>{{ celeb['gender' ]}}</td>
+                <td>{{ celeb['hair_color' ]}}</td>
+                <td>{{ celeb['occupation' ]}}</td>
+                <td>{{ celeb['nationality' ]}}</td>
+                <td>
+                    <a href="{{ url_for('delete_celeb', celeb_id=celeb['_id']) }}">Delete</a>
+                    <br>
+                    <a href="{{ url_for('update_celeb', celeb_id=celeb['_id']) }}">Update</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock %}
