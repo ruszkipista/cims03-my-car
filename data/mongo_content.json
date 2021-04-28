@@ -1,77 +1,27 @@
-{ "celebrities": [
+{ "tasks": [
     {
-        "first": "Kate",
-        "last": "Bush",
-        "dob": "1958-07-30",
-        "gender": "f",
-        "hair_color": "brown",
-        "occupation": "singer",
-        "nationality": "british"
+        "content": "One",
+        "completed": "1",
+        "image": "",
+        "source_file_name": "",
+        "date_time_insert": "",
+        "date_time_update": ""
     },
     {
-        "first": "Douglas",
-        "last": "Adams",
-        "dob": "1952-03-11",
-        "gender": "m",
-        "hair_color": "grey",
-        "occupation": "writer",
-        "nationality": "british"
-    },{
-        "first": "John",
-        "last": "Lennon",
-        "dob": "1940-10-09",
-        "gender": "m",
-        "hair_color": "brown",
-        "occupation": "beatle",
-        "nationality": "british"
-    },{
-        "first": "Eve",
-        "last": "Ryan",
-        "dob": "1992-09-19",
-        "gender": "f",
-        "hair_color": "pink",
-        "occupation": "developer",
-        "nationality": "irish"
-    },{
-        "first": "Martha",
-        "last": "Fenton",
-        "dob": "1974-05-15",
-        "gender": "f",
-        "hair_color": "brown",
-        "occupation": "manager",
-        "nationality": "irish"
-    },{
-        "first": "Neil",
-        "last": "Hanslem",
-        "dob": "1983-07-14",
-        "gender": "m",
-        "hair_color": "blonde",
-        "occupation": "actor",
-        "nationality": "british"
-    },{
-        "first": "Rocky",
-        "last": "Persolm",
-        "dob": "1994-12-19",
-        "gender": "f",
-        "hair_color": "black",
-        "occupation": "activist",
-        "nationality": "american"
-    },{ 
-        "first": "Terry",
-        "last": "Pratchett",
-        "dob": "1948-04-28",
-        "gender": "m",
-        "hair_color": "not much",
-        "occupation": "writer",
-        "nationality": "british"
-    },{
-        "first": "George",
-        "last": "R.R Martin",
-        "dob": "1948-09-20",
-        "gender": "m",
-        "hair_color": "white",
-        "occupation": "writer",
-        "nationality": "american"
-    }    
+        "content": "Two",
+        "completed": "0",
+        "image": "",
+        "source_file_name": "",
+        "date_time_insert": "",
+        "date_time_update": ""
+    },
+    {
+        "content": "Three",
+        "completed": "0",
+        "image": "",
+        "source_file_name": "",
+        "date_time_insert": "",
+        "date_time_update": ""
+    }
   ]
 }

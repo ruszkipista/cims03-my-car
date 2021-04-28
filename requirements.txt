@@ -4,9 +4,6 @@ chardet==4.0.0
 click==7.1.2
 dnspython==2.1.0
 Flask==1.1.2
-google-auth==1.29.0
-google-auth-oauthlib==0.4.4
-gspread==3.7.0
 idna==2.10
 itsdangerous==1.1.0
 Jinja2==2.11.3
