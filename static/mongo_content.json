@@ -1,6 +1,11 @@
 { "categories": [
     { "name": "travel",
       "description": "Travel",
-      "icon": "luggage"}
+      "icon": "luggage"
+    },
+    { "name": "tax",
+      "description": "Tax issue",
+      "icon": "account_balance"
+    }
   ]
 }
