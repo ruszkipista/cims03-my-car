@@ -28,11 +28,8 @@ app.config["FLASK_DEBUG"]    = os.environ.get("FLASK_DEBUG",   "False").lower() 
 app.config["UPLOAD_EXTENSIONS"] = set(['png', 'jpg', 'jpeg', 'gif'])
 
 # MongoDB parameters
-app.config["MONGO_INIT"]       = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
-app.config["MONGO_CONTENT"]    = os.environ.get("MONGO_CONTENT","./data/mongo_content.json")
-app.config["MONGO_DB_NAME"]    = os.environ.get("MONGO_DB_NAME")
-app.config["MONGO_CLUSTER"]    = os.environ.get("MONGO_CLUSTER")
-app.config["MONGO_COLLECTION_CELEBS"] = 'celebrities'
+app.config["MONGO_CLUSTER"] = os.environ.get("MONGO_CLUSTER")
+app.config["MONGO_DB_NAME"] = os.environ.get("MONGO_DB_NAME")
 app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f"//{os.environ.get('MONGO_DB_USER')}" + \
                           f":{os.environ.get('MONGO_DB_PASS')}" + \
@@ -41,114 +38,101 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f"/{app.config['MONGO_DB_NAME']}" + \
                           f"?retryWrites=true&w=majority"
 
-# MongoDB routes
-#=================
-@app.route("/tasks", methods=['GET','POST'])
-def tasks():
-    if request.method == 'POST':
-        task = save_task_to_db(request, {})
-    else:
-        task = {}
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_taskS"])
-    tasks = coll.find()
-    return render_template("tasks.html", page_title="taskrities", tasks=tasks, last_task=task)
+app.config["MONGO_COLLECTION_CATEGORIES"] = {
+        "name":"categories",
+        "title":"Task Categories",
+        "fields":["name","description","icon"]
+}
+app.config["MONGO_COLLECTION_USERS"] = {
+        "name":"users",
+        "title":"Users",
+        "fields":["name","is_admin"]
+}
+app.config["MONGO_COLLECTION_IMAGES"] = {
+        "name":"images",
+        "title":"Task Images",
+        "fields":["source","image"]
+}
+app.config["MONGO_COLLECTION_TASKS"] = {
+        "name":"tasks",
+        "title":"Task Master",
+        "fields":["category_name","name","description","is_urgent","due_date","is_complete","date_time_insert","date_time_update","image_id"]
+}
+app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/mongo_content.json")
+app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
 
 
-@app.route("/tasks/update/<task_id>", methods=['GET','POST'])
-def update_task(task_id):
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_taskS"])
-    task = coll.find_one({"_id":ObjectId(task_id)})
-    if not task:
-        flash(f"Document {task_id} does not exist")
-        return redirect("/tasks")
-
-    if request.method == 'POST':
-        task = save_task_to_db(request, task)
-        return redirect("/tasks")
-
-    tasks = coll.find()
-    return render_template("tasks.html", page_title="taskrities", tasks=tasks, last_task=task)
-
-
-@app.route("/tasks/delete/<task_id>")
-def delete_task(task_id):
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_taskS"])
-    task = coll.find_one({"_id":ObjectId(task_id)})
-    if not task:
-        flash(f"Document {task_id} does not exist")
-        return redirect("/tasks")
-    coll.delete_one({"_id":task["_id"]})
-    tasks = coll.find()
-    return render_template("tasks.html", page_title="taskrities", tasks=tasks, last_task={})
-
-
-@app.route("/tasks/image/<task_id>")
-def image_task(task_id):
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKSS"])
-    task = coll.find_one({"_id":ObjectId(task_id)})
-    if task and task['Image']:
-        return send_file(BytesIO(task['Image']), mimetype='application/octet-stream')
-
-
-# App routing
+# App routes
 #==============
 @app.route("/")  # trigger point through webserver: "/"= root directory
 def index():
     return render_template("index.html", page_title="Home")
 
-
 @app.route("/tasks", methods=['GET','POST'])
 def tasks():
     if request.method == 'POST':
-        task = save_task_to_db(request, None)
+        task = save_task_to_db(request, {})
     else:
         # create an empty task
         task = {}
-    # get all tasks from DB
-    tasks = query_db(f"SELECT * FROM {app.config['SQLITE_TABLE_TODOS']} ORDER BY Completed;")
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
+    tasks = list(coll.find())
     if not tasks:
         flash("There are no tasks. Create one above!")
-    return render_template("tasks.html", page_title="Task Master", request_path=request.path, tasks=tasks, last_task=task)
+
+    return render_template("tasks.html", 
+        page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
+        request_path=request.path,
+        categories=get_categories(),
+        tasks=tasks, 
+        last_task=task)
 
 
-@app.route("/todos/update/<int:task_id>", methods=['GET','POST'])
+@app.route("/tasks/update/<task_id>", methods=['GET','POST'])
 def update_task(task_id):
-    task = query_db(f"SELECT * FROM {app.config['SQLITE_TABLE_TODOS']} WHERE rowid=?;", (task_id,), one=True)
-    if task is None:
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
+    task = coll.find_one({"_id":ObjectId(task_id)})
+    if not task:
         flash(f"Task {task_id} does not exist")
-        return redirect("/todos")
+        return redirect("/tasks")
 
     if request.method == 'POST':
         task = save_task_to_db(request, task)
-        return redirect("/todos")
+        # if task is empty, then the update was successful
+        if not task:
+            return redirect("/tasks")
 
-    tasks = query_db(f"SELECT * FROM {app.config['SQLITE_TABLE_TODOS']} ORDER BY Completed;")
-    return render_template("tasks.html", page_title="Task Master", tasks=tasks, last_task=task)
+    tasks = coll.find()
+    return render_template("tasks.html", 
+        page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
+        request_path=request.path,
+        categories=get_categories(),
+        tasks=tasks, 
+        last_task=task)
 
 
-@app.route("/todos/delete/<int:task_id>")
+@app.route("/tasks/delete/<task_id>")
 def delete_task(task_id):
-    task = query_db(f"SELECT SourceFileName, LocalFileName FROM {app.config['SQLITE_TABLE_TODOS']} WHERE TaskId=?;", (task_id,), one=True)
-    if task is None:
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
+    task = coll.find_one({"_id":ObjectId(task_id)})
+    if not task:
         flash(f"Task {task_id} does not exist")
     else:
-        result = delete_row(app.config['SQLITE_TABLE_TODOS'], task_id)
-        if type(result) == int:
-            filename_local = task['LocalFileName']
-            if filename_local:
-                try:
-                    os.remove(os.path.join(app.config["UPLOAD_FOLDER"], filename_local))
-                except FileNotFoundError as error:
-                    flash(f"Could not delete {task['SourceFileName']}: {error}")
-            flash(f"{result} Record deleted")
-        else:
-            flash(f"Error in delete operation: {result}")
-    return redirect('/todos')
+        # delete task
+        coll.delete_one({"_id":task["_id"]})
+        # delete image
+        if task["image_id"]:
+            coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+            coll.delete_one({"_id":task["image_id"]})
+    return redirect("/tasks")
 
 
-@app.route("/uploads/<filename_local>")
-def uploads(filename_local):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename_local)
+@app.route("/tasks/image/<image_id>")
+def serve_image(image_id):
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+    image = coll.find_one({"_id":ObjectId(image_id)})
+    if image:
+        return send_file(BytesIO(image['image']), mimetype='application/octet-stream')
 
 
 # MongoDB helpers
@@ -175,26 +159,40 @@ def init_mongo_db(load_content=False):
  
 
 def save_task_to_db(request, task_old):
-    columns = ('first','last','dob','gender','hair_color','occupation','nationality')
+    columns = app.config["MONGO_COLLECTION_TASKS"]['fields']
     task_new  = {column:request.form.get(column,'') for column in columns if request.form.get(column,'') != task_old.get(column,'')}
+    category_name = task_new.get('category_name', None)
+    if category_name:
+        task_new['category_id'] = next((c['_id'] for c in get_categories().values() if c['name'] == category_name), '')
+        del task_new['category_name']
+    task_new['is_complete'] = True if task_new.get('is_complete', None)=='on' else False
+    task_new['is_urgent']   = True if task_new.get('is_urgent',   None)=='on' else False
     # following instructions from https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
     data = request.files['SourceFileName']
     if data:
         filename_source = secure_filename(data.filename)
         extension = filename_source.rsplit('.', 1)[1] if '.' in filename_source else ''
         if extension in app.config["UPLOAD_EXTENSIONS"]:
-            # print(data)
             # store image
-            task_new['Image'] = Binary(data.read())
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"])
+            image_new = {}
+            image_new['source'] = filename_source
+            image_new['image'] = Binary(data.read())
+            coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+            task_new["image_id"] = coll.insert_one(image_new).inserted_id
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     try:
         if task_old:
+            # update existing task
             coll.update_one({'_id':task_old['_id']}, {"$set":task_new})
+            # delete old image
+            if task_new.get("image_id", None) and task_old.get("image_id", None):
+                coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+                coll.delete_one({"_id":task_old["image_id"]})
         else:
             coll.insert_one(task_new)
-        # create empty task - clear the input fields, because the update was OK
+        # create empty task - this clears the input fields, because the update was OK
         task_new = {}
-        flash(f"One document successfully {'updated' if task_old else 'added'}")
+        flash(f"One task successfully {'updated' if task_old else 'added'}")
     except:
         flash(f"Error in {'update' if task_old else 'insert'} operation!")
     return task_new
@@ -206,6 +204,15 @@ def _jinja2_filter_isodate_to_str(isodatestr, format):
         return date.fromisoformat(isodatestr).strftime(format)
     else:
         return str()
+
+def get_categories():
+    categories = getattr(g, '_collection_categories', None)
+    if categories is None:
+        coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+        if coll:
+            categories = g._collection_categories = { c['_id']:c for c in coll.find()}
+    return categories
+
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
 from math import floor

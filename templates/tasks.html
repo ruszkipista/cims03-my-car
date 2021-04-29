@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block head %}
-<title>To Do? or Not To Do?</title>
+<title>Task Master</title>
 {% endblock %}
 
 {% block body %}
@@ -9,16 +9,33 @@
     {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
     <div class="form">
         <form action="{{ request_path }}" method="POST" enctype="multipart/form-data">
-            <label for="Content">Task Description</label>
+            <label for="name">Task Name</label>
+            <input type="text" name="name" id="name" value="{{ last_task['name'] }}">
+            <label for="category_name">Category</label>
+            <select name="category_name" id="category_name">
+                <option value="none"></option>
+                {% for category_id in categories %}
+                <option value="{{ categories[category_id]['name'] }}" {% if category_id==last_task['category_id'] %}selected{% endif %}>
+                    {{ categories[category_id]['description'] }}
+                </option>
+                {% endfor %}
+            </select>
             <br>
-            <input type="text" name="Content" id="Content" value="{% if last_task['Content'] %}{{ last_task['Content' ]}}{% endif %}">
-            <input type="checkbox" name="Completed" id="completed" {% if last_task['Completed'] == 1 %}checked{% endif %}>
+            <label for="description">Description</label>
+            <input type="text" name="description" id="description" value="{{ last_task['description'] }}">
+            <label for="is_urgent">Urgent?</label>
+            <input type="checkbox" name="is_urgent" id="is_urgent" {% if last_task['is_urgent'] %}checked{% endif %}>
+            <br>
+            <label for="due_date">Due Date</label>
+            <input type="date" name="due_date" id="due_date" value="{{ last_task['due_date'] }}">
+            <label for="is_complete">Complete?</label>
+            <input type="checkbox" name="is_complete" id="is_complete" {% if last_task['is_complete'] %}checked{% endif %}>
             <br>
             <label for="SourceFileName">Select a file:</label>
             <br>
-            <input type="file" name="SourceFileName" id="SourceFileName" value="{{ last_task['SourceFileName'] }}">
+            <input type="file" name="SourceFileName" id="SourceFileName">
             <br><br>
-            <button type="submit">{% if update==True %}Update Task{% else %}Add Task{% endif %}</button>
+            <button type="submit">{% if update==True %}Update record{% else %}Add record{% endif %}</button>
         </form>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -31,34 +48,39 @@
         {% endwith %}
     </div>
 
-    {% if tasks|length < 1 %}
-    <br>
-    {% else %}
+    {% if tasks %}
     <table>
         <tr>
             <th>Image</th>
-            <th>Task</th>
-            <th>Completed</th>
-            <th>Added</th>
-            <th>Modified</th>
+            <th>Category</th>
+            <th>Name / Urgent?<BR>Description</th>
+            <th>Due Date</th>
+            <th>Complete?</th>
             <th>Actions</th>
         </tr>
         {% for task in tasks %}
             <tr>
                 <td>
-                    {% if task['LocalFileName'] %}
-                    <img src="{{ url_for('uploads', filename_local=task['LocalFileName']) }}" width="100px" alt="{{ task['Description'] }}"><br>
-                    <p>{{ task['SourceFileName'] }}</p>
+                    {% if task['image_id'] %}
+                    <img src="{{ url_for('serve_image', image_id=task['image_id']) }}" width="100px" alt="{{ task['name'] }}"><br>
                     {% endif %}
-                </td>                           
-                <td>{% if task['Content'] %}{{ task['Content' ]}}{% endif %}</td>
-                <td><input type="checkbox" disabled {% if task['Completed'] == 1 %}checked{% endif %}></td>
-                <td>{{ task['DatTimIns']|unix_time_ago }}</td>
-                <td>{% if task['DatTimUpd'] %}{{ task['DatTimUpd']|unix_time_ago }}{% endif %}</td>
+                </td>
                 <td>
-                    <a href="{{ url_for('delete_task', task_id=task['TaskId']) }}">Delete</a>
+                    <span class="material-icons-outlined">{{ categories[task["category_id"]]['icon'] }}</span><br>
+                    {{ categories[task["category_id"]]['name'] }}
+                </td>
+                <td>
+                    {{ task['name'] }}
+                    {% if task['is_urgent'] %}<span class="material-icons-outlined">priority_high</span>{% endif %}
                     <br>
-                    <a href="{{ url_for('update_task', task_id=task['TaskId']) }}">Update</a>
+                    {{ task['description'] }}
+                </td>
+                <td>{{ task['due_date' ]|isodate_to_str('%d/%m/%Y') }}</td>
+                <td>{% if task['is_complete'] %}<span class="material-icons-outlined">check_circle</span>{% endif %}</td>
+                <td>
+                    <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
+                    <br>
+                    <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
                 </td>
             </tr>
         {% endfor %}
