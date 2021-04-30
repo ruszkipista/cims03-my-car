@@ -56,6 +56,8 @@
             <th>Name / Urgent?<BR>Description</th>
             <th>Due Date</th>
             <th>Complete?</th>
+            <th>Added</th>
+            <th>Modified</th>
             <th>Actions</th>
         </tr>
         {% for task in tasks %}
@@ -80,6 +82,8 @@
                 </td>
                 <td>{{ task['due_date']|datetime_to_str('%d/%m/%Y') }}</td>
                 <td>{% if task['is_complete'] %}<span class="material-icons-outlined">check_circle</span>{% endif %}</td>
+                <td>{{ task['date_time_insert']|unix_time_ago }}</td>
+                <td>{% if task['date_time_update'] %}{{ task['date_time_update']|unix_time_ago }}{% endif %}</td>
                 <td>
                     <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
                     <br>

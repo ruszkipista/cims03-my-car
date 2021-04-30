@@ -121,7 +121,7 @@ def delete_task(task_id):
         # delete task
         coll.delete_one({"_id":task["_id"]})
         # delete image
-        if task["image_id"]:
+        if task.get("image_id",None) is not None:
             coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
             coll.delete_one({"_id":task["image_id"]})
     return redirect("/tasks")
@@ -164,7 +164,7 @@ def save_task_to_db(request, task_old):
     due_date = request.form.get('due_date',None)
     if due_date == '':
         del task_new['due_date']
-    elif not due_date is None:
+    elif due_date is not None:
         task_new['due_date'] = datetime.fromisoformat(due_date)
         print(task_new['due_date'],type(task_new['due_date']))
 
@@ -189,6 +189,7 @@ def save_task_to_db(request, task_old):
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     try:
         if task_old:
+            task_new['date_time_update'] = datetime.utcnow().timestamp()
             # update existing task
             coll.update_one({'_id':task_old['_id']}, {"$set":task_new})
             # delete old image
@@ -196,6 +197,7 @@ def save_task_to_db(request, task_old):
                 coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
                 coll.delete_one({"_id":task_old["image_id"]})
         else:
+            task_new['date_time_insert'] = datetime.utcnow().timestamp()
             coll.insert_one(task_new)
         # create empty task - this clears the input fields, because the update was OK
         task_new = {}
