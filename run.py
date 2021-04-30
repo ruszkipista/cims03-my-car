@@ -41,7 +41,7 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
 app.config["MONGO_COLLECTION_CATEGORIES"] = {
         "name":"categories",
         "title":"Task Categories",
-        "fields":["name","description","icon"]
+        "fields":["name","description","icon"] # get icon names from https://fonts.google.com/icons?query=icon
 }
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
@@ -159,8 +159,15 @@ def init_mongo_db(load_content=False):
  
 
 def save_task_to_db(request, task_old):
-    columns = app.config["MONGO_COLLECTION_TASKS"]['fields']
-    task_new  = {column:request.form.get(column,'') for column in columns if request.form.get(column,'') != task_old.get(column,'')}
+    fields = app.config["MONGO_COLLECTION_TASKS"]['fields']
+    task_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != task_old.get(f,None)}
+    due_date = request.form.get('due_date',None)
+    if due_date == '':
+        del task_new['due_date']
+    elif not due_date is None:
+        task_new['due_date'] = datetime.fromisoformat(due_date)
+        print(task_new['due_date'],type(task_new['due_date']))
+
     category_name = task_new.get('category_name', None)
     if category_name:
         task_new['category_id'] = next((c['_id'] for c in get_categories().values() if c['name'] == category_name), '')
@@ -185,7 +192,7 @@ def save_task_to_db(request, task_old):
             # update existing task
             coll.update_one({'_id':task_old['_id']}, {"$set":task_new})
             # delete old image
-            if task_new.get("image_id", None) and task_old.get("image_id", None):
+            if task_new.get("image_id", False) and task_old.get("image_id", False):
                 coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
                 coll.delete_one({"_id":task_old["image_id"]})
         else:
@@ -198,12 +205,13 @@ def save_task_to_db(request, task_old):
     return task_new
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
-@app.template_filter('isodate_to_str')
-def _jinja2_filter_isodate_to_str(isodatestr, format):
-    if isodatestr:
-        return date.fromisoformat(isodatestr).strftime(format)
+@app.template_filter('datetime_to_str')
+def _jinja2_filter_datetime_to_str(dt, format):
+    if dt:
+        return dt.strftime(format)
     else:
         return str()
+
 
 def get_categories():
     categories = getattr(g, '_collection_categories', None)

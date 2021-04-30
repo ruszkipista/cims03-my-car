@@ -27,7 +27,7 @@
             <input type="checkbox" name="is_urgent" id="is_urgent" {% if last_task['is_urgent'] %}checked{% endif %}>
             <br>
             <label for="due_date">Due Date</label>
-            <input type="date" name="due_date" id="due_date" value="{{ last_task['due_date'] }}">
+            <input type="date" name="due_date" id="due_date" value="{{ last_task['due_date']|datetime_to_str('%Y-%m-%d') }}">
             <label for="is_complete">Complete?</label>
             <input type="checkbox" name="is_complete" id="is_complete" {% if last_task['is_complete'] %}checked{% endif %}>
             <br>
@@ -75,7 +75,7 @@
                     <br>
                     {{ task['description'] }}
                 </td>
-                <td>{{ task['due_date' ]|isodate_to_str('%d/%m/%Y') }}</td>
+                <td>{{ task['due_date']|datetime_to_str('%d/%m/%Y') }}</td>
                 <td>{% if task['is_complete'] %}<span class="material-icons-outlined">check_circle</span>{% endif %}</td>
                 <td>
                     <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
