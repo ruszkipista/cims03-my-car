@@ -70,18 +70,18 @@
                 <td>
                     {% if task["category_id"] %}
                         {% set category = categories[task["category_id"]] %}
-                        <span class="material-icons-outlined">{{ category['icon'] }}</span><br>
-                        {{ category['name'] }}
+                        <i class="{{ category['icon'] }}"></i>
+                        {{ category['description'] }}
                     {% endif %}
                 </td>
                 <td>
                     {{ task['name'] }}
-                    {% if task['is_urgent'] %}<span class="material-icons-outlined">priority_high</span>{% endif %}
+                    {% if task['is_urgent'] %}<i class="fas fa-exclamation"></i>{% endif %}
                     <br>
                     {{ task['description'] }}
                 </td>
                 <td>{{ task['due_date']|datetime_to_str('%d/%m/%Y') }}</td>
-                <td>{% if task['is_complete'] %}<span class="material-icons-outlined">check_circle</span>{% endif %}</td>
+                <td>{% if task['is_complete'] %}<i class="far fa-check-square"></i>{% endif %}</td>
                 <td>{{ task['date_time_insert']|unix_time_ago }}</td>
                 <td>{% if task['date_time_update'] %}{{ task['date_time_update']|unix_time_ago }}{% endif %}</td>
                 <td>
