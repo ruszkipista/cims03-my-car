@@ -17,6 +17,37 @@
     {% block head %}{% endblock %}
   </head>
   <body>
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-2-strong">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{{ url_for('index') }}">Task Master</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-mdb-toggle="collapse"
+            data-mdb-target="#navbarToggler"
+            aria-controls="navbarToggler"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarToggler">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Home</a>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">New Task</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Manage Categories</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Log Out</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Log In</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Register</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
     {% include'navigation.html' %}
     
     <h1>{{ page_title }}</h1>
