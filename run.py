@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, g, request, redirect, flash, send_file
+from flask import Flask, render_template, g, request, redirect, flash, send_file, session
 from werkzeug.utils import secure_filename
 
 # Support for mongodb+srv:// URIs requires dnspython:
@@ -94,13 +94,13 @@ def update_task(task_id):
     task = coll.find_one({"_id":ObjectId(task_id)})
     if not task:
         flash(f"Task {task_id} does not exist")
-        return redirect("/tasks")
+        return redirect(url_for('tasks'))
 
     if request.method == 'POST':
         task = save_task_to_db(request, task)
         # if task is empty, then the update was successful
         if not task:
-            return redirect("/tasks")
+            return redirect(url_for('tasks'))
 
     tasks = coll.find()
     return render_template("tasks.html", 
@@ -124,7 +124,7 @@ def delete_task(task_id):
         if task.get("image_id",None) is not None:
             coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
             coll.delete_one({"_id":task["image_id"]})
-    return redirect("/tasks")
+    return redirect(url_for('tasks'))
 
 
 @app.route("/tasks/image/<image_id>")
