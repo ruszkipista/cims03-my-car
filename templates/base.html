@@ -49,6 +49,18 @@
       </nav>
     </header>
     
+    <section>
+      <!-- flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="row">
+              <h4 class="text-primary bg-info text-center mt-3 {{ category }}">{{ message }}</h4>
+            </div>
+            {% endfor %}
+        {% endif %}
+      {% endwith %}      
+    </section>
     <h1>{{ page_title }}</h1>
 
     {% block body %}{% endblock %}

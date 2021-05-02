@@ -47,7 +47,7 @@ app.config["MONGO_COLLECTION_CATEGORIES"] = {
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
         "title":"Users",
-        "fields":["name","is_admin"]
+        "fields":["username","password","is_admin"]
 }
 app.config["MONGO_COLLECTION_IMAGES"] = {
         "name":"images",
@@ -72,9 +72,26 @@ def index():
 
 @app.route("/register", methods=['GET','POST'])
 def register():
-    if request.method == 'POST':
-        pass
+    username_field = app.config["MONGO_COLLECTION_USERS"]['fields'][0]
+    password_field = app.config["MONGO_COLLECTION_USERS"]['fields'][1]
+    if request.method == "POST":
+        # check if username already exists in db
+        coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+        username = request.form.get(username_field).lower()
+        username_old = coll.find_one({username_field: username})
+        if username_old:
+            flash("Username already exists", 'text-danger')
+            return redirect(url_for("register"))
 
+        user_new = {
+            username_field: username,
+            password_field: generate_password_hash(request.form.get(password_field))
+        }
+        coll.insert_one(user_new)
+
+        # put the new user into 'session' cookie
+        session[username_field] = username
+        flash("Registration Successful!", "text-success")
     return render_template("register.html")
 
 @app.route("/tasks", methods=['GET','POST'])
