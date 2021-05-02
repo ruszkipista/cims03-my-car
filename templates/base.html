@@ -38,6 +38,7 @@
                 <a class="nav-link {% if url_for('index')==request.path %}active{% endif %}" aria-current="page" 
                    href="{{ url_for('index') }}">Home</a>
               </li>
+              {% if session['username'] %}
               <li class="nav-item">
                 <a class="nav-link {% if url_for('profile')==request.path %}active{% endif %}" 
                     href="{{ url_for('profile') }}">Profile</a>
@@ -51,9 +52,9 @@
                     href="{{ url_for('cats') }}">Manage Categories</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link {% if url_for('logout')==request.path %}active{% endif %}" 
-                    href="{{ url_for('logout') }}">Log Out</a>
+                <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
               </li>
+              {% else %}
               <li class="nav-item">
                 <a class="nav-link {% if url_for('login')==request.path %}active{% endif %}" 
                     href="{{ url_for('login') }}">Log In</a>
@@ -62,6 +63,7 @@
                 <a class="nav-link {% if url_for('register')==request.path %}active{% endif %}" 
                     href="{{ url_for('register') }}">Register</a>
               </li>
+              {% endif %}
             </ul>
           </div>
         </div>

@@ -75,10 +75,11 @@ def register():
     username_field = app.config["MONGO_COLLECTION_USERS"]['fields'][0]
     password_field = app.config["MONGO_COLLECTION_USERS"]['fields'][1]
     if request.method == "POST":
+        username = request.form.get(username_field).lower()
+        password = request.form.get(password_field)
         # check if username already exists in db
         coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
-        username = request.form.get(username_field).lower()
-        username_old = coll.find_one({username_field: username})
+        username_old = coll.find_one({username_field: username}, {username_field: 1})
         if username_old:
             flash("Username already exists", 'text-danger')
             return redirect(url_for("register"))
@@ -104,14 +105,15 @@ def login():
         username = request.form.get(username_field).lower()
         password = request.form.get(password_field)
         coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
-        password_old = coll.find_one({username_field: username})[password_field]
-        if not password_old or not check_password_hash(password_old, password):
+        user_old = coll.find_one({username_field: username}, {password_field: 1})
+        if not user_old or not check_password_hash(user_old[password_field], password):
             flash("Incorrect Username and/or Password", 'text-danger')
             return redirect(url_for("login"))
 
         # put the username into 'session' cookie
         session[username_field] = username
         flash(f"Welcome, {username}", "text-success")
+        return redirect(url_for("tasks"))
     return render_template("reglog.html", register=False)
 
 @app.route("/profile")
@@ -124,7 +126,10 @@ def cats():
 
 @app.route("/logout")
 def logout():
-    pass
+    if session.get(app.config["MONGO_COLLECTION_USERS"]['fields'][0], None):
+        session.pop(app.config["MONGO_COLLECTION_USERS"]['fields'][0])
+        flash("You have been logged out", "text-success")
+    return redirect(url_for("login"))
 
 @app.route("/tasks", methods=['GET','POST'])
 def tasks():
