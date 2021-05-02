@@ -59,10 +59,6 @@
                 <a class="nav-link {% if url_for('login')==request.path %}active{% endif %}" 
                     href="{{ url_for('login') }}">Log In</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link {% if url_for('register')==request.path %}active{% endif %}" 
-                    href="{{ url_for('register') }}">Register</a>
-              </li>
               {% endif %}
             </ul>
           </div>
