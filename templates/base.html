@@ -40,16 +40,16 @@
               </li>
               {% if session['username'] %}
               <li class="nav-item">
-                <a class="nav-link {% if url_for('profile')==request.path %}active{% endif %}" 
-                    href="{{ url_for('profile') }}">Profile</a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link {% if url_for('tasks')==request.path %}active{% endif %}" 
                     href="{{ url_for('tasks') }}">Tasks</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link {% if url_for('cats')==request.path %}active{% endif %}" 
                     href="{{ url_for('cats') }}">Manage Categories</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if url_for('profile')==request.path %}active{% endif %}" 
+                    href="{{ url_for('profile') }}">Profile</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
