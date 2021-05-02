@@ -92,7 +92,39 @@ def register():
         # put the new user into 'session' cookie
         session[username_field] = username
         flash("Registration Successful!", "text-success")
-    return render_template("register.html")
+    return render_template("reglog.html", register=True)
+
+
+@app.route("/login", methods=['GET','POST'])
+def login():
+    username_field = app.config["MONGO_COLLECTION_USERS"]['fields'][0]
+    password_field = app.config["MONGO_COLLECTION_USERS"]['fields'][1]
+    if request.method == "POST":
+        # check if username already exists in db
+        username = request.form.get(username_field).lower()
+        password = request.form.get(password_field)
+        coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+        password_old = coll.find_one({username_field: username})[password_field]
+        if not password_old or not check_password_hash(password_old, password):
+            flash("Incorrect Username and/or Password", 'text-danger')
+            return redirect(url_for("login"))
+
+        # put the username into 'session' cookie
+        session[username_field] = username
+        flash(f"Welcome, {username}", "text-success")
+    return render_template("reglog.html", register=False)
+
+@app.route("/profile")
+def profile():
+    pass
+
+@app.route("/cats")
+def cats():
+    pass
+
+@app.route("/logout")
+def logout():
+    pass
 
 @app.route("/tasks", methods=['GET','POST'])
 def tasks():
@@ -108,7 +140,6 @@ def tasks():
 
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        request_path=request.path,
         categories=get_categories(),
         tasks=tasks, 
         last_task=task)
@@ -131,7 +162,6 @@ def update_task(task_id):
     tasks = coll.find()
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        request_path=request.path,
         categories=get_categories(),
         tasks=tasks, 
         last_task=task)

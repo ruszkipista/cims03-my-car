@@ -35,14 +35,33 @@
           <div class="collapse navbar-collapse" id="navbarToggler">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Home</a>
+                <a class="nav-link {% if url_for('index')==request.path %}active{% endif %}" aria-current="page" 
+                   href="{{ url_for('index') }}">Home</a>
               </li>
-              <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('tasks') }}">Tasks</a></li>
-              <li class="nav-item"><a class="nav-link" href="#">Manage Categories</a></li>
-              <li class="nav-item"><a class="nav-link" href="#">Log Out</a></li>
-              <li class="nav-item"><a class="nav-link" href="#">Log In</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Register</a></li>
+              <li class="nav-item">
+                <a class="nav-link {% if url_for('profile')==request.path %}active{% endif %}" 
+                    href="{{ url_for('profile') }}">Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if url_for('tasks')==request.path %}active{% endif %}" 
+                    href="{{ url_for('tasks') }}">Tasks</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if url_for('cats')==request.path %}active{% endif %}" 
+                    href="{{ url_for('cats') }}">Manage Categories</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if url_for('logout')==request.path %}active{% endif %}" 
+                    href="{{ url_for('logout') }}">Log Out</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if url_for('login')==request.path %}active{% endif %}" 
+                    href="{{ url_for('login') }}">Log In</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if url_for('register')==request.path %}active{% endif %}" 
+                    href="{{ url_for('register') }}">Register</a>
+              </li>
             </ul>
           </div>
         </div>
@@ -61,7 +80,6 @@
         {% endif %}
       {% endwith %}      
     </section>
-    <h1>{{ page_title }}</h1>
 
     {% block body %}{% endblock %}
 

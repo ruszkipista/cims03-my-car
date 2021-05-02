@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 
 {% block head %}
-<title>Task Master</title>
 {% endblock %}
 
 {% block body %}
 <div class="content">
     {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
     <div class="form">
-        <form action="{{ request_path }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ request.path }}" method="POST" enctype="multipart/form-data">
             <label for="name">Task Name</label>
             <input type="text" name="name" id="name" value="{{ last_task['name'] }}">
             <label for="category_name">Category</label>

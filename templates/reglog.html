@@ -6,11 +6,11 @@
 {% block body %}
 <div class="row">
     <div class="card col offset-md-2 col-12 col-md-8">
-        <form class="card-body row g-3 align-items-center" method="POST" action="{{ url_for('register') }}">
-            <h3 class="card-title text-center">Register</h3>
+        <form class="card-body row g-3 align-items-center" method="POST" action="{{ request.path }}">
+            <h3 class="card-title text-center">{% if register %}Register{% else %}Log In{% endif %}</h3>
             <div class="row">
                 <div class="col-1 text-end mt-3">
-                    <i class="fas fa-user-plus fa-2x text-primary"></i>
+                    <i class="fas {% if register %}fa-user-plus{% else %}fa-user-cog{% endif %} fa-2x text-primary"></i>
                 </div>
                 <div class="form-outline col-10 mt-3">
                     <input type="text" id="username" name="username" class="form-control" 
@@ -35,9 +35,21 @@
                     <span id="password-rule" class="form-text">Must be 5-15 characters long.</span>
                 </div>
                 <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
-                    <span class="lead">Register</span><i class="fas fa-sign-in-alt fa-2x ms-3"></i>
+                    <span class="lead">{% if register %}Register{% else %}Log In{% endif %}</span><i class="fas fa-sign-in-alt fa-2x ms-3"></i>
                 </button>
             </div>
-    </form>
+        </form>
+        <div class="row">
+            <div class="col">
+                <p class="text-center">
+                    {% if register %}
+                    Already Registered? <a href="{{ url_for('login') }}" class="text-info">Log In</a>
+                    {% else %}
+                    New Here? <a href="{{ url_for('register') }}" class="text-info">Register Account</a>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
