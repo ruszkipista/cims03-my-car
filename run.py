@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, g, request, redirect, flash, send_file, session, url_for
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Support for mongodb+srv:// URIs requires dnspython:
 #!pip install dnspython pymongo
@@ -67,6 +68,14 @@ app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in
 @app.route("/")  # trigger point through webserver: "/"= root directory
 def index():
     return render_template("index.html", page_title="Home")
+
+
+@app.route("/register", methods=['GET','POST'])
+def register():
+    if request.method == 'POST':
+        pass
+
+    return render_template("register.html")
 
 @app.route("/tasks", methods=['GET','POST'])
 def tasks():
