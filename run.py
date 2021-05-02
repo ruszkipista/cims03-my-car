@@ -118,7 +118,7 @@ def login():
 
 @app.route("/profile")
 def profile():
-    pass
+    return render_template("profile.html", username_field=app.config["MONGO_COLLECTION_USERS"]['fields'][0])
 
 @app.route("/cats")
 def cats():

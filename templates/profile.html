@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="card col-12 offset-md-2 col-md-8 offset-lg-4 col-lg-4 mt-3">
+        <div class="card-body row g-3 align-items-center" method="POST" action="{{ request.path }}">
+            <h3 class="card-title text-center">{{ session[username_field] }}'s Profile</h3>
+        </div>
+    </div>
+</div>
+{% endblock %}
