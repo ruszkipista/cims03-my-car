@@ -39,141 +39,58 @@
     </div>
 
     {% if tasks %}
-    <table class="table">
-        <tr>
-            <th>Image</th>
-            <th>Category</th>
-            <th>Name / Urgent?<BR>Description</th>
-            <th>Due Date</th>
-            <th>Complete?</th>
-            <th>Added</th>
-            <th>Modified</th>
-            <th>Actions</th>
-        </tr>
+    <div class="accordion accordion-flush" id="accordionTasks">
         {% for task in tasks %}
-            <tr>
-                <td>
-                    {% if task['image_id'] %}
-                    <img src="{{ url_for('serve_image', image_id=task['image_id']) }}" width="100px" alt="{{ task['name'] }}"><br>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if task["category_id"] %}
-                        {% set category = categories[task["category_id"]] %}
-                        <i class="{{ category['icon'] }}"></i>
-                        {{ category['description'] }}
-                    {% endif %}
-                </td>
-                <td>
-                    {{ task['name'] }}
-                    {% if task['is_urgent'] %}<i class="fas fa-exclamation"></i>{% endif %}
-                    <br>
-                    {{ task['description'] }}
-                </td>
-                <td>{{ task['due_date']|datetime_to_str('%d/%m/%Y') }}</td>
-                <td>{% if task['is_complete'] %}<i class="far fa-check-square"></i>{% endif %}</td>
-                <td>{{ task['date_time_insert']|unix_time_ago }}</td>
-                <td>{% if task['date_time_update'] %}{{ task['date_time_update']|unix_time_ago }}{% endif %}</td>
-                <td>
-                    <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
-                    <br>
-                    <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
-                </td>
-            </tr>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading{{ loop.index }}">
+            <button type="button" class="accordion-button bg-info {% if loop.index>1 %}collapsed{% endif %}"
+              data-mdb-toggle="collapse"
+              data-mdb-target="#collapse{{ loop.index }}"
+              aria-expanded={% if loop.index==1 %}"true"{% else %}"false"{% endif %}
+              aria-controls="collapse{{ loop.index }}">
+            {% if task["category_id"] %}
+              {% set category = categories[task["category_id"]] %}
+              <i class="{{ category['icon'] }} fa-lg"
+                data-mdb-toggle="tooltip"
+                data-mdb-placement="right"
+                title="{{ category['description'] }}"></i>
+            {% endif %}
+            <strong>&nbsp;{{ task['name'] }}:&nbsp;</strong>
+            {{ task['due_date']|datetime_to_str('%d/%m/%Y') }}
+            {% if task['is_urgent'] %}&nbsp;
+               <i class="fas fa-exclamation fa-lg text-primary"   
+                    data-mdb-toggle="tooltip"
+                    data-mdb-placement="right"
+                    title="URGENT!"></i>
+            {% endif %}
+            {% if task['is_complete'] %}&nbsp;
+                <i class="far fa-check-square"
+                data-mdb-toggle="tooltip"
+                data-mdb-placement="right"
+                title="Complete!"></i>
+            {% endif %}
+            </button>
+          </h2>
+          <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.index==1 %}show{% endif %}"
+                aria-labelledby="heading{{ loop.index }}"
+                data-mdb-parent="#accordionTasks">
+            <div class="accordion-body bg-light">
+              {% if task["category_id"] %}
+                {% set category = categories[task["category_id"]] %}
+                {{ category['description'] }}
+              {% endif %}
+              <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
+              <small>Added: {{ task['date_time_insert']|unix_time_ago }}
+              {% if task['date_time_update'] %}Modified: {{ task['date_time_update']|unix_time_ago }}{% endif %}
+              </small>
+              <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
+              <br>
+              {{ task['description'] }}
+            </div>
+          </div>
+        </div>
         {% endfor %}
-    </table>
-    <div class="accordion" id="accordionTasks">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button
-              class="accordion-button"
-              type="button"
-              data-mdb-toggle="collapse"
-              data-mdb-target="#collapseOne"
-              aria-expanded="true"
-              aria-controls="collapseOne"
-            >
-              Accordion Item #1
-            </button>
-          </h2>
-          <div
-            id="collapseOne"
-            class="accordion-collapse collapse show"
-            aria-labelledby="headingOne"
-            data-mdb-parent="#accordionTasks"
-          >
-            <div class="accordion-body">
-              <strong>This is the first item's accordion body.</strong> It is hidden by default,
-              until the collapse plugin adds the appropriate classes that we use to style each
-              element. These classes control the overall appearance, as well as the showing and
-              hiding via CSS transitions. You can modify any of this with custom CSS or
-              overriding our default variables. It's also worth noting that just about any HTML
-              can go within the <strong>.accordion-body</strong>, though the transition does limit
-              overflow.
-            </div>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingTwo">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-mdb-toggle="collapse"
-              data-mdb-target="#collapseTwo"
-              aria-expanded="false"
-              aria-controls="collapseTwo"
-            >
-              Accordion Item #2
-            </button>
-          </h2>
-          <div
-            id="collapseTwo"
-            class="accordion-collapse collapse"
-            aria-labelledby="headingTwo"
-            data-mdb-parent="#accordionTasks"
-          >
-            <div class="accordion-body">
-              <strong>This is the second item's accordion body.</strong> It is hidden by
-              default, until the collapse plugin adds the appropriate classes that we use to
-              style each element. These classes control the overall appearance, as well as the
-              showing and hiding via CSS transitions. You can modify any of this with custom CSS
-              or overriding our default variables. It's also worth noting that just about any
-              HTML can go within the <strong>.accordion-body</strong>, though the transition does
-              limit overflow.
-            </div>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingThree">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-mdb-toggle="collapse"
-              data-mdb-target="#collapseThree"
-              aria-expanded="false"
-              aria-controls="collapseThree"
-            >
-              Accordion Item #3
-            </button>
-          </h2>
-          <div
-            id="collapseThree"
-            class="accordion-collapse collapse"
-            aria-labelledby="headingThree"
-            data-mdb-parent="#accordionTasks"
-          >
-            <div class="accordion-body">
-              <strong>This is the third item's accordion body.</strong> It is hidden by default,
-              until the collapse plugin adds the appropriate classes that we use to style each
-              element. These classes control the overall appearance, as well as the showing and
-              hiding via CSS transitions. You can modify any of this with custom CSS or
-              overriding our default variables. It's also worth noting that just about any HTML
-              can go within the <strong>.accordion-body</strong>, though the transition does limit
-              overflow.
-            </div>
-          </div>
-        </div>
-      </div>
+    </div>
     {% endif %}
 </div>
 {% endblock %}
