@@ -117,6 +117,8 @@ def login():
 
 @app.route("/profile")
 def profile():
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
     user = coll.find_one({'_id': ObjectId(session['user_id'])})
     return render_template("profile.html", user=user)
@@ -134,6 +136,8 @@ def logout():
 
 @app.route("/tasks", methods=['GET','POST'])
 def tasks():
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
     if request.method == 'POST':
         task = save_task_to_db(request, {})
     else:
@@ -152,8 +156,10 @@ def tasks():
 
 @app.route("/tasks/update/<task_id>", methods=['GET','POST'])
 def update_task(task_id):
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-    task = coll.find_one({"_id":ObjectId(task_id)})
+    task = coll.find_one({"_id":ObjectId(task_id), "user_id":ObjectId(session["user_id"])})
     if not task:
         flash(f"Task {task_id} does not exist")
         return redirect(url_for('tasks'))
@@ -174,8 +180,10 @@ def update_task(task_id):
 
 @app.route("/tasks/delete/<task_id>")
 def delete_task(task_id):
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-    task = coll.find_one({"_id":ObjectId(task_id)})
+    task = coll.find_one({"_id":ObjectId(task_id), "user_id":ObjectId(session["user_id"])})
     if not task:
         flash(f"Task {task_id} does not exist")
     else:
