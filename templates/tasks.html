@@ -17,7 +17,7 @@
           <div class="row">
             <!-- category_id -->
             <div class="col-7 col-lg-3">
-              <label for="category_id" class="form-label ms-3">Category</label>
+              <label for="category_id" class="form-label">Category</label>
               <select name="category_id" id="category_id">
                   <option value="none"></option>
                   {% for category_id in categories %}
@@ -29,18 +29,18 @@
             </div>
             <!-- is_urgent -->
             <div class="form-check form-switch col-5 col-lg-3">
-              <label for="is_urgent" class="form-check-label ms-3">Urgent?</label>
+              <label for="is_urgent" class="form-check-label">Urgent?</label>
               <input type="checkbox" class="form-check-input" name="is_urgent" id="is_urgent" {% if last_task['is_urgent'] %}checked{% endif %}>
             </div>
             <!-- due_date -->
             <div class="col-7 col-lg-3">
-              <label for="due_date" class="form-label ms-3">Due Date</label>
+              <label for="due_date" class="form-label">Due Date</label>
               <input type="date" name="due_date" id="due_date" value="{{ last_task['due_date']|datetime_to_str('%Y-%m-%d') }}">
             </div>            
             <!-- is_complete -->
             <div class="form-check form-switch col-5 col-lg-3">
               <input type="checkbox" class="form-check-input" name="is_complete" id="is_complete" {% if last_task['is_complete'] %}checked{% endif %}>
-              <label for="is_complete" class="form-check-label ms-3">Complete?</label>
+              <label for="is_complete" class="form-check-label">Complete?</label>
             </div>
          </div>
           <!-- description -->
@@ -60,9 +60,9 @@
     </div>
 
     {% if tasks %}
-    <div class="accordion accordion-flush" id="accordionTasks">
+    <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6" id="accordionTasks">
         {% for task in tasks %}
-        <div class="accordion-item">
+        <div class="accordion-item ">
           <h2 class="accordion-header" id="heading{{ loop.index }}">
             <button type="button" class="accordion-button bg-info {% if loop.index>1 %}collapsed{% endif %}"
               data-mdb-toggle="collapse"
