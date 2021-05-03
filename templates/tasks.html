@@ -7,15 +7,16 @@
 <div class="content">
     {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
     <div class="row">
-
         <form class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3" 
               action="{{ request.path }}" method="POST" enctype="multipart/form-data">
-            <div class="form-outline">
-              <input type="text" class="form-control" name="name" id="name" value="{{ last_task['name'] }}">
-              <label for="name" class="form-label">Task Name</label>
-            </div>
-
-            <div class="form-outline">
+          <!-- name -->
+          <div class="form-outline">
+            <input type="text" class="form-control" name="name" id="name" value="{{ last_task['name'] }}">
+            <label for="name" class="form-label">Task Name</label>
+          </div>
+          <div class="row">
+            <!-- category_id -->
+            <div class="col-7 col-lg-3">
               <label for="category_id" class="form-label ms-3">Category</label>
               <select name="category_id" id="category_id">
                   <option value="none"></option>
@@ -25,28 +26,35 @@
                   </option>
                   {% endfor %}
               </select>
-              <label for="is_urgent" class="form-label ms-3">Urgent?</label>
-              <input class="form-check-input" type="checkbox" name="is_urgent" id="is_urgent" {% if last_task['is_urgent'] %}checked{% endif %}>
-              <label for="is_complete" class="form-label ms-3">Complete?</label>
-              <input class="form-check-input" type="checkbox" name="is_complete" id="is_complete" {% if last_task['is_complete'] %}checked{% endif %}>
             </div>
-            <!-- description -->
-            <div class="form-outline">
-              <input type="text" class="form-control" name="description" id="description" value="{{ last_task['description'] }}">
-              <label for="description" class="form-label">Description</label>
+            <!-- is_urgent -->
+            <div class="form-check form-switch col-5 col-lg-3">
+              <label for="is_urgent" class="form-check-label ms-3">Urgent?</label>
+              <input type="checkbox" class="form-check-input" name="is_urgent" id="is_urgent" {% if last_task['is_urgent'] %}checked{% endif %}>
             </div>
             <!-- due_date -->
-            <div class="form-outline">
+            <div class="col-7 col-lg-3">
               <label for="due_date" class="form-label ms-3">Due Date</label>
               <input type="date" name="due_date" id="due_date" value="{{ last_task['due_date']|datetime_to_str('%Y-%m-%d') }}">
+            </div>            
+            <!-- is_complete -->
+            <div class="form-check form-switch col-5 col-lg-3">
+              <input type="checkbox" class="form-check-input" name="is_complete" id="is_complete" {% if last_task['is_complete'] %}checked{% endif %}>
+              <label for="is_complete" class="form-check-label ms-3">Complete?</label>
             </div>
-            <!-- SourceFileName -->
-            <div class="form-outline">
-              <label for="SourceFileName" class="form-label ms-3">Select a file:</label>
-              <input type="file" name="SourceFileName" id="SourceFileName">
-            </div>
-            <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
-              <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span><i class="fas fa-sign-in-alt fa-2x ms-3"></i>
+         </div>
+          <!-- description -->
+          <div class="form-outline">
+            <textarea class="form-control" name="description" id="description" minlength="5" maxlength="200">{{ last_task['description'] }}</textarea>
+            <label for="description" class="form-label">Description</label>
+          </div>
+          <!-- SourceFileName -->
+          <div class="form-outline">
+            <label for="SourceFileName" class="form-label ms-3">Select a file:</label>
+            <input type="file" name="SourceFileName" id="SourceFileName">
+          </div>
+          <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
+            <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span><i class="fas fa-sign-in-alt fa-2x ms-3"></i>
           </button>
         </form>
     </div>
