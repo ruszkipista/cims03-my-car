@@ -38,7 +38,7 @@
                 <a class="nav-link {% if url_for('index')==request.path %}active{% endif %}" aria-current="page" 
                    href="{{ url_for('index') }}">Home</a>
               </li>
-              {% if session['username'] %}
+              {% if session['user_id'] %}
               <li class="nav-item">
                 <a class="nav-link {% if url_for('tasks')==request.path %}active{% endif %}" 
                     href="{{ url_for('tasks') }}">Tasks</a>
@@ -84,6 +84,7 @@
     <!-- MDB -->
     <script type="text/javascript" src="{{ url_for('static', filename='mdb.min.js') }}"></script>
     <!-- Custom scripts -->
-    <script type="text/javascript"></script>
+    <script type="text/javascript">
+    </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 # ToDos
-A Flask and MongoDB-Atlas based CRUD demo application. Inspired by the code along mini project by the same name in the Code Institute curriculum.
+A Flask and MongoDB-Atlas based CRUD demo application, styled with Material Design Bootstrap. Inspired by the code along mini project by the same name in the Code Institute curriculum.
 You can initialize the MongoDB collection by setting environment variable `MONGO_INIT` to `True`
 
 ### How To Run the application

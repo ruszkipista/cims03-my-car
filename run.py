@@ -42,7 +42,7 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
 app.config["MONGO_COLLECTION_CATEGORIES"] = {
         "name":"categories",
         "title":"Task Categories",
-        "fields":["name","description","icon"] # get icon names from https://fonts.google.com/icons?query=icon
+        "fields":["description","icon"] # get icon names from https://fonts.google.com/icons?query=icon
 }
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
@@ -57,7 +57,8 @@ app.config["MONGO_COLLECTION_IMAGES"] = {
 app.config["MONGO_COLLECTION_TASKS"] = {
         "name":"tasks",
         "title":"Task Master",
-        "fields":["category_name","name","description","is_urgent","due_date","is_complete","date_time_insert","date_time_update","image_id"]
+        "fields":["name","description","is_urgent","due_date","is_complete","date_time_insert","date_time_update",
+                  "category_id","image_id","user_id"]
 }
 app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/mongo_content.json")
 app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
@@ -79,8 +80,8 @@ def register():
         password = request.form.get(password_field)
         # check if username already exists in db
         coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
-        username_old = coll.find_one({username_field: username}, {username_field: 1})
-        if username_old:
+        user_old = coll.find_one({username_field: username}, {'_id': 1})
+        if user_old:
             flash("Username already exists", 'text-danger')
             return redirect(url_for("register"))
 
@@ -88,10 +89,8 @@ def register():
             username_field: username,
             password_field: generate_password_hash(request.form.get(password_field))
         }
-        coll.insert_one(user_new)
-
-        # put the new user into 'session' cookie
-        session[username_field] = username
+        # put the new user_id into 'session' cookie
+        session['user_id'] = str(coll.insert_one(user_new).inserted_id)
         flash("Registration Successful!", "text-success")
     return render_template("reglog.html", register=True)
 
@@ -110,15 +109,17 @@ def login():
             flash("Incorrect Username and/or Password", 'text-danger')
             return redirect(url_for("login"))
 
-        # put the username into 'session' cookie
-        session[username_field] = username
+        # put the user_id into session cookie
+        session['user_id'] = str(user_old["_id"])
         flash(f"Welcome, {username}", "text-success")
         return redirect(url_for("tasks"))
     return render_template("reglog.html", register=False)
 
 @app.route("/profile")
 def profile():
-    return render_template("profile.html", username_field=app.config["MONGO_COLLECTION_USERS"]['fields'][0])
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+    user = coll.find_one({'_id': ObjectId(session['user_id'])})
+    return render_template("profile.html", user=user)
 
 @app.route("/cats")
 def cats():
@@ -126,8 +127,8 @@ def cats():
 
 @app.route("/logout")
 def logout():
-    if session.get(app.config["MONGO_COLLECTION_USERS"]['fields'][0], None):
-        session.pop(app.config["MONGO_COLLECTION_USERS"]['fields'][0])
+    if session.get('user_id', None):
+        session.pop('user_id')
         flash("You have been logged out", "text-success")
     return redirect(url_for("login"))
 
@@ -139,10 +140,9 @@ def tasks():
         # create an empty task
         task = {}
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-    tasks = list(coll.find())
+    tasks = list(coll.find({'user_id':ObjectId(session['user_id'])}))
     if not tasks:
         flash("There are no tasks. Create one above!")
-
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_categories(),
@@ -222,6 +222,7 @@ def init_mongo_db(load_content=False):
 def save_task_to_db(request, task_old):
     fields = app.config["MONGO_COLLECTION_TASKS"]['fields']
     task_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != task_old.get(f,None)}
+    task_new['user_id'] = ObjectId(session['user_id'])
     due_date = request.form.get('due_date',None)
     if due_date == '':
         del task_new['due_date']
@@ -229,10 +230,10 @@ def save_task_to_db(request, task_old):
         task_new['due_date'] = datetime.fromisoformat(due_date)
         print(task_new['due_date'],type(task_new['due_date']))
 
-    category_name = task_new.get('category_name', None)
-    if category_name:
-        task_new['category_id'] = next((c['_id'] for c in get_categories().values() if c['name'] == category_name), '')
-        del task_new['category_name']
+    category_id = task_new.get('category_id', None)
+    if category_id:
+        task_new['category_id'] = ObjectId(category_id)
+
     task_new['is_complete'] = True if task_new.get('is_complete', None)=='on' else False
     task_new['is_urgent']   = True if task_new.get('is_urgent',   None)=='on' else False
     # following instructions from https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
