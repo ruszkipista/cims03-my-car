@@ -47,7 +47,7 @@ app.config["MONGO_COLLECTION_CATEGORIES"] = {
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
         "title":"Users",
-        "fields":["username","password","is_admin"]
+        "fields":["username","password"] # field "is_admin" is absent for security reason
 }
 app.config["MONGO_COLLECTION_IMAGES"] = {
         "name":"images",
@@ -123,9 +123,6 @@ def profile():
     user = coll.find_one({'_id': ObjectId(session['user_id'])})
     return render_template("profile.html", user=user)
 
-@app.route("/cats")
-def cats():
-    pass
 
 @app.route("/logout")
 def logout():
@@ -133,6 +130,81 @@ def logout():
         session.pop('user_id')
         flash("You have been logged out", "text-success")
     return redirect(url_for("login"))
+
+
+@app.route("/categories", methods=['GET','POST'])
+def categories():
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
+    if request.method == 'POST':
+        category = save_category_to_db(request, {})
+    else:
+        # create an empty category
+        category = {}
+
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+    categories = list(coll.find())
+    if not categories:
+        flash("There are no categories. Create one above!")
+    return render_template("categories.html", 
+        page_title=app.config["MONGO_COLLECTION_CATEGORIES"]["title"],
+        categories=categories, 
+        last_category=category)
+
+@app.route("/categories/update/<category_id>", methods=['GET','POST'])
+def update_category(category_id):
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+    category = coll.find_one({"_id":ObjectId(category_id)})
+    if not category:
+        flash(f"Category {category_id} does not exist")
+        return redirect(url_for('categories'))
+
+    if request.method == 'POST':
+        category = save_category_to_db(request, category)
+        # if category is empty, then the update was successful
+        if not category:
+            return redirect(url_for('categories'))
+
+    categories = coll.find()
+    return render_template("categories.html", 
+        page_title=app.config["MONGO_COLLECTION_CATEGORIES"]["title"],
+        categories=categories, 
+        last_category=category)
+
+
+def save_category_to_db(request, category_old):
+    fields = app.config["MONGO_COLLECTION_CATEGORIES"]['fields']
+    category_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != category_old.get(f,None)}
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+    try:
+        if category_old:
+            # update existing category
+            coll.update_one({'_id':category_old['_id']}, {"$set":category_new})
+        else:
+            coll.insert_one(category_new)
+        # create empty category - this clears the input fields, because the update was OK
+        category_new = {}
+        flash(f"One category successfully {'updated' if category_old else 'added'}")
+    except:
+        flash(f"Error in {'update' if category_old else 'insert'} operation!")
+    return category_new
+
+
+@app.route("/categories/delete/<category_id>")
+def delete_category(category_id):
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+    category = coll.find_one({"_id":ObjectId(category_id)})
+    if not category:
+        flash(f"Category {category_id} does not exist")
+    else:
+        # delete category
+        coll.delete_one({"_id":category["_id"]})
+    return redirect(url_for('categories'))
+
 
 @app.route("/tasks", methods=['GET','POST'])
 def tasks():
@@ -275,6 +347,7 @@ def save_task_to_db(request, task_old):
     except:
         flash(f"Error in {'update' if task_old else 'insert'} operation!")
     return task_new
+
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
 @app.template_filter('datetime_to_str')

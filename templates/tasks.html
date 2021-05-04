@@ -7,9 +7,8 @@
 <div class="content">
     {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
     <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6" id="accordionOne">
-        <form class="accordion-item my-3" 
-              action="{{ request.path }}" method="POST" enctype="multipart/form-data">
-
+        <form class="accordion-item my-3" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
+          <!-- Insert/Update header -->
           <h2 class="accordion-header" id="heading0">
             <button type="button" class="accordion-button bg-warning {% if not update %}collapsed{% endif %}"
               data-mdb-toggle="collapse"
@@ -23,11 +22,11 @@
               {% endif %}
             </button>
           </h2>
+          <!-- Insert/Update collapsing part -->
           <div id="collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}"
                 aria-labelledby="heading0"
                 data-mdb-parent="#accordionOne">
             <div class="accordion-body bg-light">
-
               <!-- name -->
               <div class="form-outline">
                 <input type="text" class="form-control" name="name" id="name" value="{{ last_task['name'] }}">
