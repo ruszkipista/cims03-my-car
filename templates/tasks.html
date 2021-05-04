@@ -124,8 +124,8 @@
                 {{ category['description'] }}
               {% endif %}
               <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
-              <small>Added: {{ task['date_time_insert']|unix_time_ago }}
-              {% if task['date_time_update'] %}Modified: {{ task['date_time_update']|unix_time_ago }}{% endif %}
+              <small><strong>Added: </strong>{{ task['date_time_insert']|unix_time_ago }}
+              {% if task['date_time_update'] %}<strong>Modified: </strong>{{ task['date_time_update']|unix_time_ago }}{% endif %}
               </small>
               <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
               <br>

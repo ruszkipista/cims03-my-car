@@ -11,7 +11,9 @@
           <h2 class="text-center">Manage Categories</h2>
           <!-- description -->
           <div class="form-outline">
-            <input type="text" class="form-control" name="description" id="description" value="{{ last_category['description'] }}">
+            <input type="text" class="form-control" name="description" id="description"
+                    minlength="3" maxlength="25"
+                    value="{{ last_category['description'] }}">
             <label for="description" class="form-label">Description</label>
           </div>
           <br>

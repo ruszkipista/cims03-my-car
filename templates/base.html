@@ -43,10 +43,12 @@
                 <a class="nav-link {% if url_for('tasks')==request.path %}active{% endif %}" 
                     href="{{ url_for('tasks') }}">Tasks</a>
               </li>
+              {% if session['user_is_admin'] %}
               <li class="nav-item">
                 <a class="nav-link {% if url_for('categories')==request.path %}active{% endif %}" 
                     href="{{ url_for('categories') }}">Manage Categories</a>
               </li>
+              {% endif %}
               <li class="nav-item">
                 <a class="nav-link {% if url_for('profile')==request.path %}active{% endif %}" 
                     href="{{ url_for('profile') }}">Profile</a>

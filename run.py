@@ -47,7 +47,7 @@ app.config["MONGO_COLLECTION_CATEGORIES"] = {
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
         "title":"Users",
-        "fields":["username","password"] # field "is_admin" is absent for security reason
+        "fields":["username","password"] # field "user_is_admin" is absent for security reason, can be set in the DB only!
 }
 app.config["MONGO_COLLECTION_IMAGES"] = {
         "name":"images",
@@ -73,26 +73,29 @@ def index():
 
 @app.route("/register", methods=['GET','POST'])
 def register():
+    if request.method == "GET":
+        return render_template("reglog.html", register=True)
+        
+    # POST
     username_field = app.config["MONGO_COLLECTION_USERS"]['fields'][0]
+    username = request.form.get(username_field).lower()
     password_field = app.config["MONGO_COLLECTION_USERS"]['fields'][1]
-    if request.method == "POST":
-        username = request.form.get(username_field).lower()
-        password = request.form.get(password_field)
-        # check if username already exists in db
-        coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
-        user_old = coll.find_one({username_field: username}, {'_id': 1})
-        if user_old:
-            flash("Username already exists", 'text-danger')
-            return redirect(url_for("register"))
+    password = request.form.get(password_field)
+    # check if username already exists in db
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+    user_old = coll.find_one({username_field: username}, {'_id': 1})
+    if user_old:
+        flash("Username already exists", 'text-danger')
+        return redirect(url_for("register"))
 
-        user_new = {
-            username_field: username,
-            password_field: generate_password_hash(request.form.get(password_field))
-        }
-        # put the new user_id into 'session' cookie
-        session['user_id'] = str(coll.insert_one(user_new).inserted_id)
-        flash("Registration Successful!", "text-success")
-    return render_template("reglog.html", register=True)
+    user_new = {
+        username_field: username,
+        password_field: generate_password_hash(request.form.get(password_field))
+    }
+    # put the new user_id into 'session' cookie
+    session['user_id'] = str(coll.insert_one(user_new).inserted_id)
+    flash("Registration Successful!", "text-success")
+    return redirect(url_for("tasks"))
 
 
 @app.route("/login", methods=['GET','POST'])
@@ -104,13 +107,15 @@ def login():
         username = request.form.get(username_field).lower()
         password = request.form.get(password_field)
         coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
-        user_old = coll.find_one({username_field: username}, {password_field: 1})
+        user_old = coll.find_one({username_field: username}, {password_field: 1, 'user_is_admin':1})
         if not user_old or not check_password_hash(user_old[password_field], password):
             flash("Incorrect Username and/or Password", 'text-danger')
             return redirect(url_for("login"))
 
         # put the user_id into session cookie
         session['user_id'] = str(user_old["_id"])
+        if user_old.get('user_is_admin', None):
+            session['user_is_admin'] = user_old["user_is_admin"]
         flash(f"Welcome, {username}", "text-success")
         return redirect(url_for("tasks"))
     return render_template("reglog.html", register=False)
@@ -129,6 +134,8 @@ def logout():
     if session.get('user_id', None):
         session.pop('user_id')
         flash("You have been logged out", "text-success")
+    if session.get('user_is_admin', None):
+        session.pop('user_is_admin')
     return redirect(url_for("login"))
 
 
@@ -136,6 +143,8 @@ def logout():
 def categories():
     if not session.get('user_id', None):
         return redirect(url_for("login"))
+    if not session.get('user_is_admin', None):
+        return redirect(url_for("index"))
     if request.method == 'POST':
         category = save_category_to_db(request, {})
     else:
@@ -145,7 +154,7 @@ def categories():
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
     categories = list(coll.find())
     if not categories:
-        flash("There are no categories. Create one above!")
+        flash("There are no categories. Create one below!")
     return render_template("categories.html", 
         page_title=app.config["MONGO_COLLECTION_CATEGORIES"]["title"],
         categories=categories, 
@@ -155,6 +164,8 @@ def categories():
 def update_category(category_id):
     if not session.get('user_id', None):
         return redirect(url_for("login"))
+    if not session.get('user_is_admin', None):
+        return redirect(url_for("index"))
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
     category = coll.find_one({"_id":ObjectId(category_id)})
     if not category:
@@ -196,6 +207,8 @@ def save_category_to_db(request, category_old):
 def delete_category(category_id):
     if not session.get('user_id', None):
         return redirect(url_for("login"))
+    if not session.get('user_is_admin', None):
+        return redirect(url_for("index"))
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
     category = coll.find_one({"_id":ObjectId(category_id)})
     if not category:
@@ -218,7 +231,7 @@ def tasks():
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     tasks = list(coll.find({'user_id':ObjectId(session['user_id'])}))
     if not tasks:
-        flash("There are no tasks. Create one above!")
+        flash("There are no tasks. Create one below!")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_categories(),
