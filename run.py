@@ -239,6 +239,18 @@ def tasks():
         last_task=task)
 
 
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    query = request.form.get("query")
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
+    tasks = list(coll.find({"$text": {"$search": query}}))
+    return render_template("tasks.html", 
+        page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
+        categories=get_categories(),
+        tasks=tasks, 
+        last_task={})
+
+
 @app.route("/tasks/update/<task_id>", methods=['GET','POST'])
 def update_task(task_id):
     if not session.get('user_id', None):
@@ -309,7 +321,43 @@ def init_mongo_db(load_content=False):
             for coll_name,coll_docs in collections.items():
                 coll = get_mongo_coll(coll_name)
                 coll.delete_many({})
-                coll.insert_many(coll_docs)
+                if coll_docs:
+                    coll.insert_many(coll_docs)
+        # encrypt password in Users
+        coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+        users = list(coll.find())
+        for user in users:
+            password = generate_password_hash(user['password'])
+            coll.update_one({'_id':user['_id']}, {"$set":{'password':password}})
+        # get all categories from Categories
+        coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+        categories = list(coll.find())
+        # in Tasks
+        coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
+        tasks = coll.find()
+        for task in tasks:
+            # add timestamp
+            timestamp = datetime.utcnow().timestamp()
+            # convert category description to _id in Tasks
+            category_id = next((c['_id'] for c in categories if c['description'] == task['category_id']), '')
+            # convert category description to _id in Tasks
+            user_id = next((u['_id'] for u in users if u['username'] == task['user_id']), '')
+            # convert due_date isodatestring to datetime
+            due_date = datetime.strptime(task['due_date'], '%Y-%m-%d')
+            # update a task in Tasks
+            coll.update_one({'_id':task['_id']}, {"$set":{
+                'date_time_insert': timestamp,
+                'category_id':      category_id,
+                'user_id':          user_id,
+                'due_date':         due_date
+                }})
+
+        # create search index in Tasks
+        coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
+        coll.drop_indexes()
+        coll.create_index([("name",pymongo.TEXT), 
+                           ("description",pymongo.TEXT)], name='name_description')
+        #print(coll.index_information())
  
 
 def save_task_to_db(request, task_old):
