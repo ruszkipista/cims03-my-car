@@ -6,56 +6,80 @@
 {% block body %}
 <div class="content">
     {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
-    <div class="row">
-        <form class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3" 
+    <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6" id="accordionOne">
+        <form class="accordion-item my-3" 
               action="{{ request.path }}" method="POST" enctype="multipart/form-data">
-          <!-- name -->
-          <div class="form-outline">
-            <input type="text" class="form-control" name="name" id="name" value="{{ last_task['name'] }}">
-            <label for="name" class="form-label">Task Name</label>
-          </div>
-          <div class="row">
-            <!-- category_id -->
-            <div class="col-7 col-lg-3">
-              <label for="category_id" class="form-label">Category</label>
-              <select name="category_id" id="category_id">
-                  <option value="none"></option>
-                  {% for category_id in categories %}
-                  <option value="{{ category_id }}" {% if category_id==last_task['category_id'] %}selected{% endif %}>
-                      {{ categories[category_id]['description'] }}
-                  </option>
-                  {% endfor %}
-              </select>
+
+          <h2 class="accordion-header" id="heading0">
+            <button type="button" class="accordion-button bg-warning {% if not update %}collapsed{% endif %}"
+              data-mdb-toggle="collapse"
+              data-mdb-target="#collapse0"
+              aria-expanded={% if update %}"true"{% else %}"false"{% endif %}
+              aria-controls="collapse0">
+              {% if update %}
+                <i class="fas fa-edit fa-lg text-primary"></i>Update Task
+              {% else %}
+                <i class="fas fa-plus-square fa-lg text-primary"></i>New Task
+              {% endif %}
+            </button>
+          </h2>
+          <div id="collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}"
+                aria-labelledby="heading0"
+                data-mdb-parent="#accordionOne">
+            <div class="accordion-body bg-light">
+
+              <!-- name -->
+              <div class="form-outline">
+                <input type="text" class="form-control" name="name" id="name" value="{{ last_task['name'] }}">
+                <label for="name" class="form-label">Task Name</label>
+              </div>
+              <div class="row">
+                <!-- category_id -->
+                <div class="col-7 col-lg-3">
+                  <label for="category_id" class="form-label">Category</label>
+                  <select name="category_id" id="category_id">
+                      <option value="none"></option>
+                      {% for category_id in categories %}
+                      <option value="{{ category_id }}" {% if category_id==last_task['category_id'] %}selected{% endif %}>
+                          {{ categories[category_id]['description'] }}
+                      </option>
+                      {% endfor %}
+                  </select>
+                </div>
+                <!-- is_urgent -->
+                <div class="form-check form-switch col-5 col-lg-3">
+                  <label for="is_urgent" class="form-check-label">Urgent?</label>
+                  <input type="checkbox" class="form-check-input" name="is_urgent" id="is_urgent" {% if last_task['is_urgent'] %}checked{% endif %}>
+                </div>
+                <!-- due_date -->
+                <div class="col-7 col-lg-3">
+                  <label for="due_date" class="form-label">Due Date</label>
+                  <input type="date" name="due_date" id="due_date" value="{{ last_task['due_date']|datetime_to_str('%Y-%m-%d') }}">
+                </div>            
+                <!-- is_complete -->
+                <div class="form-check form-switch col-5 col-lg-3">
+                  <input type="checkbox" class="form-check-input" name="is_complete" id="is_complete" {% if last_task['is_complete'] %}checked{% endif %}>
+                  <label for="is_complete" class="form-check-label">Complete?</label>
+                </div>
             </div>
-            <!-- is_urgent -->
-            <div class="form-check form-switch col-5 col-lg-3">
-              <label for="is_urgent" class="form-check-label">Urgent?</label>
-              <input type="checkbox" class="form-check-input" name="is_urgent" id="is_urgent" {% if last_task['is_urgent'] %}checked{% endif %}>
+              <!-- description -->
+              <div class="form-outline">
+                <textarea class="form-control" name="description" id="description" minlength="5" maxlength="200">
+                  {{- last_task['description'] -}}
+                </textarea>
+                <label for="description" class="form-label">Description</label>
+              </div>
+              <!-- SourceFileName -->
+              <div class="form-outline">
+                <label for="SourceFileName" class="form-label ms-3">Select a file:</label>
+                <input type="file" name="SourceFileName" id="SourceFileName">
+              </div>
+              <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
+                <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
+                <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
+              </button>
             </div>
-            <!-- due_date -->
-            <div class="col-7 col-lg-3">
-              <label for="due_date" class="form-label">Due Date</label>
-              <input type="date" name="due_date" id="due_date" value="{{ last_task['due_date']|datetime_to_str('%Y-%m-%d') }}">
-            </div>            
-            <!-- is_complete -->
-            <div class="form-check form-switch col-5 col-lg-3">
-              <input type="checkbox" class="form-check-input" name="is_complete" id="is_complete" {% if last_task['is_complete'] %}checked{% endif %}>
-              <label for="is_complete" class="form-check-label">Complete?</label>
-            </div>
-         </div>
-          <!-- description -->
-          <div class="form-outline">
-            <textarea class="form-control" name="description" id="description" minlength="5" maxlength="200">{{ last_task['description'] }}</textarea>
-            <label for="description" class="form-label">Description</label>
           </div>
-          <!-- SourceFileName -->
-          <div class="form-outline">
-            <label for="SourceFileName" class="form-label ms-3">Select a file:</label>
-            <input type="file" name="SourceFileName" id="SourceFileName">
-          </div>
-          <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
-            <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span><i class="fas fa-sign-in-alt fa-2x ms-3"></i>
-          </button>
         </form>
     </div>
 
