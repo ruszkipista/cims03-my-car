@@ -203,7 +203,7 @@ def save_category_to_db(request, category_old):
     return category_new
 
 
-@app.route("/categories/delete/<category_id>")
+@app.route("/categories/delete/<category_id>", methods=['POST'])
 def delete_category(category_id):
     if not session.get('user_id', None):
         return redirect(url_for("login"))

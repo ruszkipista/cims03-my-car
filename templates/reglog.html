@@ -18,7 +18,7 @@
                     <label class="form-label" for="username">Username</label>
                 </div>
                 <div class="col-11 col-lg-12 text-end mt-0">
-                    <span id="username-rule" class="form-text">Must be 5-15 characters long.</span>
+                    <span id="username-rule" class="form-text">&nbsp;{% if register %}Must be 5-15 characters long.{% endif %}</span>
                 </div>
             </div>
 
@@ -32,7 +32,7 @@
                     <label class="form-label" for="password">Password</label>
                 </div>
                 <div class="col-11 col-lg-12 text-end mt-0">
-                    <span id="password-rule" class="form-text">Must be 5-15 characters long.</span>
+                    <span id="password-rule" class="form-text">&nbsp;{% if register %}Must be 5-15 characters long.{% endif %}</span>
                 </div>
                 <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
                     <span class="lead">{% if register %}Register{% else %}Log In{% endif %}</span><i

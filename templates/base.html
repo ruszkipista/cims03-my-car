@@ -41,7 +41,7 @@
             {% if session['user_is_admin'] %}
             <li class="nav-item">
               <a class="nav-link {% if url_for('categories')==request.path %}active{% endif %}"
-                href="{{ url_for('categories') }}">Manage Categories</a>
+                href="{{ url_for('categories') }}">Categories</a>
             </li>
             {% endif %}
             <li class="nav-item">

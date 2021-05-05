@@ -9,7 +9,7 @@
   <div class="row">
     <form class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3" action="{{ request.path }}" method="POST"
       enctype="multipart/form-data">
-      <h2 class="text-center">Manage Categories</h2>
+      <h2 class="text-center">Maintain Categories</h2>
       <!-- description -->
       <div class="form-outline">
         <input type="text" class="form-control" name="description" id="description" minlength="3" maxlength="25"
@@ -37,7 +37,7 @@
         <tr>
           <th>Description</th>
           <th>Font Awsome Icon</th>
-          <th>Actions</th>
+          <th class="text-center">Actions</th>
         </tr>
 
         {% for category in categories %}
@@ -47,9 +47,14 @@
             <i class="{{ category['icon'] }} fa-2x"></i>
             {{ category['icon'] }}
           </td>
-          <td>
-            <a href="{{ url_for('update_category', category_id=category['_id']) }}">Edit</a>
-            <a href="{{ url_for('delete_category', category_id=category['_id']) }}">Delete</a>
+          <td class="text-center">
+              <a href="{{ url_for('update_category', category_id=category['_id']) }}">
+                <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
+              </a>
+              <a href="{{ url_for('delete_category', category_id=category['_id']) }}" 
+                  data-mdb-toggle="modal" data-mdb-target="#confirm-modal">
+                <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Delete"></i>
+              </a>
           </td>
         </tr>
         {% endfor %}
@@ -58,4 +63,40 @@
   </div>
   {% endif %}
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="confirm-modal" tabindex="-1" aria-labelledby="confirm-modal-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirm-modal-label">Confirm deletion</h5>
+        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">...</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
+        <form action="this is set at runtime" method="POST" data-mdb-receiver>
+          <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        const sources = document.querySelectorAll('[data-mdb-toggle="modal"]')
+        sources.forEach(source => {
+            source.addEventListener("click", event => {
+              // extract target modal from attribute data-mdb-target
+              const targetModal = document.querySelector(source.dataset.mdbTarget);
+              if (targetModal) {
+                const targetForm = targetModal.querySelector('[data-mdb-receiver]');
+                targetForm.action = source.href;
+                targetForm.addEventListener('click', (event) => { event.target.parentNode.submit(); });
+              }
+            });
+        });
+    });
+</script>
 {% endblock %}
