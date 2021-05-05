@@ -109,7 +109,7 @@
     {% for task in tasks %}
     <div class="accordion-item ">
       <!-- Task header -->
-      <h2 class="accordion-header" id="heading{{ loop.index }}">
+      <h2 class="accordion-header" id="acc-heading{{ loop.index }}">
         <button type="button" class="accordion-button bg-info {% if loop.index>1 %}collapsed{% endif %}"
           data-mdb-toggle="collapse" data-mdb-target="#collapse{{ loop.index }}"
           aria-expanded={% if loop.index==1 %}"true"{% else %}"false"{% endif %}
@@ -132,32 +132,30 @@
       </h2>
       <!-- Task body -->
       <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.index==1 %}show{% endif %}"
-        aria-labelledby="heading{{ loop.index }}" data-mdb-parent="#accordionTasks">
-        <div class="row accordion-body bg-light">
-          <div class="col-2">
-            {% if task['image_id'] %}
-            <img src="{{ url_for('serve_image', image_id=task['image_id']) }}" width="100px" alt="{{ task['name'] }}"><br>
-            {% endif %}
-          </div>
-          <div class="col-7">
-            {% if task["category_id"] %}
-              {% set category = categories[task["category_id"]] %}
-              {{ category['description'] }}
-              <br>
-            {% endif %}
-            {{ task['description'] }}
-          </div>
-          <div class="col-2">
-            <small><strong>Added: </strong>{{ task['date_time_insert']|unix_time_ago }}
-              {% if task['date_time_update'] %}
-                <br>
-                <strong>Updated: </strong>{{ task['date_time_update']|unix_time_ago }}
+        aria-labelledby="acc-heading{{ loop.index }}" data-mdb-parent="#accordionTasks">
+        <div class="accordion-body bg-light px-0">
+          <div class="row mx-0 p-0">
+            <div class="col-2">
+              {% if task['image_id'] %}
+              <img class="img-fluid" src="{{ url_for('serve_image', image_id=task['image_id']) }}" alt="{{ task['name'] }}"><br>
               {% endif %}
-            </small>
-          </div>
-          <div class="col-1 text-end">
-            <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
-            <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
+            </div>
+            <div class="col-9">
+               <p>{{ task['description'] }}</p>
+               <p class="mb-0"><small><strong>Added: </strong>{{ task['date_time_insert']|unix_time_ago }}
+                 {% if task['date_time_update'] %}
+                   <strong>Updated: </strong>{{ task['date_time_update']|unix_time_ago }}
+                 {% endif %}
+               </small></p>
+            </div>
+            <div class="col-1 text-center">
+              <a href="{{ url_for('update_task', task_id=task['_id']) }}">
+                <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
+              </a>
+              <a href="{{ url_for('delete_task', task_id=task['_id']) }}">
+                <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Delete"></i>
+              </a>
+            </div>
           </div>
         </div>
       </div>
