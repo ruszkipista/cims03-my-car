@@ -88,12 +88,13 @@
     <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
       <div class="row">
         <div class="form-outline col-6">
-          <i class="fas fa-search fa-lg trailing"></i>
-          <input type="text" name="query" id="query" minlength="3" class="form-control form-icon-trailing">
+          <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control form-icon-trailing">
           <label for="query" class="form-label">Search Tasks</label>
         </div>
         <div class="col-6">
-          <button type="submit" class="btn bg-primary text-shadow text-light">Search</button>
+          <button type="submit" class="btn bg-primary text-shadow text-light">
+            <i class="fas fa-search"></i> Search
+          </button>
           <a href="{{ url_for('tasks') }}" class="btn bg-danger text-shadow ms-3 text-light">Reset</a>
         </div>
       </div>

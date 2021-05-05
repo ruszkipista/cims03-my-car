@@ -235,6 +235,7 @@ def tasks():
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_categories(),
+        query="",
         tasks=tasks, 
         last_task=task)
 
@@ -247,6 +248,7 @@ def search():
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_categories(),
+        query=query,
         tasks=tasks, 
         last_task={})
 
@@ -271,6 +273,7 @@ def update_task(task_id):
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_categories(),
+        query="",
         tasks=tasks, 
         last_task=task)
 
