@@ -245,6 +245,8 @@ def search():
     query = request.form.get("query")
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     tasks = list(coll.find({"$text": {"$search": query}}))
+    if not tasks:
+        flash("No results found", "text-danger")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_categories(),

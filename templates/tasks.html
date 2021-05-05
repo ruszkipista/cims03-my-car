@@ -73,6 +73,7 @@
             <label for="SourceFileName" class="form-label ms-3">Select a file:</label>
             <input type="file" name="SourceFileName" id="SourceFileName">
           </div>
+          <!-- submit button -->
           <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
             <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
             <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
@@ -88,7 +89,7 @@
     <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
       <div class="row">
         <div class="form-outline col-6">
-          <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control form-icon-trailing">
+          <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control">
           <label for="query" class="form-label">Search Tasks</label>
         </div>
         <div class="col-6">
@@ -132,19 +133,32 @@
       <!-- Task body -->
       <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.index==1 %}show{% endif %}"
         aria-labelledby="heading{{ loop.index }}" data-mdb-parent="#accordionTasks">
-        <div class="accordion-body bg-light">
-          {% if task["category_id"] %}
-          {% set category = categories[task["category_id"]] %}
-          {{ category['description'] }}
-          {% endif %}
-          <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
-          <small><strong>Added: </strong>{{ task['date_time_insert']|unix_time_ago }}
-            {% if task['date_time_update'] %}<strong>Modified:
-            </strong>{{ task['date_time_update']|unix_time_ago }}{% endif %}
-          </small>
-          <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
-          <br>
-          {{ task['description'] }}
+        <div class="row accordion-body bg-light">
+          <div class="col-2">
+            {% if task['image_id'] %}
+            <img src="{{ url_for('serve_image', image_id=task['image_id']) }}" width="100px" alt="{{ task['name'] }}"><br>
+            {% endif %}
+          </div>
+          <div class="col-7">
+            {% if task["category_id"] %}
+              {% set category = categories[task["category_id"]] %}
+              {{ category['description'] }}
+              <br>
+            {% endif %}
+            {{ task['description'] }}
+          </div>
+          <div class="col-2">
+            <small><strong>Added: </strong>{{ task['date_time_insert']|unix_time_ago }}
+              {% if task['date_time_update'] %}
+                <br>
+                <strong>Updated: </strong>{{ task['date_time_update']|unix_time_ago }}
+              {% endif %}
+            </small>
+          </div>
+          <div class="col-1 text-end">
+            <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
+            <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
+          </div>
         </div>
       </div>
     </div>
