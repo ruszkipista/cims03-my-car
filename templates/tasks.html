@@ -5,156 +5,152 @@
 
 {% block body %}
 <div class="content">
-    {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
-    <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6" id="accordionOne">
-        <form class="accordion-item my-3" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
-          <!-- Insert/Update header -->
-          <h2 class="accordion-header" id="heading0">
-            <button type="button" class="accordion-button bg-warning {% if not update %}collapsed{% endif %}"
-              data-mdb-toggle="collapse"
-              data-mdb-target="#collapse0"
-              aria-expanded={% if update %}"true"{% else %}"false"{% endif %}
-              aria-controls="collapse0">
-              {% if update %}
-                <i class="fas fa-edit fa-lg text-primary"></i>Update Task
-              {% else %}
-                <i class="fas fa-plus-square fa-lg text-primary"></i>New Task
-              {% endif %}
-            </button>
-          </h2>
-          <!-- Insert/Update collapsing part -->
-          <div id="collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}"
-                aria-labelledby="heading0"
-                data-mdb-parent="#accordionOne">
-            <div class="accordion-body bg-light">
-              <!-- name -->
-              <div class="form-outline">
-                <input type="text" class="form-control" name="name" id="name" value="{{ last_task['name'] }}">
-                <label for="name" class="form-label">Task Name</label>
-              </div>
-              <div class="row">
-                <!-- category_id -->
-                <div class="col-7 col-lg-3">
-                  <label for="category_id" class="form-label">Category</label>
-                  <select name="category_id" id="category_id">
-                      <option value=""></option>
-                      {% for category_id in categories %}
-                      <option value="{{ category_id }}" {% if category_id==last_task['category_id'] %}selected{% endif %}>
-                          {{ categories[category_id]['description'] }}
-                      </option>
-                      {% endfor %}
-                  </select>
-                </div>
-                <!-- is_urgent -->
-                <div class="form-check form-switch col-5 col-lg-3">
-                  <label for="is_urgent" class="form-check-label">Urgent?</label>
-                  <input type="checkbox" class="form-check-input" name="is_urgent" id="is_urgent" {% if last_task['is_urgent'] %}checked{% endif %}>
-                </div>
-                <!-- due_date -->
-                <div class="col-7 col-lg-3">
-                  <label for="due_date" class="form-label">Due Date</label>
-                  <input type="date" name="due_date" id="due_date" value="{{ last_task['due_date']|datetime_to_str('%Y-%m-%d') }}">
-                </div>            
-                <!-- is_complete -->
-                <div class="form-check form-switch col-5 col-lg-3">
-                  <input type="checkbox" class="form-check-input" name="is_complete" id="is_complete" {% if last_task['is_complete'] %}checked{% endif %}>
-                  <label for="is_complete" class="form-check-label">Complete?</label>
-                </div>
+  {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
+  <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6" id="accordionOne">
+    <form class="accordion-item my-3" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
+      <!-- Insert/Update header -->
+      <h2 class="accordion-header" id="heading0">
+        <button type="button" class="accordion-button bg-warning {% if not update %}collapsed{% endif %}"
+          data-mdb-toggle="collapse" data-mdb-target="#collapse0"
+          aria-expanded={% if update %}"true"{% else %}"false"{% endif %} aria-controls="collapse0">
+          {% if update %}
+          <i class="fas fa-edit fa-lg text-primary"></i>Update Task
+          {% else %}
+          <i class="fas fa-plus-square fa-lg text-primary"></i>New Task
+          {% endif %}
+        </button>
+      </h2>
+      <!-- Insert/Update collapsing part -->
+      <div id="collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}" aria-labelledby="heading0"
+        data-mdb-parent="#accordionOne">
+        <div class="accordion-body bg-light">
+          <!-- name -->
+          <div class="form-outline">
+            <input type="text" class="form-control" name="name" id="name" value="{{ last_task['name'] }}">
+            <label for="name" class="form-label">Task Name</label>
+          </div>
+          <div class="row">
+            <!-- category_id -->
+            <div class="col-7 col-lg-3">
+              <label for="category_id" class="form-label">Category</label>
+              <select name="category_id" id="category_id">
+                <option value=""></option>
+                {% for category_id in categories %}
+                <option value="{{ category_id }}" {% if category_id==last_task['category_id'] %}selected{% endif %}>
+                  {{ categories[category_id]['description'] }}
+                </option>
+                {% endfor %}
+              </select>
             </div>
-              <!-- description -->
-              <div class="form-outline">
-                <textarea class="form-control" name="description" id="description" minlength="5" maxlength="200">
+            <!-- is_urgent -->
+            <div class="form-check form-switch col-5 col-lg-3">
+              <label for="is_urgent" class="form-check-label">Urgent?</label>
+              <input type="checkbox" class="form-check-input" name="is_urgent" id="is_urgent"
+                {% if last_task['is_urgent'] %}checked{% endif %}>
+            </div>
+            <!-- due_date -->
+            <div class="col-7 col-lg-3">
+              <label for="due_date" class="form-label">Due Date</label>
+              <input type="date" name="due_date" id="due_date"
+                value="{{ last_task['due_date']|datetime_to_str('%Y-%m-%d') }}">
+            </div>
+            <!-- is_complete -->
+            <div class="form-check form-switch col-5 col-lg-3">
+              <input type="checkbox" class="form-check-input" name="is_complete" id="is_complete"
+                {% if last_task['is_complete'] %}checked{% endif %}>
+              <label for="is_complete" class="form-check-label">Complete?</label>
+            </div>
+          </div>
+          <!-- description -->
+          <div class="form-outline">
+            <textarea class="form-control" name="description" id="description" minlength="5" maxlength="200">
                   {{- last_task['description'] -}}
                 </textarea>
-                <label for="description" class="form-label">Description</label>
-              </div>
-              <!-- SourceFileName -->
-              <div class="form-outline">
-                <label for="SourceFileName" class="form-label ms-3">Select a file:</label>
-                <input type="file" name="SourceFileName" id="SourceFileName">
-              </div>
-              <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
-                <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
-                <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
-              </button>
-            </div>
+            <label for="description" class="form-label">Description</label>
           </div>
-        </form>
-    </div>
-
-    {% if not update %}
-    <div class="row my-3 ps-2">
-      <form action="{{ url_for('search') }}" method="POST" class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
-        <div class="row">
-        <div class="form-outline col-6">
-            <i class="fas fa-search fa-lg trailing"></i>
-            <input type="text" name="query" id="query" minlength="3" class="form-control form-icon-trailing">
-            <label for="query" class="form-label">Search Tasks</label>
-        </div>
-        <div class="form-outline col-6">
-        <button type="submit" class="btn bg-primary text-shadow">
-            <i class="fas fa-search"></i> Search
-        </button>
-        <a href="{{ url_for('tasks') }}" class="btn bg-danger text-shadow">Reset</a>
+          <!-- SourceFileName -->
+          <div class="form-outline">
+            <label for="SourceFileName" class="form-label ms-3">Select a file:</label>
+            <input type="file" name="SourceFileName" id="SourceFileName">
+          </div>
+          <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
+            <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
+            <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
+          </button>
         </div>
       </div>
-      </form>
-    </div>
-    {% endif %}
+    </form>
+  </div>
 
-    {% if tasks %}
-    <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6" id="accordionTasks">
-        {% for task in tasks %}
-        <div class="accordion-item ">
-          <h2 class="accordion-header" id="heading{{ loop.index }}">
-            <button type="button" class="accordion-button bg-info {% if loop.index>1 %}collapsed{% endif %}"
-              data-mdb-toggle="collapse"
-              data-mdb-target="#collapse{{ loop.index }}"
-              aria-expanded={% if loop.index==1 %}"true"{% else %}"false"{% endif %}
-              aria-controls="collapse{{ loop.index }}">
-            {% if task["category_id"] %}
-              {% set category = categories[task["category_id"]] %}
-              <i class="{{ category['icon'] }} fa-lg"
-                data-mdb-toggle="tooltip"
-                data-mdb-placement="right"
-                title="{{ category['description'] }}"></i>
-            {% endif %}
-            <strong>&nbsp;{{ task['name'] }}:&nbsp;</strong>
-            {{ task['due_date']|datetime_to_str('%d/%m/%Y') }}
-            {% if task['is_urgent'] %}&nbsp;
-               <i class="fas fa-exclamation fa-lg text-primary"   
-                    data-mdb-toggle="tooltip"
-                    data-mdb-placement="right"
-                    title="URGENT!"></i>
-            {% endif %}
-            {% if task['is_complete'] %}&nbsp;
-                <i class="far fa-check-square"
-                data-mdb-toggle="tooltip"
-                data-mdb-placement="right"
-                title="Complete!"></i>
-            {% endif %}
-            </button>
-          </h2>
-          <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.index==1 %}show{% endif %}"
-                aria-labelledby="heading{{ loop.index }}"
-                data-mdb-parent="#accordionTasks">
-            <div class="accordion-body bg-light">
-              {% if task["category_id"] %}
-                {% set category = categories[task["category_id"]] %}
-                {{ category['description'] }}
-              {% endif %}
-              <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
-              <small><strong>Added: </strong>{{ task['date_time_insert']|unix_time_ago }}
-              {% if task['date_time_update'] %}<strong>Modified: </strong>{{ task['date_time_update']|unix_time_ago }}{% endif %}
-              </small>
-              <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
-              <br>
-              {{ task['description'] }}
-            </div>
-          </div>
+  <!-- search -->
+  {% if not update %}
+  <div class="row my-3 ps-2">
+    <form action="{{ url_for('search') }}" method="POST" class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
+      <div class="row">
+        <div class="form-outline col-6">
+          <i class="fas fa-search fa-lg trailing"></i>
+          <input type="text" name="query" id="query" minlength="3" class="form-control form-icon-trailing">
+          <label for="query" class="form-label">Search Tasks</label>
         </div>
-        {% endfor %}
+        <div class="form-outline col-6">
+          <button type="submit" class="btn bg-primary text-shadow">
+            <i class="fas fa-search"></i> Search
+          </button>
+          <a href="{{ url_for('tasks') }}" class="btn bg-danger text-shadow">Reset</a>
+        </div>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Tasks -->
+  {% if tasks %}
+  <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6" id="accordionTasks">
+    {% for task in tasks %}
+    <div class="accordion-item ">
+      <!-- Task header -->
+      <h2 class="accordion-header" id="heading{{ loop.index }}">
+        <button type="button" class="accordion-button bg-info {% if loop.index>1 %}collapsed{% endif %}"
+          data-mdb-toggle="collapse" data-mdb-target="#collapse{{ loop.index }}"
+          aria-expanded={% if loop.index==1 %}"true"{% else %}"false"{% endif %}
+          aria-controls="collapse{{ loop.index }}">
+          {% if task["category_id"] %}
+          {% set category = categories[task["category_id"]] %}
+          <i class="{{ category['icon'] }} fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right"
+            title="{{ category['description'] }}"></i>
+          {% endif %}
+          <strong>&nbsp;{{ task['name'] }}:&nbsp;</strong>
+          {{ task['due_date']|datetime_to_str('%d/%m/%Y') }}
+          {% if task['is_urgent'] %}&nbsp;
+          <i class="fas fa-exclamation fa-lg text-primary" data-mdb-toggle="tooltip" data-mdb-placement="right"
+            title="URGENT!"></i>
+          {% endif %}
+          {% if task['is_complete'] %}&nbsp;
+          <i class="far fa-check-square" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Complete!"></i>
+          {% endif %}
+        </button>
+      </h2>
+      <!-- Task body -->
+      <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.index==1 %}show{% endif %}"
+        aria-labelledby="heading{{ loop.index }}" data-mdb-parent="#accordionTasks">
+        <div class="accordion-body bg-light">
+          {% if task["category_id"] %}
+          {% set category = categories[task["category_id"]] %}
+          {{ category['description'] }}
+          {% endif %}
+          <a href="{{ url_for('update_task', task_id=task['_id']) }}">Update</a>
+          <small><strong>Added: </strong>{{ task['date_time_insert']|unix_time_ago }}
+            {% if task['date_time_update'] %}<strong>Modified:
+            </strong>{{ task['date_time_update']|unix_time_ago }}{% endif %}
+          </small>
+          <a href="{{ url_for('delete_task', task_id=task['_id']) }}">Delete</a>
+          <br>
+          {{ task['description'] }}
+        </div>
+      </div>
     </div>
-    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

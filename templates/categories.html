@@ -5,45 +5,45 @@
 
 {% block body %}
 <div class="content">
-    {% if last_category %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
-    <div class="row">
-        <form class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
-          <h2 class="text-center">Manage Categories</h2>
-          <!-- description -->
-          <div class="form-outline">
-            <input type="text" class="form-control" name="description" id="description"
-                    minlength="3" maxlength="25"
-                    value="{{ last_category['description'] }}">
-            <label for="description" class="form-label">Description</label>
-          </div>
-          <br>
-          <!-- icon -->
-          <div class="form-outline">
-            <input type="text" class="form-control" name="icon" id="icon" value="{{ last_category['icon'] }}">
-            <label for="icon" class="form-label">Font Awsome Icon</label>
-          </div>
-          <!-- submit button -->
-          <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
-            <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
-            <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
-          </button>
-        </form>
-    </div>
+  {% if last_category %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
+  <div class="row">
+    <form class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3" action="{{ request.path }}" method="POST"
+      enctype="multipart/form-data">
+      <h2 class="text-center">Manage Categories</h2>
+      <!-- description -->
+      <div class="form-outline">
+        <input type="text" class="form-control" name="description" id="description" minlength="3" maxlength="25"
+          value="{{ last_category['description'] }}">
+        <label for="description" class="form-label">Description</label>
+      </div>
+      <br>
+      <!-- icon -->
+      <div class="form-outline">
+        <input type="text" class="form-control" name="icon" id="icon" value="{{ last_category['icon'] }}">
+        <label for="icon" class="form-label">Font Awsome Icon</label>
+      </div>
+      <!-- submit button -->
+      <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
+        <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
+        <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
+      </button>
+    </form>
+  </div>
 
-    {% if categories %}
-    <div class="row">
-      <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
+  {% if categories %}
+  <div class="row">
+    <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
       <table class="table">
         <tr>
-            <th>Description</th>
-            <th>Font Awsome Icon</th>
-            <th>Actions</th>
+          <th>Description</th>
+          <th>Font Awsome Icon</th>
+          <th>Actions</th>
         </tr>
 
         {% for category in categories %}
         <tr>
-           <td>{{ category['description'] }}</td>
-           <td>
+          <td>{{ category['description'] }}</td>
+          <td>
             <i class="{{ category['icon'] }} fa-2x"></i>
             {{ category['icon'] }}
           </td>
@@ -53,9 +53,9 @@
           </td>
         </tr>
         {% endfor %}
-        </table>
-      </div>
+      </table>
     </div>
-    {% endif %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

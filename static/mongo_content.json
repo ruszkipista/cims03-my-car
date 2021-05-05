@@ -1,24 +1,36 @@
-{ "users": [
-    {"username": "admin", "user_is_admin":true, "password":"admin"}
-  ],
+{
+  "users": [{
+    "username": "admin",
+    "user_is_admin": true,
+    "password": "admin"
+  }],
 
   "images": [],
-  
-  "categories": [
-    { "description": "Travel",
-      "icon": "fas fa-suitcase-rolling"},
-    { "description": "Tax issue",
-      "icon": "fas fa-university"},
-    { "description": "Shopping",
-      "icon": "fas fa-shopping-cart"},
-    { "description": "Home",
-      "icon": "fas fa-home"},
-    { "description": "Work",
-      "icon": "fas fa-briefcase"}
+
+  "categories": [{
+      "description": "Travel",
+      "icon": "fas fa-suitcase-rolling"
+    },
+    {
+      "description": "Tax issue",
+      "icon": "fas fa-university"
+    },
+    {
+      "description": "Shopping",
+      "icon": "fas fa-shopping-cart"
+    },
+    {
+      "description": "Home",
+      "icon": "fas fa-home"
+    },
+    {
+      "description": "Work",
+      "icon": "fas fa-briefcase"
+    }
   ],
 
-  "tasks": [
-    { "name": "Visit parents",
+  "tasks": [{
+      "name": "Visit parents",
       "description": "buy tickets and pack bags",
       "category_id": "Travel",
       "is_complete": false,
@@ -26,7 +38,8 @@
       "due_date": "2021-04-30",
       "user_id": "admin"
     },
-    { "name": "apply for jobs",
+    {
+      "name": "apply for jobs",
       "description": "send 100 job application",
       "category_id": "Work",
       "is_complete": false,
@@ -34,7 +47,8 @@
       "due_date": "2021-09-30",
       "user_id": "admin"
     },
-    { "name": "buy ice cream",
+    {
+      "name": "buy ice cream",
       "description": "chocolate, vanilla",
       "category_id": "Shopping",
       "is_complete": false,
