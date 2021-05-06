@@ -6,7 +6,7 @@
 {% block body %}
 <div class="content">
   {% if last_category %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
-  <div class="row">
+  <div class="row m-0 p-0">
     <form class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3" action="{{ request.path }}" method="POST"
       enctype="multipart/form-data">
       <h2 class="text-center">Maintain Categories</h2>
@@ -31,7 +31,7 @@
   </div>
 
   {% if categories %}
-  <div class="row">
+  <div class="row m-0 p-0">
     <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
       <table class="table">
         <tr>
@@ -51,8 +51,7 @@
               <a href="{{ url_for('update_category', category_id=category['_id']) }}">
                 <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
               </a>
-              <a href="{{ url_for('delete_category', category_id=category['_id']) }}" 
-                  data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
+              <a href="{{ url_for('delete_category', category_id=category['_id']) }}" data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
                 <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Delete"></i>
               </a>
           </td>
@@ -80,29 +79,4 @@
     </div>
   </div>
 </div>
-
-<script type="text/javascript">
-    // inspired by https://stackoverflow.com/questions/59566549/how-to-do-delete-confirmation-for-a-table-data-with-bootstrap-modal-in-django
-    document.addEventListener('DOMContentLoaded', () => {
-        const sources = document.querySelectorAll('[data-mdb-toggle="modal"]')
-        sources.forEach(source => {
-            source.addEventListener("click", event => {
-              // extract target modal from attribute data-mdb-target
-              const targetModal = document.querySelector(source.dataset.mdbTarget);
-              if (targetModal) {
-                // get the Button element with formMethod attribute
-                const targetButton = targetModal.querySelector('button[formMethod]');
-                targetButton.formAction = source.href;
-                targetButton.addEventListener('click', (event) => { 
-                  fetch(event.target.formAction, {method:event.target.formMethod})
-                  .then(result=>{
-                    // call the redirected URL
-                    document.location.href=result.url;
-                  }); 
-                });
-              }
-            });
-        });
-    });
-</script>
 {% endblock %}

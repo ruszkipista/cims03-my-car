@@ -4,7 +4,6 @@
 {% endblock %}
 
 {% block body %}
-<div class="content">
   {% if last_task %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
   <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6" id="accordionOne">
     <form class="accordion-item my-3" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
@@ -85,21 +84,21 @@
 
   <!-- search -->
   {% if not update %}
-  <div class="row my-3 ms-3">
-    <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
-      <div class="row">
-        <div class="form-outline col-6">
-          <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control">
-          <label for="query" class="form-label">Search Tasks</label>
+  <div class="row m-0 p-0 my-3">
+      <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
+        <div class="row ps-3">
+          <div class="form-outline col-6">
+            <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control">
+            <label for="query" class="form-label">Search Tasks</label>
+          </div>
+          <div class="col-6">
+            <button type="submit" class="btn bg-primary text-shadow text-light">
+              <i class="fas fa-search"></i> Search
+            </button>
+            <a href="{{ url_for('tasks') }}" class="btn bg-danger text-shadow ms-3 text-light">Reset</a>
+          </div>
         </div>
-        <div class="col-6">
-          <button type="submit" class="btn bg-primary text-shadow text-light">
-            <i class="fas fa-search"></i> Search
-          </button>
-          <a href="{{ url_for('tasks') }}" class="btn bg-danger text-shadow ms-3 text-light">Reset</a>
-        </div>
-      </div>
-    </form>
+      </form>
   </div>
   {% endif %}
 
@@ -114,7 +113,7 @@
           data-mdb-toggle="collapse" data-mdb-target="#collapse{{ loop.index }}"
           aria-expanded={% if loop.index==1 %}"true"{% else %}"false"{% endif %}
           aria-controls="collapse{{ loop.index }}">
-          {% if task["category_id"] %}
+          {% if task["category_id"] and categories[task["category_id"]] %}
           {% set category = categories[task["category_id"]] %}
           <i class="{{ category['icon'] }} fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right"
             title="{{ category['description'] }}"></i>
@@ -152,7 +151,8 @@
               <a href="{{ url_for('update_task', task_id=task['_id']) }}">
                 <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
               </a>
-              <a href="{{ url_for('delete_task', task_id=task['_id']) }}">
+              <br>
+              <a href="{{ url_for('delete_task', task_id=task['_id']) }}" data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
                 <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Delete"></i>
               </a>
             </div>
@@ -162,6 +162,22 @@
     </div>
     {% endfor %}
   </div>
-  {% endif %}
+{% endif %}
+
+<!-- Modal -->
+<div class="modal fade" id="modal-confirm" tabindex="-1" aria-labelledby="modal-confirm-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-confirm-title">Confirm deletion</h5>
+        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">This operation will remove the selected task from database. Please confirm.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" data-mdb-dismiss="modal" formMethod='POST'>Delete</button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
