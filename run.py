@@ -216,6 +216,7 @@ def delete_category(category_id):
     else:
         # delete category
         coll.delete_one({"_id":category["_id"]})
+        flash(f"Deleted category {category['description']}")
     return redirect(url_for('categories'))
 
 

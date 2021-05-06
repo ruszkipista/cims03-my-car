@@ -52,7 +52,7 @@
                 <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
               </a>
               <a href="{{ url_for('delete_category', category_id=category['_id']) }}" 
-                  data-mdb-toggle="modal" data-mdb-target="#confirm-modal">
+                  data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
                 <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Delete"></i>
               </a>
           </td>
@@ -65,25 +65,24 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="confirm-modal" tabindex="-1" aria-labelledby="confirm-modal-label" aria-hidden="true">
+<div class="modal fade" id="modal-confirm" tabindex="-1" aria-labelledby="modal-confirm-title" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirm-modal-label">Confirm deletion</h5>
+        <h5 class="modal-title" id="modal-confirm-title">Confirm deletion</h5>
         <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">...</div>
+      <div class="modal-body">This operation will remove the selected category from database without checking if any tasks still having it.</div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
-        <form action="this is set at runtime" method="POST" data-mdb-receiver>
-          <button type="button" class="btn btn-danger" data-mdb-dismiss="modal">Delete</button>
-        </form>
+        <button type="button" class="btn btn-danger" data-mdb-dismiss="modal" formMethod='POST'>Delete</button>
       </div>
     </div>
   </div>
 </div>
 
 <script type="text/javascript">
+    // inspired by https://stackoverflow.com/questions/59566549/how-to-do-delete-confirmation-for-a-table-data-with-bootstrap-modal-in-django
     document.addEventListener('DOMContentLoaded', () => {
         const sources = document.querySelectorAll('[data-mdb-toggle="modal"]')
         sources.forEach(source => {
@@ -91,9 +90,16 @@
               // extract target modal from attribute data-mdb-target
               const targetModal = document.querySelector(source.dataset.mdbTarget);
               if (targetModal) {
-                const targetForm = targetModal.querySelector('[data-mdb-receiver]');
-                targetForm.action = source.href;
-                targetForm.addEventListener('click', (event) => { event.target.parentNode.submit(); });
+                // get the Button element with formMethod attribute
+                const targetButton = targetModal.querySelector('button[formMethod]');
+                targetButton.formAction = source.href;
+                targetButton.addEventListener('click', (event) => { 
+                  fetch(event.target.formAction, {method:event.target.formMethod})
+                  .then(result=>{
+                    // call the redirected URL
+                    document.location.href=result.url;
+                  }); 
+                });
               }
             });
         });
