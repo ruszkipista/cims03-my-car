@@ -85,7 +85,7 @@ def register():
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
     user_old = coll.find_one({username_field: username}, {'_id': 1})
     if user_old:
-        flash("Username already exists", 'text-danger')
+        flash("Username already exists", 'danger')
         return redirect(url_for("register"))
 
     user_new = {
@@ -94,46 +94,50 @@ def register():
     }
     # put the new user_id into 'session' cookie
     session['user_id'] = str(coll.insert_one(user_new).inserted_id)
-    flash("Registration Successful!", "text-success")
+    flash("Registration Successful!", "success")
     return redirect(url_for("tasks"))
 
 
 @app.route("/login", methods=['GET','POST'])
 def login():
+    if request.method == "GET":
+        return render_template("reglog.html", register=False)
+
+    # POST    
     username_field = app.config["MONGO_COLLECTION_USERS"]['fields'][0]
     password_field = app.config["MONGO_COLLECTION_USERS"]['fields'][1]
-    if request.method == "POST":
-        # check if username already exists in db
-        username = request.form.get(username_field).lower()
-        password = request.form.get(password_field)
-        coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
-        user_old = coll.find_one({username_field: username}, {password_field: 1, 'user_is_admin':1})
-        if not user_old or not check_password_hash(user_old[password_field], password):
-            flash("Incorrect Username and/or Password", 'text-danger')
-            return redirect(url_for("login"))
+    # check if username already exists in db
+    username = request.form.get(username_field).lower()
+    password = request.form.get(password_field)
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+    user_old = coll.find_one({username_field: username}, {password_field: 1, 'user_is_admin':1})
+    if not user_old or not check_password_hash(user_old[password_field], password):
+        flash("Incorrect Username and/or Password", 'danger')
+        return redirect(url_for("login"))
 
-        # put the user_id into session cookie
-        session['user_id'] = str(user_old["_id"])
-        if user_old.get('user_is_admin', None):
-            session['user_is_admin'] = user_old["user_is_admin"]
-        flash(f"Welcome, {username}", "text-success")
-        return redirect(url_for("tasks"))
-    return render_template("reglog.html", register=False)
+    # put the user_id into session cookie
+    session['user_id'] = str(user_old["_id"])
+    if user_old.get('user_is_admin', None):
+        session['user_is_admin'] = user_old["user_is_admin"]
+    flash(f"Welcome, {username}", "success")
+    return redirect(url_for("tasks"))
+
 
 @app.route("/profile")
 def profile():
-    if not session.get('user_id', None):
-        return redirect(url_for("login"))
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
-    user = coll.find_one({'_id': ObjectId(session['user_id'])})
-    return render_template("profile.html", user=user)
+    if request.method == "GET":
+        if not session.get('user_id', None):
+            return redirect(url_for("login"))
+        coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+        user = coll.find_one({'_id': ObjectId(session['user_id'])})
+        return render_template("profile.html", user=user)
 
 
 @app.route("/logout")
 def logout():
     if session.get('user_id', None):
         session.pop('user_id')
-        flash("You have been logged out", "text-success")
+        flash("You have been logged out", "info")
     if session.get('user_is_admin', None):
         session.pop('user_is_admin')
     return redirect(url_for("login"))
@@ -145,40 +149,17 @@ def categories():
         return redirect(url_for("login"))
     if not session.get('user_is_admin', None):
         return redirect(url_for("index"))
+    # create an empty category
+    category = {}
     if request.method == 'POST':
-        category = save_category_to_db(request, {})
-    else:
-        # create an empty category
-        category = {}
+        category = save_category_to_db(request, category)
+        if not category:
+            return redirect(url_for("categories"))
 
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
     categories = list(coll.find())
     if not categories:
-        flash("There are no categories. Create one below!")
-    return render_template("categories.html", 
-        page_title=app.config["MONGO_COLLECTION_CATEGORIES"]["title"],
-        categories=categories, 
-        last_category=category)
-
-@app.route("/categories/update/<category_id>", methods=['GET','POST'])
-def update_category(category_id):
-    if not session.get('user_id', None):
-        return redirect(url_for("login"))
-    if not session.get('user_is_admin', None):
-        return redirect(url_for("index"))
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
-    category = coll.find_one({"_id":ObjectId(category_id)})
-    if not category:
-        flash(f"Category {category_id} does not exist")
-        return redirect(url_for('categories'))
-
-    if request.method == 'POST':
-        category = save_category_to_db(request, category)
-        # if category is empty, then the update was successful
-        if not category:
-            return redirect(url_for('categories'))
-
-    categories = coll.find()
+        flash("There are no categories. Create one below!", 'info')
     return render_template("categories.html", 
         page_title=app.config["MONGO_COLLECTION_CATEGORIES"]["title"],
         categories=categories, 
@@ -197,10 +178,35 @@ def save_category_to_db(request, category_old):
             coll.insert_one(category_new)
         # create empty category - this clears the input fields, because the update was OK
         category_new = {}
-        flash(f"One category successfully {'updated' if category_old else 'added'}")
+        flash(f"One category successfully {'updated' if category_old else 'added'}", "success")
     except:
-        flash(f"Error in {'update' if category_old else 'insert'} operation!")
+        flash(f"Error in {'update' if category_old else 'insert'} operation!", "danger")
     return category_new
+
+
+@app.route("/categories/update/<category_id>", methods=['GET','POST'])
+def update_category(category_id):
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
+    if not session.get('user_is_admin', None):
+        return redirect(url_for("index"))
+    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+    category = coll.find_one({"_id":ObjectId(category_id)})
+    if not category:
+        flash(f"Category {category_id} does not exist", "danger")
+        return redirect(url_for('categories'))
+
+    if request.method == 'POST':
+        category = save_category_to_db(request, category)
+        # if category is empty, then the update was successful
+        if not category:
+            return redirect(url_for('categories'))
+
+    categories = coll.find()
+    return render_template("categories.html", 
+        page_title=app.config["MONGO_COLLECTION_CATEGORIES"]["title"],
+        categories=categories, 
+        last_category=category)
 
 
 @app.route("/categories/delete/<category_id>", methods=['POST'])
@@ -212,11 +218,11 @@ def delete_category(category_id):
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
     category = coll.find_one({"_id":ObjectId(category_id)})
     if not category:
-        flash(f"Category {category_id} does not exist")
+        flash(f"Category {category_id} does not exist", "danger")
     else:
         # delete category
         coll.delete_one({"_id":category["_id"]})
-        flash(f"Deleted category {category['description']}")
+        flash(f"Deleted category {category['description']}", "info")
     return redirect(url_for('categories'))
 
 
@@ -224,15 +230,18 @@ def delete_category(category_id):
 def tasks():
     if not session.get('user_id', None):
         return redirect(url_for("login"))
+    # create an empty task
+    task = {}
     if request.method == 'POST':
-        task = save_task_to_db(request, {})
-    else:
-        # create an empty task
-        task = {}
+        task = save_task_to_db(request, task)
+        # if task is empty, then the update was successful
+        if not task:
+            return redirect(url_for('tasks'))
+
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     tasks = list(coll.find({'user_id':ObjectId(session['user_id'])}))
     if not tasks:
-        flash("There are no tasks. Create one below!")
+        flash("There are no tasks. Create one below!", "info")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_categories(),
@@ -247,7 +256,7 @@ def search():
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     tasks = list(coll.find({"$text": {"$search": query}}))
     if not tasks:
-        flash("No results found", "text-danger")
+        flash("No results found", "warning")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_categories(),
@@ -263,7 +272,7 @@ def update_task(task_id):
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     task = coll.find_one({"_id":ObjectId(task_id), "user_id":ObjectId(session["user_id"])})
     if not task:
-        flash(f"Task {task_id} does not exist")
+        flash(f"Task {task_id} does not exist", "danger")
         return redirect(url_for('tasks'))
 
     if request.method == 'POST':
@@ -288,7 +297,7 @@ def delete_task(task_id):
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     task = coll.find_one({"_id":ObjectId(task_id), "user_id":ObjectId(session["user_id"])})
     if not task:
-        flash(f"Task {task_id} does not exist")
+        flash(f"Task {task_id} does not exist", "danger")
     else:
         # delete task
         coll.delete_one({"_id":task["_id"]})
@@ -410,9 +419,9 @@ def save_task_to_db(request, task_old):
             coll.insert_one(task_new)
         # create empty task - this clears the input fields, because the update was OK
         task_new = {}
-        flash(f"One task successfully {'updated' if task_old else 'added'}")
+        flash(f"One task successfully {'updated' if task_old else 'added'}", "success")
     except:
-        flash(f"Error in {'update' if task_old else 'insert'} operation!")
+        flash(f"Error in {'update' if task_old else 'insert'} operation!", "danger")
     return task_new
 
 
