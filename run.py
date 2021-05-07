@@ -80,7 +80,6 @@ def register():
     username_field = app.config["MONGO_COLLECTION_USERS"]['fields'][0]
     username = request.form.get(username_field).lower()
     password_field = app.config["MONGO_COLLECTION_USERS"]['fields'][1]
-    password = request.form.get(password_field)
     # check if username already exists in db
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
     user_old = coll.find_one({username_field: username}, {'_id': 1})
@@ -290,7 +289,7 @@ def update_task(task_id):
         last_task=task)
 
 
-@app.route("/tasks/delete/<task_id>")
+@app.route("/tasks/delete/<task_id>", methods=['POST'])
 def delete_task(task_id):
     if not session.get('user_id', None):
         return redirect(url_for("login"))
