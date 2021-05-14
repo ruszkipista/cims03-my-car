@@ -38,7 +38,6 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f".ueffo.mongodb.net" + \
                           f"/{app.config['MONGO_DB_NAME']}" + \
                           f"?retryWrites=true&w=majority"
-
 app.config["MONGO_COLLECTION_CATEGORIES"] = {
         "name":"categories",
         "title":"Task Categories",
@@ -60,7 +59,7 @@ app.config["MONGO_COLLECTION_TASKS"] = {
         "fields":["name","description","is_urgent","due_date","is_complete","date_time_insert","date_time_update",
                   "category_id","image_id","user_id"]
 }
-app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/mongo_content.json")
+app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/data/mongo_content.json")
 app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
 
 
@@ -330,7 +329,8 @@ def get_mongo_coll(collection):
 
 def init_mongo_db(load_content=False):
     with app.app_context():
-        with app.open_resource(app.config["MONGO_CONTENT"], mode='r') as f:
+        # initialize collections on DB from JSON file
+        with open(app.config["MONGO_CONTENT"], mode='r', encoding="utf-8") as f:
             collections = json.loads(f.read())
             for coll_name,coll_docs in collections.items():
                 coll = get_mongo_coll(coll_name)

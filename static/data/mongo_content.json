@@ -56,6 +56,14 @@
       "due_date": "2021-05-10",
       "user_id": "admin"
     }
+  ],
+
+  "countries": [
+    {"countryId":"IE",  "name":"Republic Of Ireland", "currencySign":"€"},
+    {"countryId":"NI",  "name":"Northern Ireland",    "currencySign":"£"},
+    {"countryId":"UK",  "name":"United Kingdom",      "currencySign":"£"},
+    {"countryId":"HU",  "name":"Hungary",             "currencySign":"Ft"},
+    {"countryId":"USA", "name":"US America",          "currencySign":"$"}
   ]
 
 }

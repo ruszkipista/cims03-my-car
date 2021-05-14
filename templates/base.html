@@ -5,16 +5,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
-  <link rel="icon" href="{{ url_for('static', filename='tasks.png') }}" type="image/x-icon">
-  <title>Task Master</title>
+  <link rel="icon" href="{{ url_for('static', filename='./img/mycar.png') }}" type="image/x-icon">
+  <title>My Car</title>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css">
   <!-- Google Fonts Roboto -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
   <!-- MDB -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='mdb.min.css') }}/" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='./css/mdb.min.css') }}/" />
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='./css/style.css') }}" type="text/css">
   {% block head %}{% endblock %}
 </head>
 
@@ -22,7 +22,7 @@
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-2-strong">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">Task Master</a>
+        <a class="navbar-brand" href="{{ url_for('index') }}">My Car</a>
         <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarToggler"
           aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
           <i class="fas fa-bars"></i>
@@ -82,9 +82,9 @@
   </main>
 
   <!-- MDB -->
-  <script type="text/javascript" src="{{ url_for('static', filename='mdb.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='./js/mdb.min.js') }}"></script>
   <!-- Custom scripts -->
-  <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='./js/script.js') }}"></script>
 </body>
 
 </html>
