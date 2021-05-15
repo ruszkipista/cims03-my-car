@@ -38,11 +38,20 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f".ueffo.mongodb.net" + \
                           f"/{app.config['MONGO_DB_NAME']}" + \
                           f"?retryWrites=true&w=majority"
-app.config["MONGO_COLLECTION_CATEGORIES"] = {
-        "name":"categories",
+
+app.config["MONGO_COLLECTIONS"] = {
+    "categories": {
+        "entity_name":"category",
         "title":"Task Categories",
         "fields":["description","icon"] # get icon names from https://fonts.google.com/icons?query=icon
+    },
+    "countries": {
+        "entity_name":"country",
+        "title":"Countries",
+        "fields":["countryId","name","currencySign"]
+    }
 }
+
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
         "title":"Users",
@@ -143,85 +152,95 @@ def logout():
 
 @app.route("/categories", methods=['GET','POST'])
 def categories():
+    return redirect(url_for('entities', collection_name=request.path.strip('/')))
+
+@app.route("/countries", methods=['GET','POST'])
+def countries():
+    return redirect(url_for('entities', collection_name=request.path.strip('/')))
+
+@app.route("/entities/<collection_name>", methods=['GET','POST'])
+def entities(collection_name):
     if not session.get('user_id', None):
         return redirect(url_for("login"))
     if not session.get('user_is_admin', None):
         return redirect(url_for("index"))
-    # create an empty category
-    category = {}
+    # create an empty entity
+    entity = {}
     if request.method == 'POST':
-        category = save_category_to_db(request, category)
-        if not category:
-            return redirect(url_for("categories"))
+        entity = save_entity_to_db(request, collection_name, entity)
+        if not entity:
+            return redirect(url_for(collection_name))
 
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
-    categories = list(coll.find())
-    if not categories:
-        flash("There are no categories. Create one below!", 'info')
-    return render_template("categories.html", 
-        page_title=app.config["MONGO_COLLECTION_CATEGORIES"]["title"],
-        categories=categories, 
-        last_category=category)
+    coll = get_mongo_coll(collection_name)
+    entities = list(coll.find())
+    if not entities:
+        flash("There are no entities. Create one below!", 'info')
+    return render_template("entities.html", 
+        collection_name=collection_name,
+        collection_meta=app.config["MONGO_COLLECTIONS"][collection_name],
+        entities=entities, 
+        last_entity=entity)
 
 
-def save_category_to_db(request, category_old):
-    fields = app.config["MONGO_COLLECTION_CATEGORIES"]['fields']
-    category_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != category_old.get(f,None)}
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+def save_entity_to_db(request, collection_name, entity_old):
+    fields = app.config["MONGO_COLLECTIONS"][collection_name]['fields']
+    entity_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != entity_old.get(f,None)}
+    coll = get_mongo_coll(collection_name)
     try:
-        if category_old:
-            # update existing category
-            coll.update_one({'_id':category_old['_id']}, {"$set":category_new})
+        if entity_old:
+            # update existing entity
+            coll.update_one({'_id':entity_old['_id']}, {"$set":entity_new})
         else:
-            coll.insert_one(category_new)
-        # create empty category - this clears the input fields, because the update was OK
-        category_new = {}
-        flash(f"One category successfully {'updated' if category_old else 'added'}", "success")
+            coll.insert_one(entity_new)
+        # create empty entity - this clears the input fields, because the update was OK
+        entity_new = {}
+        flash(f"One entity successfully {'updated' if entity_old else 'added'}", "success")
     except:
-        flash(f"Error in {'update' if category_old else 'insert'} operation!", "danger")
-    return category_new
+        flash(f"Error in {'update' if entity_old else 'insert'} operation!", "danger")
+    return entity_new
 
 
-@app.route("/categories/update/<category_id>", methods=['GET','POST'])
-def update_category(category_id):
+@app.route("/update/<collection_name>/<entity_id>", methods=['GET','POST'])
+def update_entity(collection_name, entity_id):
     if not session.get('user_id', None):
         return redirect(url_for("login"))
     if not session.get('user_is_admin', None):
         return redirect(url_for("index"))
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
-    category = coll.find_one({"_id":ObjectId(category_id)})
-    if not category:
-        flash(f"Category {category_id} does not exist", "danger")
-        return redirect(url_for('categories'))
+    coll = get_mongo_coll(collection_name)
+    entity = coll.find_one({"_id":ObjectId(entity_id)})
+    if not entity:
+        flash(f"{app.config['MONGO_COLLECTIONS'][collection_name]['entity_name']} {entity_id} does not exist", "danger")
+        return redirect(url_for(collection_name))
 
     if request.method == 'POST':
-        category = save_category_to_db(request, category)
-        # if category is empty, then the update was successful
-        if not category:
-            return redirect(url_for('categories'))
+        entity = save_entity_to_db(request, collection_name, entity)
+        # if entity is empty, then the update was successful
+        if not entity:
+            return redirect(url_for(collection_name))
 
-    categories = coll.find()
-    return render_template("categories.html", 
-        page_title=app.config["MONGO_COLLECTION_CATEGORIES"]["title"],
-        categories=categories, 
-        last_category=category)
+    entities = coll.find()
+    return render_template("entities.html",
+        page_title=app.config['MONGO_COLLECTIONS'][collection_name]["title"],
+        collection_name=collection_name,
+        entities=entities, 
+        last_entity=entity)
 
 
-@app.route("/categories/delete/<category_id>", methods=['POST'])
-def delete_category(category_id):
+@app.route("/delete/<collection_name>/<entity_id>", methods=['POST'])
+def delete_entity(collection_name, entity_id):
     if not session.get('user_id', None):
         return redirect(url_for("login"))
     if not session.get('user_is_admin', None):
         return redirect(url_for("index"))
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
-    category = coll.find_one({"_id":ObjectId(category_id)})
-    if not category:
-        flash(f"Category {category_id} does not exist", "danger")
+    coll = get_mongo_coll(collection_name)
+    entity = coll.find_one({"_id":ObjectId(entity_id)})
+    if not entity:
+        flash(f"Entity {entity_id} does not exist", "danger")
     else:
-        # delete category
-        coll.delete_one({"_id":category["_id"]})
-        flash(f"Deleted category {category['description']}", "info")
-    return redirect(url_for('categories'))
+        # delete entity
+        coll.delete_one({"_id":entity["_id"]})
+        flash(f"Deleted entity {entity['description']}", "info")
+    return redirect(url_for(collection_name))
 
 
 @app.route("/tasks", methods=['GET','POST'])
@@ -242,7 +261,7 @@ def tasks():
         flash("There are no tasks. Create one below!", "info")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_categories(),
+        categories=get_entities('categories'),
         query="",
         tasks=tasks, 
         last_task=task)
@@ -257,7 +276,7 @@ def search():
         flash("No results found", "warning")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_categories(),
+        categories=get_entities('categories'),
         query=query,
         tasks=tasks, 
         last_task={})
@@ -282,7 +301,7 @@ def update_task(task_id):
     tasks = coll.find()
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_categories(),
+        categories=get_entities('categories'),
         query="",
         tasks=tasks, 
         last_task=task)
@@ -344,7 +363,7 @@ def init_mongo_db(load_content=False):
             password = generate_password_hash(user['password'])
             coll.update_one({'_id':user['_id']}, {"$set":{'password':password}})
         # get all categories from Categories
-        coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+        coll = get_mongo_coll('categories')
         categories = list(coll.find())
         # in Tasks
         coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
@@ -433,13 +452,15 @@ def _jinja2_filter_datetime_to_str(dt, format):
         return str()
 
 
-def get_categories():
-    categories = getattr(g, '_collection_categories', None)
-    if categories is None:
-        coll = get_mongo_coll(app.config["MONGO_COLLECTION_CATEGORIES"]['name'])
+def get_entities(collection_name):
+    if not getattr(g, "_collections", None):
+        g._collections = {}
+    entities = getattr(g._collections, collection_name, None)
+    if entities is None:
+        coll = get_mongo_coll(collection_name)
         if coll:
-            categories = g._collection_categories = { c['_id']:c for c in coll.find()}
-    return categories
+            entities = g._collections[collection_name] = { c['_id']:c for c in coll.find()}
+    return entities
 
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
