@@ -59,11 +59,11 @@
   ],
 
   "countries": [
-    {"countryId":"IE",  "name":"Republic Of Ireland", "currencySign":"€"},
-    {"countryId":"NI",  "name":"Northern Ireland",    "currencySign":"£"},
-    {"countryId":"UK",  "name":"United Kingdom",      "currencySign":"£"},
-    {"countryId":"HU",  "name":"Hungary",             "currencySign":"Ft"},
-    {"countryId":"USA", "name":"US America",          "currencySign":"$"}
+    {"countryId":"IE",  "description":"Republic Of Ireland", "currencySign":"€"},
+    {"countryId":"NI",  "description":"Northern Ireland",    "currencySign":"£"},
+    {"countryId":"UK",  "description":"United Kingdom",      "currencySign":"£"},
+    {"countryId":"HU",  "description":"Hungary",             "currencySign":"Ft"},
+    {"countryId":"USA", "description":"US America",          "currencySign":"$"}
   ]
 
 }

@@ -40,12 +40,12 @@
             </li>
             {% if session['user_is_admin'] %}
             <li class="nav-item">
-              <a class="nav-link {% if url_for('entities', collection_name='categories')==request.path %}active{% endif %}"
-                href="{{ url_for('categories') }}">Categories</a>
+              <a class="nav-link {% if url_for('maintain', collection_name='categories')==request.path %}active{% endif %}"
+                href="{{ url_for('maintain', collection_name='categories') }}">Categories</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if url_for('entities', collection_name='countries')==request.path %}active{% endif %}"
-                href="{{ url_for('countries') }}">Countries</a>
+              <a class="nav-link {% if url_for('maintain', collection_name='countries')==request.path %}active{% endif %}"
+                href="{{ url_for('maintain', collection_name='countries') }}">Countries</a>
             </li>
             {% endif %}
             <li class="nav-item">

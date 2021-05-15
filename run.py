@@ -41,14 +41,39 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
 
 app.config["MONGO_COLLECTIONS"] = {
     "categories": {
-        "entity_name":"category",
-        "title":"Task Categories",
-        "fields":["description","icon"] # get icon names from https://fonts.google.com/icons?query=icon
+        "entity_name": "category",
+        "title":       "Task Categories",
+        "admin":       True,
+        "fields":[
+            {"name":       "description",
+             "heading":    "Description",
+             "input_type": "text",
+             "attributes": "minlength=3 maxlength=25"
+            },
+            # get icon names from https://fonts.google.com/icons?query=icon
+            {"name":       "icon",
+             "heading":    "Font Awsome Icon",
+             "input_type": "text"
+            }
+        ] 
     },
     "countries": {
         "entity_name":"country",
         "title":"Countries",
-        "fields":["countryId","name","currencySign"]
+        "fields":[
+            {"name":       "countryId",
+             "heading":    "Code",
+             "input_type": "text"
+            },
+            {"name":       "description",
+             "heading":    "Country Name",
+             "input_type": "text"
+            },
+            {"name":       "currencySign",
+             "heading":    "Currency",
+             "input_type": "text"
+            }
+        ]
     }
 }
 
@@ -150,97 +175,94 @@ def logout():
     return redirect(url_for("login"))
 
 
-@app.route("/categories", methods=['GET','POST'])
-def categories():
-    return redirect(url_for('entities', collection_name=request.path.strip('/')))
-
-@app.route("/countries", methods=['GET','POST'])
-def countries():
-    return redirect(url_for('entities', collection_name=request.path.strip('/')))
-
-@app.route("/entities/<collection_name>", methods=['GET','POST'])
-def entities(collection_name):
+@app.route("/maintain/<collection_name>", methods=['GET','POST'])
+def maintain(collection_name):
+    entity_meta = app.config["MONGO_COLLECTIONS"][collection_name]
     if not session.get('user_id', None):
         return redirect(url_for("login"))
-    if not session.get('user_is_admin', None):
-        return redirect(url_for("index"))
-    # create an empty entity
-    entity = {}
+    if getattr(entity_meta, 'admin', None):
+        if not session.get('user_is_admin', None):
+            return redirect(url_for("index"))
+    # create an empty record
+    record = {}
     if request.method == 'POST':
-        entity = save_entity_to_db(request, collection_name, entity)
-        if not entity:
-            return redirect(url_for(collection_name))
+        record = save_record_to_db(request, collection_name, entity_meta, record)
+        if not record:
+            return redirect(url_for('maintain', collection_name=collection_name))
 
     coll = get_mongo_coll(collection_name)
-    entities = list(coll.find())
-    if not entities:
-        flash("There are no entities. Create one below!", 'info')
-    return render_template("entities.html", 
+    records = list(coll.find())
+    if not records:
+        flash("There are no records. Create one below!", 'info')
+    return render_template("maintain.html", 
         collection_name=collection_name,
-        collection_meta=app.config["MONGO_COLLECTIONS"][collection_name],
-        entities=entities, 
-        last_entity=entity)
+        entity_meta=entity_meta,
+        records=records, 
+        last_record=record)
 
 
-def save_entity_to_db(request, collection_name, entity_old):
-    fields = app.config["MONGO_COLLECTIONS"][collection_name]['fields']
-    entity_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != entity_old.get(f,None)}
+def save_record_to_db(request, collection_name, entity_meta, record_old):
+    fields = [field['name'] for field in entity_meta['fields']]
+    record_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != record_old.get(f,None)}
     coll = get_mongo_coll(collection_name)
     try:
-        if entity_old:
-            # update existing entity
-            coll.update_one({'_id':entity_old['_id']}, {"$set":entity_new})
+        if record_old:
+            # update existing record
+            coll.update_one({'_id':record_old['_id']}, {"$set":record_new})
         else:
-            coll.insert_one(entity_new)
-        # create empty entity - this clears the input fields, because the update was OK
-        entity_new = {}
-        flash(f"One entity successfully {'updated' if entity_old else 'added'}", "success")
+            coll.insert_one(record_new)
+        # create empty record - this clears the input fields, because the update was OK
+        record_new = {}
+        flash(f"One {entity_meta['entity_name']} successfully {'updated' if record_old else 'added'}", "success")
     except:
-        flash(f"Error in {'update' if entity_old else 'insert'} operation!", "danger")
-    return entity_new
+        flash(f"Error in {'update' if record_old else 'insert'} operation!", "danger")
+    return record_new
 
 
-@app.route("/update/<collection_name>/<entity_id>", methods=['GET','POST'])
-def update_entity(collection_name, entity_id):
+@app.route("/update/<collection_name>/<record_id>", methods=['GET','POST'])
+def update_record(collection_name, record_id):
+    entity_meta = app.config["MONGO_COLLECTIONS"][collection_name]
     if not session.get('user_id', None):
         return redirect(url_for("login"))
-    if not session.get('user_is_admin', None):
-        return redirect(url_for("index"))
+    if getattr(entity_meta, 'admin', None):
+        if not session.get('user_is_admin', None):
+            return redirect(url_for("index"))
     coll = get_mongo_coll(collection_name)
-    entity = coll.find_one({"_id":ObjectId(entity_id)})
-    if not entity:
-        flash(f"{app.config['MONGO_COLLECTIONS'][collection_name]['entity_name']} {entity_id} does not exist", "danger")
-        return redirect(url_for(collection_name))
+    record = coll.find_one({"_id":ObjectId(record_id)})
+    if not record:
+        flash(f"{entity_meta['entity_name']} {record_id} does not exist", "danger")
+        return redirect(url_for('maintain', collection_name=collection_name))
 
     if request.method == 'POST':
-        entity = save_entity_to_db(request, collection_name, entity)
-        # if entity is empty, then the update was successful
-        if not entity:
-            return redirect(url_for(collection_name))
+        record = save_record_to_db(request, collection_name, entity_meta, record)
+        # if record is empty, then the update was successful
+        if not record:
+            return redirect(url_for('maintain', collection_name=collection_name))
 
-    entities = coll.find()
-    return render_template("entities.html",
-        page_title=app.config['MONGO_COLLECTIONS'][collection_name]["title"],
+    records = coll.find()
+    return render_template("maintain.html",
         collection_name=collection_name,
-        entities=entities, 
-        last_entity=entity)
+        entity_meta=entity_meta,
+        records=records, 
+        last_record=record)
 
 
-@app.route("/delete/<collection_name>/<entity_id>", methods=['POST'])
-def delete_entity(collection_name, entity_id):
+@app.route("/delete/<collection_name>/<record_id>", methods=['POST'])
+def delete_record(collection_name, record_id):
+    entity_meta = app.config["MONGO_COLLECTIONS"][collection_name]
     if not session.get('user_id', None):
         return redirect(url_for("login"))
     if not session.get('user_is_admin', None):
         return redirect(url_for("index"))
     coll = get_mongo_coll(collection_name)
-    entity = coll.find_one({"_id":ObjectId(entity_id)})
-    if not entity:
-        flash(f"Entity {entity_id} does not exist", "danger")
+    record = coll.find_one({"_id":ObjectId(record_id)})
+    if not record:
+        flash(f"Record {record_id} does not exist", "danger")
     else:
-        # delete entity
-        coll.delete_one({"_id":entity["_id"]})
-        flash(f"Deleted entity {entity['description']}", "info")
-    return redirect(url_for(collection_name))
+        # delete record
+        coll.delete_one({"_id":record["_id"]})
+        flash(f"Deleted {entity_meta['entity_name']} {record['description']}", "info")
+    return redirect(url_for('maintain', collection_name=collection_name))
 
 
 @app.route("/tasks", methods=['GET','POST'])
