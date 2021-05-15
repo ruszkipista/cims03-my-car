@@ -1,33 +1,9 @@
 {
-  "users": [{
-    "username": "admin",
-    "user_is_admin": true,
-    "password": "admin"
-  }],
+  "users": [
+    {"username": "admin", "user_is_admin": true, "password": "admin"}
+  ],
 
   "images": [],
-
-  "categories": [{
-      "description": "Travel",
-      "icon": "fas fa-suitcase-rolling"
-    },
-    {
-      "description": "Tax issue",
-      "icon": "fas fa-university"
-    },
-    {
-      "description": "Shopping",
-      "icon": "fas fa-shopping-cart"
-    },
-    {
-      "description": "Home",
-      "icon": "fas fa-home"
-    },
-    {
-      "description": "Work",
-      "icon": "fas fa-briefcase"
-    }
-  ],
 
   "tasks": [{
       "name": "Visit parents",
@@ -58,12 +34,238 @@
     }
   ],
 
+  "categories": [
+    {"fieldcatalog": true,
+     "entity_name": "category",
+     "description": "Task Categories",
+     "admin":       true,
+     "fields":[
+        {"name": "description", "heading": "Description",      "input_type": "text", "attributes": "minlength=3 maxlength=25"},
+        {"name": "icon",        "heading": "Font Awsome Icon", "input_type": "text"}
+     ]
+    },
+    {"description": "Travel",    "icon": "fas fa-suitcase-rolling"},
+    {"description": "Tax issue", "icon": "fas fa-university"},
+    {"description": "Shopping",  "icon": "fas fa-shopping-cart"},
+    {"description": "Home",      "icon": "fas fa-home"},
+    {"description": "Work",      "icon": "fas fa-briefcase"}
+  ],
+
+
+  "currencies" : [
+    {"currency_id":"USD", "description":"USA dollar",    "currency_sign":"$"},
+    {"currency_id":"EUR", "description":"euro",          "currency_sign":"€"},
+    {"currency_id":"GBP", "description":"British pound", "currency_sign":"£"},
+    {"currency_id":"HUF", "description":"HU forint",     "currency_sign":"Ft"}
+  ],
+
+  "currency_conversions" : [
+    {"currenc_id_from":"EUR", "currency_id_to":"GBP", "fromDate":"2018-01-01", "rate":   0.89050},
+    {"currenc_id_from":"EUR", "currency_id_to":"HUF", "fromDate":"2018-01-01", "rate": 323.82},
+    {"currenc_id_from":"EUR", "currency_id_to":"USD", "fromDate":"2018-01-01", "rate":   1.134}
+  ],
+
   "countries": [
-    {"countryId":"IE",  "description":"Republic Of Ireland", "currencySign":"€"},
-    {"countryId":"NI",  "description":"Northern Ireland",    "currencySign":"£"},
-    {"countryId":"UK",  "description":"United Kingdom",      "currencySign":"£"},
-    {"countryId":"HU",  "description":"Hungary",             "currencySign":"Ft"},
-    {"countryId":"USA", "description":"US America",          "currencySign":"$"}
+    {"fieldcatalog": true,
+     "entity_name":  "country",
+     "description":  "Countries",
+     "admin":      true,
+     "fields":[
+        {"name": "country_id",  "heading": "Code",         "input_type": "text"},
+        {"name": "description", "heading": "Country Name", "input_type": "text"},
+        {"name": "currency_id", "heading": "Currency",     "input_type": "text"}
+     ]
+    },
+    {"country_id":"IE",  "description":"Republic Of Ireland", "currency_id":"EUR"},
+    {"country_id":"NI",  "description":"Northern Ireland",    "currency_id":"GBP"},
+    {"country_id":"UK",  "description":"United Kingdom",      "currency_id":"GBP"},
+    {"country_id":"HU",  "description":"Hungary",             "currency_id":"HUF"},
+    {"country_id":"USA", "description":"US America",          "currency_id":"USD"}
+  ],
+
+
+  "unit_types":[
+    {"unit_type_id":"CNT", "description":"count"},
+    {"unit_type_id":"VOL", "description":"volume"},
+    {"unit_type_id":"MASS", "description":"mass"},
+    {"unit_type_id":"DIST", "description":"distance"},
+    {"unit_type_id":"AREA", "description":"area"},
+    {"unit_type_id":"FECO", "description":"fuel economy"},
+    {"unit_type_id":"CURR", "description":"currency"},
+    {"unit_type_id":"TIME", "description":"time"}
+  ],
+
+  "unit_of_measures": [
+    {"uom_id":"L",      "description":"litre",            "unit_type_id":"VOL"},
+    {"uom_id":"ml",     "description":"milli litre",      "unit_type_id":"VOL"},
+    {"uom_id":"galImp", "description":"gallon imperial",  "unit_type_id":"VOL"},
+    {"uom_id":"L100km", "description":"L/100km",          "unit_type_id":"FECO"},
+    {"uom_id":"mpgImp", "description":"miles/gallon Imp", "unit_type_id":"FECO"},
+    {"uom_id":"kg",     "description":"kilogramme",       "unit_type_id":"MASS"},
+    {"uom_id":"g",      "description":"gramme",           "unit_type_id":"MASS"},
+    {"uom_id":"lb",     "description":"pound",            "unit_type_id":"MASS"},
+    {"uom_id":"km",     "description":"kilometre",        "unit_type_id":"DIST"},
+    {"uom_id":"m",      "description":"metre",            "unit_type_id":"DIST"},
+    {"uom_id":"cm",     "description":"centimetre",       "unit_type_id":"DIST"},
+    {"uom_id":"mm",     "description":"millimetre",       "unit_type_id":"DIST"},
+    {"uom_id":"mi",     "description":"mile",             "unit_type_id":"DIST"},
+    {"uom_id":"ft",     "description":"foot",             "unit_type_id":"DIST"},
+    {"uom_id":"yd",     "description":"yard",             "unit_type_id":"DIST"},
+    {"uom_id":"in",     "description":"inch",             "unit_type_id":"DIST"},
+    {"uom_id":"m2",     "description":"square metre",     "unit_type_id":"AREA"},
+    {"uom_id":"ea",     "description":"each",             "unit_type_id":"CNT"},
+    {"uom_id":"pc",     "description":"piece",            "unit_type_id":"CNT"},
+    {"uom_id":"year",   "description":"year",             "unit_type_id":"TIME"},
+    {"uom_id":"month",  "description":"month",            "unit_type_id":"TIME"},
+    {"uom_id":"day",    "description":"day",              "unit_type_id":"TIME"}
+  ],
+
+  "unit_conversions": [
+    {"uom_id_from":"lb",     "uom_id_to":"kg",     "rate":   0.45359237},
+    {"uom_id_from":"L",      "uom_id_to":"galImp", "rate":   0.2199692482990878},
+    {"uom_id_from":"L",      "uom_id_to":"ml",     "rate":1000.0},
+    {"uom_id_from":"L100km", "uom_id_to":"mpgImp", "rate": 282.48093627967},
+    {"uom_id_from":"kg",     "uom_id_to":"g",      "rate":1000.0},
+    {"uom_id_from":"km",     "uom_id_to":"m",      "rate":1000.0},
+    {"uom_id_from":"m",      "uom_id_to":"cm",     "rate": 100.0},
+    {"uom_id_from":"m",      "uom_id_to":"mm",     "rate":1000.0},
+    {"uom_id_from":"cm",     "uom_id_to":"mm",     "rate":  10.0},
+    {"uom_id_from":"mi",     "uom_id_to":"km",     "rate":   1.609344},
+    {"uom_id_from":"mi",     "uom_id_to":"ft",     "rate":5280},
+    {"uom_id_from":"mi",     "uom_id_to":"yd",     "rate":1760},
+    {"uom_id_from":"ft",     "uom_id_to":"m",      "rate":   0.3048},
+    {"uom_id_from":"ft",     "uom_id_to":"in",     "rate":  12.0},
+    {"uom_id_from":"yd",     "uom_id_to":"ft",     "rate":   3.0},
+    {"uom_id_from":"yd",     "uom_id_to":"m",      "rate":   0.9144},
+    {"uom_id_from":"in",     "uom_id_to":"mm",     "rate":  25.4},
+    {"uom_id_from":"year",   "uom_id_to":"month",  "rate":  12},
+    {"uom_id_from":"year",   "uom_id_to":"day",    "rate": 365.25},
+    {"uom_id_from":"month",  "uom_id_to":"day",    "rate":  30.4166}
+  ],
+
+  "expenditure_types": [
+    {"expenditure_type_id":"OP",  "description":"operational expense"},
+    {"expenditure_type_id":"CAP", "description":"capital expense"}
+  ],
+
+  "material_types": [
+    {"material_type_id":"FUEL",       "description":"fuel",       "unit_type_id":"VOL", "expenditure_type_id":"OP"},
+    {"material_type_id":"PART",       "description":"part",       "unit_type_id":"CNT", "expenditure_type_id":"CAP"},
+    {"material_type_id":"CONSUMABLE", "description":"consumable", "unit_type_id":"CNT", "expenditure_type_id":"OP"},
+    {"material_type_id":"SERVICE",    "description":"service",    "unit_type_id":"CNT", "expenditure_type_id":"OP"},
+    {"material_type_id":"INSURANCE",  "description":"insurance",  "unit_type_id":"CNT", "expenditure_type_id":"OP"},
+    {"material_type_id":"TAX",        "description":"tax",        "unit_type_id":"CNT", "expenditure_type_id":"OP"}
+  ],
+
+  "cars": [
+    { "car_id": "mazda3",
+      "description": "Mazda3",
+      "plateNumber": "08WD678",
+      "distanceUnit_id": "km",
+      "odometerUnit_id": "km",
+      "fuelMaterial_id": "petrol95",
+      "fuelUnit_id": "L",
+      "fuelEconomyUnit_id": "L100km",
+      "currency_id": "EUR",
+      "country_id": "IE",
+      "carImageUrl": "https://www.cstatic-images.com/car-pictures/maxW_id_to503/cab80mac172b0101.png"
+    },
+    { "car_id": "yaris",
+      "description": "Yaris Sol",
+      "plateNumber": "01OY3040",
+      "distanceUnit_id": "mi",
+      "odometerUnit_id": "mi",
+      "fuelMaterial_id": "petrol95",
+      "fuelUnit_id": "L",
+      "fuelEconomyUnit_id": "L100km",
+      "currency_id": "EUR",
+      "country_id": "IE",
+      "carImageUrl": "http://ipocars.com/imgs/a/e/g/i/z/toyota_yaris_1_3_2001_1_lgw.jpg"
+    }
+  ],
+
+  "materials": [
+    {"material_id": "gasoline",        "material_type": "FUEL",       "description": "gasoline"},
+    {"material_id": "electricity",     "material_type": "FUEL",       "description": "electricity"},
+    {"material_id": "motortax",        "material_type": "TAX",        "description": "motor tax"},
+    {"material_id": "servicematerial", "material_type": "CONSUMABLE", "description": "service material"},
+    {"material_id": "carpart",         "material_type": "PART",       "description": "car part"},
+    {"material_id": "carservice",      "material_type": "SERVICE",    "description": "car service"},
+    {"material_id": "petrol95",        "material_type": "FUEL",       "description": "petrol 95"},
+    {"material_id": "insurance",       "material_type": "INSURANCE",  "description": "car liability insurance"}
+  ],
+
+  "partners": [
+    {"partner_id": "parkwayshop",       "description": "Parkway Shopping Centre", "country_id": "IE", "address": "Parkway, Limerick"},
+    {"partner_id": "nctlimerick",       "description": "NCT Limerick",            "country_id": "IE", "address": "Eastway Business Park, Tipperary Road, Limerick"},
+    {"partner_id": "allianzie",         "description": "Allianz.ie",              "country_id": "IE", "address": "www.allianz.ie"},
+    {"partner_id": "motortax",          "description": "Motor Tax",               "country_id": "IE", "address": "www.motortax.ie"},
+    {"partner_id": "sebastiangarage",   "description": "Sebastian's Garage",      "country_id": "IE", "address": "Unit 5 Eastlink Business Park  Ballysimon Road Limerick"},
+    {"partner_id": "onetimeseller",     "description": "One Time Seller (IE)",    "country_id": "IE", "address": "somewhere in Ireland"},
+    {"partner_id": "circlekcastletroy", "description": "Circle K Castletroy",     "country_id": "IE", "address": "Dublin Road, Castletroy, Limerick"}
+  ],
+
+  "transactions": [
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-16","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":50.74,"uom_id":"L",    "price":1.349,"odometer":178829,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-31","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":41.72,"uom_id":"L",    "price":1.451,"odometer":179446,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-04-02","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":39.17,"uom_id":"L",    "price":1.427,"odometer":180087,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-04-04","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":39.50,"uom_id":"L",    "price":1.428,"odometer":180746,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-04-07","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":42.20,"uom_id":"L",    "price":1.388,"odometer":181473,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-05-09","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":45.72,"uom_id":"L",    "price":1.389,"odometer":182117,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-06-24","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":44.72,"uom_id":"L",    "price":1.455,"odometer":182780,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-07-07","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":45.49,"uom_id":"L",    "price":1.439,"odometer":183567,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-09-15","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":44.55,"uom_id":"L",    "price":1.459,"odometer":184231,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-10-13","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":44.86,"uom_id":"L",    "price":1.479,"odometer":184841,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-10-13","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":44.86,"uom_id":"L",    "price":1.479, "odometer":184841,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-11-26","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":48.26,"uom_id":"L",    "price":1.469, "odometer":185458,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-12-23","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":37.66,"uom_id":"L",    "price":1.378, "odometer":185920,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-01-16","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":45.38,"uom_id":"L",    "price":1.355, "odometer":186549,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-02-11","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":48.49,"uom_id":"L",    "price":1.348, "odometer":187187,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-03-11","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":47.00,"uom_id":"L",    "price":1.349, "odometer":187845,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-03-28","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":25.02,"uom_id":"L",    "price":1.369, "odometer":188183,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-04-07","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":42.51,"uom_id":"L",    "price":1.389, "odometer":188789,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-04-27","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":16.35,"uom_id":"L",    "price":1.485,	                  "description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-05-04","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":47.47,"uom_id":"L",    "price":1.459, "odometer":189711,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-06-23","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":44.65,"uom_id":"L",    "price":1.439, "odometer":190313,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-08-30","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":44.79,"uom_id":"L",    "price":1.399, "odometer":190949,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-10-12","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":45.82,"uom_id":"L",    "price":1.419, "odometer":191573,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-11-03","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":35.23,"uom_id":"L",    "price":1.538, "odometer":192056,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-11-09","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":32.98,"uom_id":"L",    "price":1.399, "odometer":192506,"description":"petrol premium"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-12-14","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":42.70,"uom_id":"L",    "price":1.439, "odometer":193070,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-01-21","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":47.15,"uom_id":"L",    "price":1.439, "odometer":193722,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-06-25","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":32.36,"uom_id":"L",    "price":1.249, "odometer":194126,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-06-25","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":43.51,"uom_id":"L",    "price":1.259, "odometer":194817,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-09-29","partner_id":"circlekcastletroy","material_id":"petrol95",        "quantity":43.94,"uom_id":"L",    "price":1.229, "odometer":195478,"description":"petrol 95"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-03","partner_id":"onetimeseller",    "material_id":"carservice",      "quantity": 1,   "uom_id":"pc",   "price":25,                     "description":"Cartell.ie history report"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-10","partner_id":"onetimeseller",    "material_id":"carservice",      "quantity": 1,   "uom_id":"pc",   "price":25,                     "description":"Cartell.ie history report"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-10","partner_id":"onetimeseller",    "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":2550, "odometer":178790,"description":"car purchase"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-11","partner_id":"parkwayshop",      "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":3.49,                   "description":"bungee set 12pcs"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-11","partner_id":"parkwayshop",      "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":10.99,                  "description":"car seat cover set"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-11","partner_id":"parkwayshop",      "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":4.99,                   "description":"wheel wrench L shape"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-11","partner_id":"parkwayshop",      "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":4.49,                   "description":"tow rope"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-11","partner_id":"parkwayshop",      "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":7.02,                   "description":"car foot pump"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-20","partner_id":"onetimeseller",    "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":60,                     "description":"door key w/ programmed chip"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-16","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385,    "val_id_from":"20180301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-02-06","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385.00, "val_id_from":"20190301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-02-04","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385.00, "val_id_from":"20200301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2021-02-28","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":  0.00, "val_id_from":"20210301","validityLength": 1, "validityLengthUnit":"year", "description":"Motortax: Off the Road"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-20","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-95,  "uom_id":"day",  "price":1.4256, "val_id_from":"20180320","validityLength":95, "validityLengthUnit":"day",  "description":"insurance (permanent car change on Xedos policy)"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-06-23","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":407.57, "val_id_from":"20180623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-05-24","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":395.18, "val_id_from":"20190623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance Allianz"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-05-14","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":366.67, "val_id_from":"20200623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance Allianz"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-06-10","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-30,  "uom_id":"day",  "price":1,                                                                                 "description":"insurance Allianz Covid refund"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-09-14","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-91,  "uom_id":"day",  "price":1.004575,                                                                          "description":"insurance Allianz TempPause refund"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-16","partner_id":"sebastiangarage",  "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":830,  "odometer":178821, "description":"clutch kit, gearbox bracket, front LHS wishbone, rear brushing, rear axle both side"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-22","partner_id":"sebastiangarage",  "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":120,  "odometer":178835, "description":"oil filter, air filter, 4 spark plug, engine oil"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-12-14","partner_id":"sebastiangarage",  "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":270,  "odometer":185700, "description":"break disc front RHS, coil spring rear RHS"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-12-08","partner_id":"nctlimerick",      "material_id":"carservice",      "quantity": 1,   "uom_id":"pc",   "price":55,   "odometer":185687, "description":"car test"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-12-21","partner_id":"nctlimerick",      "material_id":"carservice",      "quantity": 1,   "uom_id":"pc",   "price":28,   "odometer":185913, "description":"valid from 21/12/2018 to 13/01/2020"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-01-06","partner_id":"nctlimerick",      "material_id":"carservice",      "quantity": 1,   "uom_id":"pc",   "price":55,   "odometer":193614, "description":"fail on insecure battery mounting"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-12-14","partner_id":"sebastiangarage",  "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":270,  "odometer":185700, "description":"break disc front RHS, coil spring rear RHS"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-10-23","partner_id":"onetimeseller",    "material_id":"carpart",         "quantity": 4,   "uom_id":"pc",   "price":50,                      "description":"tyres"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-09-12","partner_id":"onetimeseller",    "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":48.57,                   "description":"battery Euro Car Parts Lion battery 063 40AH 340 CCA"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-03-22","partner_id":"onetimeseller",    "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":5.00,                    "description":"bulbs"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-03-13","partner_id":"onetimeseller",    "material_id":"servicematerial", "quantity": 5,   "uom_id":"L",    "price":7.80,                    "description":"engine oil 5L 5W-30"}
   ]
 
 }

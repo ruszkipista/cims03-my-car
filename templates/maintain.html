@@ -9,9 +9,9 @@
   <div class="row m-0 p-0">
     <form class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3" action="{{ request.path }}" method="POST"
       enctype="multipart/form-data">
-      <h2 class="text-center">Maintain {{ entity_meta['title'] }}</h2>
+      <h2 class="text-center">Maintain {{ fieldcatalog['description'] }}</h2>
       <!-- input fields -->
-      {% for field in entity_meta['fields'] %}
+      {% for field in fieldcatalog['fields'] %}
       <div class="form-outline">
         <input type="{{ field['name'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
                name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
@@ -32,7 +32,7 @@
     <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
       <table class="table">
         <tr>
-          {% for field in entity_meta['fields'] %}
+          {% for field in fieldcatalog['fields'] %}
           <th>{{ field['heading'] }}</th>
           {% endfor %}
           <th class="text-center">Actions</th>
@@ -40,7 +40,7 @@
 
         {% for record in records %}
         <tr>
-          {% for field in entity_meta['fields'] %}
+          {% for field in fieldcatalog['fields'] %}
           <td>
             {% if field['name']=='icon' %}<i class="{{ record['icon'] }} fa-2x"></i>{% endif %}
             {{ record[field['name']] }}

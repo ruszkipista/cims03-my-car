@@ -39,43 +39,7 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f"/{app.config['MONGO_DB_NAME']}" + \
                           f"?retryWrites=true&w=majority"
 
-app.config["MONGO_COLLECTIONS"] = {
-    "categories": {
-        "entity_name": "category",
-        "title":       "Task Categories",
-        "admin":       True,
-        "fields":[
-            {"name":       "description",
-             "heading":    "Description",
-             "input_type": "text",
-             "attributes": "minlength=3 maxlength=25"
-            },
-            # get icon names from https://fonts.google.com/icons?query=icon
-            {"name":       "icon",
-             "heading":    "Font Awsome Icon",
-             "input_type": "text"
-            }
-        ] 
-    },
-    "countries": {
-        "entity_name":"country",
-        "title":"Countries",
-        "fields":[
-            {"name":       "countryId",
-             "heading":    "Code",
-             "input_type": "text"
-            },
-            {"name":       "description",
-             "heading":    "Country Name",
-             "input_type": "text"
-            },
-            {"name":       "currencySign",
-             "heading":    "Currency",
-             "input_type": "text"
-            }
-        ]
-    }
-}
+app.config["MONGO_FIELDCATALOG"] = 'fieldcatalog'
 
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
@@ -177,16 +141,16 @@ def logout():
 
 @app.route("/maintain/<collection_name>", methods=['GET','POST'])
 def maintain(collection_name):
-    entity_meta = app.config["MONGO_COLLECTIONS"][collection_name]
+    fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
     if not session.get('user_id', None):
         return redirect(url_for("login"))
-    if getattr(entity_meta, 'admin', None):
+    if fieldcatalog.get('admin', None):
         if not session.get('user_is_admin', None):
             return redirect(url_for("index"))
     # create an empty record
     record = {}
     if request.method == 'POST':
-        record = save_record_to_db(request, collection_name, entity_meta, record)
+        record = save_record_to_db(request, collection_name, fieldcatalog, record)
         if not record:
             return redirect(url_for('maintain', collection_name=collection_name))
 
@@ -196,13 +160,13 @@ def maintain(collection_name):
         flash("There are no records. Create one below!", 'info')
     return render_template("maintain.html", 
         collection_name=collection_name,
-        entity_meta=entity_meta,
+        fieldcatalog=fieldcatalog,
         records=records, 
         last_record=record)
 
 
-def save_record_to_db(request, collection_name, entity_meta, record_old):
-    fields = [field['name'] for field in entity_meta['fields']]
+def save_record_to_db(request, collection_name, fieldcatalog, record_old):
+    fields = [field['name'] for field in fieldcatalog['fields']]
     record_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != record_old.get(f,None)}
     coll = get_mongo_coll(collection_name)
     try:
@@ -213,7 +177,7 @@ def save_record_to_db(request, collection_name, entity_meta, record_old):
             coll.insert_one(record_new)
         # create empty record - this clears the input fields, because the update was OK
         record_new = {}
-        flash(f"One {entity_meta['entity_name']} successfully {'updated' if record_old else 'added'}", "success")
+        flash(f"One {fieldcatalog['entity_name']} successfully {'updated' if record_old else 'added'}", "success")
     except:
         flash(f"Error in {'update' if record_old else 'insert'} operation!", "danger")
     return record_new
@@ -221,20 +185,20 @@ def save_record_to_db(request, collection_name, entity_meta, record_old):
 
 @app.route("/update/<collection_name>/<record_id>", methods=['GET','POST'])
 def update_record(collection_name, record_id):
-    entity_meta = app.config["MONGO_COLLECTIONS"][collection_name]
+    fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
     if not session.get('user_id', None):
         return redirect(url_for("login"))
-    if getattr(entity_meta, 'admin', None):
+    if fieldcatalog.get('admin', None):
         if not session.get('user_is_admin', None):
             return redirect(url_for("index"))
     coll = get_mongo_coll(collection_name)
     record = coll.find_one({"_id":ObjectId(record_id)})
     if not record:
-        flash(f"{entity_meta['entity_name']} {record_id} does not exist", "danger")
+        flash(f"{fieldcatalog['entity_name']} {record_id} does not exist", "danger")
         return redirect(url_for('maintain', collection_name=collection_name))
 
     if request.method == 'POST':
-        record = save_record_to_db(request, collection_name, entity_meta, record)
+        record = save_record_to_db(request, collection_name, fieldcatalog, record)
         # if record is empty, then the update was successful
         if not record:
             return redirect(url_for('maintain', collection_name=collection_name))
@@ -242,14 +206,14 @@ def update_record(collection_name, record_id):
     records = coll.find()
     return render_template("maintain.html",
         collection_name=collection_name,
-        entity_meta=entity_meta,
+        fieldcatalog=fieldcatalog,
         records=records, 
         last_record=record)
 
 
 @app.route("/delete/<collection_name>/<record_id>", methods=['POST'])
 def delete_record(collection_name, record_id):
-    entity_meta = app.config["MONGO_COLLECTIONS"][collection_name]
+    fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
     if not session.get('user_id', None):
         return redirect(url_for("login"))
     if not session.get('user_is_admin', None):
@@ -261,7 +225,7 @@ def delete_record(collection_name, record_id):
     else:
         # delete record
         coll.delete_one({"_id":record["_id"]})
-        flash(f"Deleted {entity_meta['entity_name']} {record['description']}", "info")
+        flash(f"Deleted {fieldcatalog['entity_name']} {record['description']}", "info")
     return redirect(url_for('maintain', collection_name=collection_name))
 
 
@@ -283,7 +247,7 @@ def tasks():
         flash("There are no tasks. Create one below!", "info")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_entities('categories'),
+        categories=get_records('categories'),
         query="",
         tasks=tasks, 
         last_task=task)
@@ -298,7 +262,7 @@ def search():
         flash("No results found", "warning")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_entities('categories'),
+        categories=get_records('categories'),
         query=query,
         tasks=tasks, 
         last_task={})
@@ -323,7 +287,7 @@ def update_task(task_id):
     tasks = coll.find()
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_entities('categories'),
+        categories=get_records('categories'),
         query="",
         tasks=tasks, 
         last_task=task)
@@ -370,6 +334,7 @@ def get_mongo_coll(collection):
 
 def init_mongo_db(load_content=False):
     with app.app_context():
+        fieldcatalog = {}
         # initialize collections on DB from JSON file
         with open(app.config["MONGO_CONTENT"], mode='r', encoding="utf-8") as f:
             collections = json.loads(f.read())
@@ -377,9 +342,17 @@ def init_mongo_db(load_content=False):
                 coll = get_mongo_coll(coll_name)
                 coll.delete_many({})
                 if coll_docs:
-                    coll.insert_many(coll_docs)
+                    for doc in coll_docs:
+                        if doc.get(app.config["MONGO_FIELDCATALOG"], False):
+                            fieldcatalog[coll_name] = doc
+                    coll.insert_many([doc for doc in coll_docs if not doc.get(app.config["MONGO_FIELDCATALOG"], False)])
+        # write out Fieldcatalog
+        coll = get_mongo_coll(app.config["MONGO_FIELDCATALOG"])
+        coll.delete_many({})
+        coll.insert_one(fieldcatalog)
+
         # encrypt password in Users
-        coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+        coll = get_mongo_coll('users')
         users = list(coll.find())
         for user in users:
             password = generate_password_hash(user['password'])
@@ -388,7 +361,7 @@ def init_mongo_db(load_content=False):
         coll = get_mongo_coll('categories')
         categories = list(coll.find())
         # in Tasks
-        coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
+        coll = get_mongo_coll('tasks')
         tasks = coll.find()
         for task in tasks:
             # add timestamp
@@ -474,15 +447,18 @@ def _jinja2_filter_datetime_to_str(dt, format):
         return str()
 
 
-def get_entities(collection_name):
+def get_records(collection_name):
     if not getattr(g, "_collections", None):
         g._collections = {}
-    entities = getattr(g._collections, collection_name, None)
-    if entities is None:
+    records = getattr(g._collections, collection_name, None)
+    if records is None:
         coll = get_mongo_coll(collection_name)
         if coll:
-            entities = g._collections[collection_name] = { c['_id']:c for c in coll.find()}
-    return entities
+            if collection_name==app.config["MONGO_FIELDCATALOG"]:
+                records = g._collections[collection_name] = list(coll.find())[0]
+            else:
+                records = g._collections[collection_name] = { c['_id']:c for c in coll.find()}
+    return records
 
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
