@@ -4,14 +4,15 @@
 {% endblock %}
 
 {% block body %}
+{% set coll_fieldcat = fieldcatalog[collection_name] %}
 <div class="content">
   {% if last_record %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
   <div class="row m-0 p-0">
     <form class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3" action="{{ request.path }}" method="POST"
       enctype="multipart/form-data">
-      <h2 class="text-center">Maintain {{ fieldcatalog['description'] }}</h2>
+      <h2 class="text-center">Maintain {{ coll_fieldcat['description'] }}</h2>
       <!-- input fields -->
-      {% for field in fieldcatalog['fields'] %}
+      {% for field in coll_fieldcat['fields'] %}
       <div class="form-outline">
         <input type="{{ field['name'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
                name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
@@ -32,7 +33,7 @@
     <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
       <table class="table">
         <tr>
-          {% for field in fieldcatalog['fields'] %}
+          {% for field in coll_fieldcat['fields'] %}
           <th>{{ field['heading'] }}</th>
           {% endfor %}
           <th class="text-center">Actions</th>
@@ -40,17 +41,17 @@
 
         {% for record in records %}
         <tr>
-          {% for field in fieldcatalog['fields'] %}
+          {% for field in coll_fieldcat['fields'] %}
           <td>
             {% if field['name']=='icon' %}<i class="{{ record['icon'] }} fa-2x"></i>{% endif %}
             {{ record[field['name']] }}
           </td>
           {% endfor %}
           <td class="text-center">
-              <a href="{{ url_for('update_record', collection_name=fieldcatalog['collection_name'], record_id=record['_id']) }}">
+              <a href="{{ url_for('update_record', collection_name=coll_fieldcat['collection_name'], record_id=record['_id']) }}">
                 <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
               </a>
-              <a href="{{ url_for('delete_record', collection_name=fieldcatalog['collection_name'], record_id=record['_id']) }}" data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
+              <a href="{{ url_for('delete_record', collection_name=coll_fieldcat['collection_name'], record_id=record['_id']) }}" data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
                 <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Delete"></i>
               </a>
           </td>

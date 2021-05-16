@@ -61,6 +61,15 @@
 
 
   "currencies" : [
+    {"entity_name": "currency",
+      "description": "Currencies",
+      "admin":       true,
+      "fields":[
+         {"name": "currency_id",   "heading": "Code",        "input_type": "text"},
+         {"name": "description",   "heading": "Description", "input_type": "text"},
+         {"name": "currency_sign", "heading": "Sign",        "input_type": "text"}
+       ]
+    },    
     {"currency_id":"USD", "description":"USA dollar",    "currency_sign":"$"},
     {"currency_id":"EUR", "description":"euro",          "currency_sign":"€"},
     {"currency_id":"GBP", "description":"British pound", "currency_sign":"£"},

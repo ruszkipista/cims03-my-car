@@ -39,14 +39,14 @@
                 href="{{ url_for('tasks') }}">Tasks</a>
             </li>
             {% if session['user_is_admin'] %}
+            {% for coll_fieldcat in fieldcatalog.values() %}
+            {% if coll_fieldcat['admin'] %}
             <li class="nav-item">
-              <a class="nav-link {% if url_for('maintain', collection_name='categories')==request.path %}active{% endif %}"
-                href="{{ url_for('maintain', collection_name='categories') }}">Categories</a>
+              <a class="nav-link {% if url_for('maintain', collection_name=coll_fieldcat['collection_name'])==request.path %}active{% endif %}"
+                href="{{ url_for('maintain', collection_name=coll_fieldcat['collection_name']) }}">{{ coll_fieldcat['description'] }}</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link {% if url_for('maintain', collection_name='countries')==request.path %}active{% endif %}"
-                href="{{ url_for('maintain', collection_name='countries') }}">Countries</a>
-            </li>
+            {% endif %}
+            {% endfor %}
             {% endif %}
             <li class="nav-item">
               <a class="nav-link {% if url_for('profile')==request.path %}active{% endif %}"
