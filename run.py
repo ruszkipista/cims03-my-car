@@ -334,7 +334,7 @@ def get_mongo_coll(collection):
 
 def init_mongo_db(load_content=False):
     with app.app_context():
-        fieldcatalog = {}
+        fieldcatalog = []
         # initialize collections on DB from JSON file
         with open(app.config["MONGO_CONTENT"], mode='r', encoding="utf-8") as f:
             collections = json.loads(f.read())
@@ -343,13 +343,14 @@ def init_mongo_db(load_content=False):
                 coll.delete_many({})
                 if coll_docs:
                     for doc in coll_docs:
-                        if doc.get(app.config["MONGO_FIELDCATALOG"], False):
-                            fieldcatalog[coll_name] = doc
-                    coll.insert_many([doc for doc in coll_docs if not doc.get(app.config["MONGO_FIELDCATALOG"], False)])
+                        if doc.get('entity_name', False):
+                            doc['collection_name'] = coll_name
+                            fieldcatalog.append(doc)
+                    coll.insert_many([doc for doc in coll_docs if not doc.get('entity_name', False)])
         # write out Fieldcatalog
         coll = get_mongo_coll(app.config["MONGO_FIELDCATALOG"])
         coll.delete_many({})
-        coll.insert_one(fieldcatalog)
+        coll.insert_many(fieldcatalog)
 
         # encrypt password in Users
         coll = get_mongo_coll('users')
@@ -455,7 +456,7 @@ def get_records(collection_name):
         coll = get_mongo_coll(collection_name)
         if coll:
             if collection_name==app.config["MONGO_FIELDCATALOG"]:
-                records = g._collections[collection_name] = list(coll.find())[0]
+                records = g._collections[collection_name] = {doc['collection_name']:doc for doc in coll.find()}
             else:
                 records = g._collections[collection_name] = { c['_id']:c for c in coll.find()}
     return records

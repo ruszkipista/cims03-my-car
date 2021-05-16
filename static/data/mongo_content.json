@@ -35,8 +35,7 @@
   ],
 
   "categories": [
-    {"fieldcatalog": true,
-     "entity_name": "category",
+    {"entity_name": "category",
      "description": "Task Categories",
      "admin":       true,
      "fields":[
@@ -66,9 +65,8 @@
   ],
 
   "countries": [
-    {"fieldcatalog": true,
-     "entity_name":  "country",
-     "description":  "Countries",
+    {"entity_name": "country",
+     "description": "Countries",
      "admin":      true,
      "fields":[
         {"name": "country_id",  "heading": "Code",         "input_type": "text"},
