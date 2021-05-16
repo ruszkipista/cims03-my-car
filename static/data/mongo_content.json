@@ -112,6 +112,14 @@
 
 
   "unit_types":[
+    {"entity_name": "unit type",
+     "description": "Unit Types",
+     "admin":       true,
+     "fields":[
+        {"name": "unit_type_id", "heading": "Unit Type",   "input_type": "text"},
+        {"name": "description",  "heading": "Description", "input_type": "text"}
+      ]
+    },
     {"unit_type_id":"CNT",  "description":"count"},
     {"unit_type_id":"VOL",  "description":"volume"},
     {"unit_type_id":"MASS", "description":"mass"},
