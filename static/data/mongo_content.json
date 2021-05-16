@@ -62,14 +62,14 @@
 
   "currencies" : [
     {"entity_name": "currency",
-      "description": "Currencies",
-      "admin":       true,
-      "fields":[
-         {"name": "currency_id", "heading": "Code",        "input_type": "text"},
-         {"name": "description", "heading": "Description", "input_type": "text"},
-         {"name": "sign",        "heading": "Sign",        "input_type": "text"}
-       ],
-       "select_field": "currency_id"
+     "description": "Currencies",
+     "admin":       true,
+     "fields":[
+        {"name": "currency_id", "heading": "Code",        "input_type": "text"},
+        {"name": "description", "heading": "Description", "input_type": "text"},
+        {"name": "sign",        "heading": "Sign",        "input_type": "text"}
+      ],
+      "select_field": "currency_id"
     },    
     {"currency_id":"USD", "description":"USA dollar",    "sign":"$"},
     {"currency_id":"EUR", "description":"Euro",          "sign":"€"},
@@ -78,8 +78,8 @@
   ],
 
   "currency_conversions" : [
-    {"entity_name": "currency_rate",
-     "description": "Currency rates",
+    {"entity_name": "currency rate",
+     "description": "Currency Rates",
      "admin":       true,
      "fields":[
         {"name": "currency_id_from", "heading": "Source Currency", "input_type": "select", "values":"currencies"},
@@ -100,7 +100,7 @@
      "fields":[
         {"name": "country_id",  "heading": "Code",         "input_type": "text"},
         {"name": "description", "heading": "Country Name", "input_type": "text"},
-        {"name": "currency_id", "heading": "Currency",     "input_type": "text"}
+        {"name": "currency_id", "heading": "Currency",     "input_type": "select", "values":"currencies"}
      ]
     },
     {"country_id":"IE",  "description":"Republic Of Ireland", "currency_id":"EUR"},
@@ -112,8 +112,8 @@
 
 
   "unit_types":[
-    {"unit_type_id":"CNT", "description":"count"},
-    {"unit_type_id":"VOL", "description":"volume"},
+    {"unit_type_id":"CNT",  "description":"count"},
+    {"unit_type_id":"VOL",  "description":"volume"},
     {"unit_type_id":"MASS", "description":"mass"},
     {"unit_type_id":"DIST", "description":"distance"},
     {"unit_type_id":"AREA", "description":"area"},

@@ -172,6 +172,29 @@ def maintain(collection_name):
 def save_record_to_db(request, coll_fieldcatalog, record_old):
     fields = [field['name'] for field in coll_fieldcatalog['fields']]
     record_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != record_old.get(f,None)}
+    
+    for field in coll_fieldcatalog['fields']:
+        # store logged in user as last updater
+        if field['input_type']=='user':
+            record_new[field['name']] = ObjectId(session['user_id'])
+        # convert date value to datetime object
+        elif field['input_type']=='date':
+            date_value = request.form.get(field['name'],None)
+            if date_value == '':
+                del record_new[field['name']]
+            elif date_value is not None:
+                record_new[field['name']] = datetime.fromisoformat(date_value)
+        # store foreign key from select-option
+        elif field['input_type']=='select':
+            # get foreign key of selected value
+            record_id = record_new.get(field['name'], None)
+            if record_id:
+                # insert foreing key as object into field
+                record_new[field['name']] = ObjectId(record_id)
+        # store check box as boolean
+        elif field['input_type']=='checkbox':
+            record_new[field['name']] = True if record_new.get(field['name'], None)=='on' else False
+
     coll = get_mongo_coll(coll_fieldcatalog[app.config['MONGO_COLLECTION_NAME']])
     try:
         if record_old:
@@ -181,7 +204,7 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
             coll.insert_one(record_new)
         # create empty record - this clears the input fields, because the update was OK
         record_new = {}
-        flash(f"One {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} successfully {'updated' if record_old else 'added'}", "success")
+        flash(f"Successfully {'updated' if record_old else 'added'} one {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} record", "success")
     except:
         flash(f"Error in {'update' if record_old else 'insert'} operation!", "danger")
     return record_new
@@ -228,7 +251,7 @@ def delete_record(collection_name, record_id):
     else:
         # delete record
         coll.delete_one({"_id":record["_id"]})
-        flash(f"Deleted {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} {record['description']}", "info")
+        flash(f"Deleted one {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} record", "info")
     return redirect(url_for('maintain', collection_name=collection_name))
 
 
@@ -386,6 +409,17 @@ def init_mongo_db(load_content=False):
                 'from_date': from_date
                 }})
 
+        # convert Countries
+        coll = get_mongo_coll('countries')
+        records = list(coll.find())
+        for record in records:
+            # convert Currency ID to _id
+            currency_id = next((c['_id'] for c in currencies if c['currency_id'] == record['currency_id']), '')
+            # update the record
+            coll.update_one({'_id':record['_id']}, {"$set":{
+                'currency_id': currency_id,
+                }})            
+
         # get all Categories
         coll = get_mongo_coll('categories')
         categories = list(coll.find())
@@ -414,7 +448,6 @@ def init_mongo_db(load_content=False):
         coll.drop_indexes()
         coll.create_index([("name",pymongo.TEXT), 
                            ("description",pymongo.TEXT)], name='name_description')
-        #print(coll.index_information())
  
 
 def save_task_to_db(request, task_old):
@@ -426,7 +459,6 @@ def save_task_to_db(request, task_old):
         del task_new['due_date']
     elif due_date is not None:
         task_new['due_date'] = datetime.fromisoformat(due_date)
-        print(task_new['due_date'],type(task_new['due_date']))
 
     category_id = task_new.get('category_id', None)
     if category_id:
