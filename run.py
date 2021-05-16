@@ -38,8 +38,11 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f".ueffo.mongodb.net" + \
                           f"/{app.config['MONGO_DB_NAME']}" + \
                           f"?retryWrites=true&w=majority"
-
-app.config["MONGO_FIELDCATALOG"] = 'fieldcatalog'
+app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/data/mongo_content.json")
+app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
+app.config["MONGO_FIELDCATALOG"]    = 'fieldcatalog'
+app.config["MONGO_COLLECTION_NAME"] = 'collection_name'
+app.config["MONGO_ENTITY_NAME"]     = 'entity_name'
 
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
@@ -57,8 +60,6 @@ app.config["MONGO_COLLECTION_TASKS"] = {
         "fields":["name","description","is_urgent","due_date","is_complete","date_time_insert","date_time_update",
                   "category_id","image_id","user_id"]
 }
-app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/data/mongo_content.json")
-app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
 
 
 # App routes
@@ -159,7 +160,6 @@ def maintain(collection_name):
     if not records:
         flash("There are no records. Create one below!", 'info')
     return render_template("maintain.html", 
-        collection_name=collection_name,
         fieldcatalog=fieldcatalog,
         records=records, 
         last_record=record)
@@ -177,7 +177,7 @@ def save_record_to_db(request, collection_name, fieldcatalog, record_old):
             coll.insert_one(record_new)
         # create empty record - this clears the input fields, because the update was OK
         record_new = {}
-        flash(f"One {fieldcatalog['entity_name']} successfully {'updated' if record_old else 'added'}", "success")
+        flash(f"One {fieldcatalog[app.config['MONGO_ENTITY_NAME']]} successfully {'updated' if record_old else 'added'}", "success")
     except:
         flash(f"Error in {'update' if record_old else 'insert'} operation!", "danger")
     return record_new
@@ -194,7 +194,7 @@ def update_record(collection_name, record_id):
     coll = get_mongo_coll(collection_name)
     record = coll.find_one({"_id":ObjectId(record_id)})
     if not record:
-        flash(f"{fieldcatalog['entity_name']} {record_id} does not exist", "danger")
+        flash(f"{fieldcatalog[app.config['MONGO_ENTITY_NAME']]} {record_id} does not exist", "danger")
         return redirect(url_for('maintain', collection_name=collection_name))
 
     if request.method == 'POST':
@@ -205,7 +205,6 @@ def update_record(collection_name, record_id):
 
     records = coll.find()
     return render_template("maintain.html",
-        collection_name=collection_name,
         fieldcatalog=fieldcatalog,
         records=records, 
         last_record=record)
@@ -225,7 +224,7 @@ def delete_record(collection_name, record_id):
     else:
         # delete record
         coll.delete_one({"_id":record["_id"]})
-        flash(f"Deleted {fieldcatalog['entity_name']} {record['description']}", "info")
+        flash(f"Deleted {fieldcatalog[app.config['MONGO_ENTITY_NAME']]} {record['description']}", "info")
     return redirect(url_for('maintain', collection_name=collection_name))
 
 
@@ -341,12 +340,13 @@ def init_mongo_db(load_content=False):
             for coll_name,coll_docs in collections.items():
                 coll = get_mongo_coll(coll_name)
                 coll.delete_many({})
+                for doc in coll_docs:
+                    if doc.get(app.config["MONGO_ENTITY_NAME"], False):
+                        doc[app.config["MONGO_COLLECTION_NAME"]] = coll_name
+                        fieldcatalog.append(doc)
+                coll_docs = [doc for doc in coll_docs if not doc.get(app.config["MONGO_ENTITY_NAME"], False)]
                 if coll_docs:
-                    for doc in coll_docs:
-                        if doc.get('entity_name', False):
-                            doc['collection_name'] = coll_name
-                            fieldcatalog.append(doc)
-                    coll.insert_many([doc for doc in coll_docs if not doc.get('entity_name', False)])
+                    coll.insert_many(coll_docs)
         # write out Fieldcatalog
         coll = get_mongo_coll(app.config["MONGO_FIELDCATALOG"])
         coll.delete_many({})
@@ -456,7 +456,7 @@ def get_records(collection_name):
         coll = get_mongo_coll(collection_name)
         if coll:
             if collection_name==app.config["MONGO_FIELDCATALOG"]:
-                records = g._collections[collection_name] = {doc['collection_name']:doc for doc in coll.find()}
+                records = g._collections[collection_name] = {doc[app.config["MONGO_COLLECTION_NAME"]]:doc for doc in coll.find()}
             else:
                 records = g._collections[collection_name] = { c['_id']:c for c in coll.find()}
     return records
