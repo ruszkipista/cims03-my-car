@@ -12,14 +12,53 @@
       enctype="multipart/form-data">
       <h2 class="text-center">Maintain {{ coll_fieldcat['description'] }}</h2>
       <!-- input fields -->
+      <div class="row m-0 p-0">
+
+      <!-- TEXT type -->
       {% for field in coll_fieldcat['fields'] %}
-      <div class="form-outline">
-        <input type="{{ field['name'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+      {% if field['input_type']=='text' %}
+      <div class="form-outline col-12 col-lg-6 mb-3">
+        <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
                name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
         <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
       </div>
-      <br>
+
+      <!-- NUMBER type -->
+      {% elif field['input_type']=='number' %}
+      <div class="form-outline col-12 col-lg-6">
+        <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+               name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
+        <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+      </div>
+      
+      <!-- DATE type -->
+      {% elif field['input_type']=='date' %}
+      <div class="form-outline col-12 col-lg-6">
+        <!-- learnt to remove the date template if not in focus https://stackoverflow.com/a/28686510/8634389 -->
+        <input type="{% if last_record[field['name']] %}date{% else %}text{% endif %}" 
+               class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+               onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'"
+               name="{{ field['name'] }}" value="{{ last_record[field['name']]|datetime_to_str('%Y-%m-%d') }}"">
+        <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+      </div>
+
+      <!-- SELECT type -->
+      {% elif field['input_type']=='select' %}
+      <div class="col-12 col-lg-6 mb-3">
+        <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+        <select name="{{ field['name'] }}" id="{{ field['name'] }}">
+          <option value=""></option>
+          {% for _id in buffer[field['values']] %}
+          <option value="{{ _id }}" {% if _id==last_record[field['name']] %}selected{% endif %}>
+            {{ buffer[field['values']][_id][fieldcatalog[field['values']]['select_field']] }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {% endif %}
       {% endfor %}
+      </div>
       <!-- submit button -->
       <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
         <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
@@ -43,8 +82,24 @@
         <tr>
           {% for field in coll_fieldcat['fields'] %}
           <td>
-            {% if field['name']=='icon' %}<i class="{{ record['icon'] }} fa-2x"></i>{% endif %}
-            {{ record[field['name']] }}
+            <!-- ICON -->
+            {% if field['name']=='icon' %}
+              <i class="{{ record['icon'] }} fa-2x"></i>
+            {% endif %}
+            <!-- TEXT or NUMBER type -->
+            {% if field['input_type']=='text' or field['input_type']=='number' %}
+              {{ record[field['name']] }}
+            <!-- DATE type -->
+            {% elif field['input_type']=='date' %}
+              {{ record[field['name']]|datetime_to_str('%d/%m/%Y') }}
+            <!-- SELECT type -->
+            {% elif field['input_type']=='select' %}
+              {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
+              {% set item = buffer[field['values']][record[field['name']]] %}
+                {{ item[fieldcatalog[field['values']]['select_field']] }}
+              {% endif %}
+
+            {% endif %}
           </td>
           {% endfor %}
           <td class="text-center">

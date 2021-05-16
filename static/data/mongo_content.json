@@ -6,10 +6,10 @@
   "images": [
     {"entity_name": "image",
      "description": "Task Images",
-     "admin":       true,
+     "admin":       false,
      "fields":[
-        {"name": "source", "heading": "Upload file name", "input_type": "text"},
-        {"name": "image",  "heading": "Image",            "input_type": "text"}
+        {"name": "source", "heading": "Upload file name"},
+        {"name": "image",  "heading": "Image"}
       ]
      }
   ],
@@ -65,21 +65,32 @@
       "description": "Currencies",
       "admin":       true,
       "fields":[
-         {"name": "currency_id",   "heading": "Code",        "input_type": "text"},
-         {"name": "description",   "heading": "Description", "input_type": "text"},
-         {"name": "currency_sign", "heading": "Sign",        "input_type": "text"}
-       ]
+         {"name": "currency_id", "heading": "Code",        "input_type": "text"},
+         {"name": "description", "heading": "Description", "input_type": "text"},
+         {"name": "sign",        "heading": "Sign",        "input_type": "text"}
+       ],
+       "select_field": "currency_id"
     },    
-    {"currency_id":"USD", "description":"USA dollar",    "currency_sign":"$"},
-    {"currency_id":"EUR", "description":"euro",          "currency_sign":"€"},
-    {"currency_id":"GBP", "description":"British pound", "currency_sign":"£"},
-    {"currency_id":"HUF", "description":"HU forint",     "currency_sign":"Ft"}
+    {"currency_id":"USD", "description":"USA dollar",    "sign":"$"},
+    {"currency_id":"EUR", "description":"Euro",          "sign":"€"},
+    {"currency_id":"GBP", "description":"British pound", "sign":"£"},
+    {"currency_id":"HUF", "description":"HU Forint",     "sign":"Ft"}
   ],
 
   "currency_conversions" : [
-    {"currenc_id_from":"EUR", "currency_id_to":"GBP", "fromDate":"2018-01-01", "rate":   0.89050},
-    {"currenc_id_from":"EUR", "currency_id_to":"HUF", "fromDate":"2018-01-01", "rate": 323.82},
-    {"currenc_id_from":"EUR", "currency_id_to":"USD", "fromDate":"2018-01-01", "rate":   1.134}
+    {"entity_name": "currency_rate",
+     "description": "Currency rates",
+     "admin":       true,
+     "fields":[
+        {"name": "currency_id_from", "heading": "Source Currency", "input_type": "select", "values":"currencies"},
+        {"name": "currency_id_to",   "heading": "Target Currency", "input_type": "select", "values":"currencies"},
+        {"name": "from_date",        "heading": "From Date",       "input_type": "date"},
+        {"name": "rate",             "heading": "Rate",            "input_type": "number"}
+      ]
+    },      
+    {"currency_id_from":"EUR", "currency_id_to":"GBP", "from_date":"2018-01-01", "rate":   0.89050},
+    {"currency_id_from":"EUR", "currency_id_to":"HUF", "from_date":"2018-01-01", "rate": 323.82},
+    {"currency_id_from":"EUR", "currency_id_to":"USD", "from_date":"2018-01-01", "rate":   1.134}
   ],
 
   "countries": [

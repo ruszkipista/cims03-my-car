@@ -41,8 +41,12 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
 app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/data/mongo_content.json")
 app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
 app.config["MONGO_FIELDCATALOG"]    = 'fieldcatalog'
+app.config["MONGO_CURRENCIES"]      = 'currencies'
 app.config["MONGO_COLLECTION_NAME"] = 'collection_name'
 app.config["MONGO_ENTITY_NAME"]     = 'entity_name'
+app.config["MONGO_BUFFERED_COLLECTIONS"] = [
+    app.config["MONGO_CURRENCIES"]
+]
 
 app.config["MONGO_COLLECTION_USERS"] = {
         "name":"users",
@@ -340,13 +344,16 @@ def init_mongo_db(load_content=False):
             for coll_name,coll_docs in collections.items():
                 coll = get_mongo_coll(coll_name)
                 coll.delete_many({})
+                # separate fieldcatalog record from data records
                 for doc in coll_docs:
                     if doc.get(app.config["MONGO_ENTITY_NAME"], False):
                         doc[app.config["MONGO_COLLECTION_NAME"]] = coll_name
                         fieldcatalog.append(doc)
+                # remove fieldcatalog record, leave only data records
                 coll_docs = [doc for doc in coll_docs if not doc.get(app.config["MONGO_ENTITY_NAME"], False)]
                 if coll_docs:
                     coll.insert_many(coll_docs)
+
         # write out Fieldcatalog
         coll = get_mongo_coll(app.config["MONGO_FIELDCATALOG"])
         coll.delete_many({})
@@ -358,7 +365,28 @@ def init_mongo_db(load_content=False):
         for user in users:
             password = generate_password_hash(user['password'])
             coll.update_one({'_id':user['_id']}, {"$set":{'password':password}})
-        # get all categories from Categories
+
+        # get all Currencies
+        coll = get_mongo_coll('currencies')
+        currencies = list(coll.find())
+
+        # convert Currency_Conversions
+        coll = get_mongo_coll('currency_conversions')
+        records = list(coll.find())
+        for record in records:
+            # convert From Date isodatestring to datetime
+            from_date = datetime.strptime(record['from_date'], '%Y-%m-%d')
+            # convert Currency ID to _id
+            currency_id_from = next((c['_id'] for c in currencies if c['currency_id'] == record['currency_id_from']), '')
+            currency_id_to   = next((c['_id'] for c in currencies if c['currency_id'] == record['currency_id_to']), '')
+            # update the record
+            coll.update_one({'_id':record['_id']}, {"$set":{
+                'currency_id_from': currency_id_from,
+                'currency_id_to':   currency_id_to,
+                'from_date': from_date
+                }})
+
+        # get all Categories
         coll = get_mongo_coll('categories')
         categories = list(coll.find())
         # in Tasks
@@ -450,7 +478,10 @@ def _jinja2_filter_datetime_to_str(dt, format):
 # learnt about calling functions from jinja template from here https://stackoverflow.com/a/22966127/8634389
 @app.context_processor
 def context_variables():
-    return dict(fieldcatalog=get_records(app.config["MONGO_FIELDCATALOG"]))
+    return dict(
+        fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"]),
+        buffer       = {coll:get_records(coll) for coll in app.config["MONGO_BUFFERED_COLLECTIONS"] }
+    )
 
 
 def get_records(collection_name):
