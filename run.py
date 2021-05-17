@@ -172,6 +172,10 @@ def maintain(collection_name):
 def save_record_to_db(request, coll_fieldcatalog, record_old):
     fields = [field['name'] for field in coll_fieldcatalog['fields']]
     record_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != record_old.get(f,None)}
+    if not record_new:
+        print(record_new)
+        flash(f"Did not {'update' if record_old else 'add'} record", "info")
+        return {}
     
     for field in coll_fieldcatalog['fields']:
         # store logged in user as last updater

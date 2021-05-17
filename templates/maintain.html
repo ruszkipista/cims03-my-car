@@ -106,7 +106,8 @@
               <a href="{{ url_for('update_record', collection_name=coll_fieldcat['collection_name'], record_id=record['_id']) }}">
                 <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
               </a>
-              <a href="{{ url_for('delete_record', collection_name=coll_fieldcat['collection_name'], record_id=record['_id']) }}" data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
+              <a href="{{ url_for('delete_record', collection_name=coll_fieldcat['collection_name'], record_id=record['_id']) }}" 
+                 data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
                 <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Delete"></i>
               </a>
           </td>
