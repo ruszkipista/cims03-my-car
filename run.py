@@ -40,12 +40,18 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f"?retryWrites=true&w=majority"
 app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/data/mongo_content.json")
 app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
-app.config["MONGO_FIELDCATALOG"]    = 'fieldcatalog'
-app.config["MONGO_CURRENCIES"]      = 'currencies'
-app.config["MONGO_COLLECTION_NAME"] = 'collection_name'
-app.config["MONGO_ENTITY_NAME"]     = 'entity_name'
+app.config["MONGO_FIELDCATALOG"]     = 'fieldcatalog'
+app.config["MONGO_CURRENCIES"]       = 'currencies'
+app.config["MONGO_MEASURE_TYPES"]    = 'measure_types'
+app.config["MONGO_UNIT_OF_MEASURES"] = 'unit_of_measures'
+app.config["MONGO_UNIT_CONVERSIONS"] = 'unit_conversions'
+app.config["MONGO_COLLECTION_NAME"]  = 'collection_name'
+app.config["MONGO_ENTITY_NAME"]      = 'entity_name'
 app.config["MONGO_BUFFERED_COLLECTIONS"] = [
-    app.config["MONGO_CURRENCIES"]
+    app.config["MONGO_CURRENCIES"],
+    app.config["MONGO_MEASURE_TYPES"],
+    app.config["MONGO_UNIT_OF_MEASURES"],
+    app.config["MONGO_UNIT_CONVERSIONS"]
 ]
 
 app.config["MONGO_COLLECTION_USERS"] = {
@@ -173,7 +179,6 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
     fields = [field['name'] for field in coll_fieldcatalog['fields']]
     record_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != record_old.get(f,None)}
     if not record_new:
-        print(record_new)
         flash(f"Did not {'update' if record_old else 'add'} record", "info")
         return {}
     
@@ -423,6 +428,37 @@ def init_mongo_db(load_content=False):
             coll.update_one({'_id':record['_id']}, {"$set":{
                 'currency_id': currency_id,
                 }})            
+
+        # get all Measure Types
+        coll = get_mongo_coll('measure_types')
+        measure_types = list(coll.find())
+
+        # convert Unit of Measures
+        coll = get_mongo_coll('unit_of_measures')
+        records = list(coll.find())
+        for record in records:
+            # convert Measure Type ID to _id
+            measure_type_id = next((c['_id'] for c in measure_types if c['measure_type_id'] == record['measure_type_id']), '')
+            # update the record
+            coll.update_one({'_id':record['_id']}, {"$set":{
+                'measure_type_id': measure_type_id,
+                }})
+
+        # get all Unit of Measures
+        unit_of_measures = list(coll.find())
+
+        # convert Unit Conversions
+        coll = get_mongo_coll('unit_conversions')
+        records = list(coll.find())
+        for record in records:
+            # convert Unit of Measure ID to _id
+            uom_id_from = next((c['_id'] for c in unit_of_measures if c['uom_id'] == record['uom_id_from']), '')
+            uom_id_to   = next((c['_id'] for c in unit_of_measures if c['uom_id'] == record['uom_id_to']), '')
+            # update the record
+            coll.update_one({'_id':record['_id']}, {"$set":{
+                'uom_id_from': uom_id_from,
+                'uom_id_to':   uom_id_to
+                }})
 
         # get all Categories
         coll = get_mongo_coll('categories')

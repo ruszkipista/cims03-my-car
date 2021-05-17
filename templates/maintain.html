@@ -95,7 +95,7 @@
             <!-- SELECT type -->
             {% elif field['input_type']=='select' %}
               {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
-              {% set item = buffer[field['values']][record[field['name']]] %}
+                {% set item = buffer[field['values']][record[field['name']]] %}
                 {{ item[fieldcatalog[field['values']]['select_field']] }}
               {% endif %}
 

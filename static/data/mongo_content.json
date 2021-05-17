@@ -50,7 +50,8 @@
      "fields":[
         {"name": "description", "heading": "Description",      "input_type": "text", "attributes": "minlength=3 maxlength=25"},
         {"name": "icon",        "heading": "Font Awsome Icon", "input_type": "text"}
-     ]
+     ],
+     "select_field": "description"
     },
     {"description": "Travel",    "icon": "fas fa-suitcase-rolling"},
     {"description": "Tax issue", "icon": "fas fa-university"},
@@ -85,7 +86,7 @@
         {"name": "currency_id_from", "heading": "Source Currency", "input_type": "select", "values":"currencies"},
         {"name": "currency_id_to",   "heading": "Target Currency", "input_type": "select", "values":"currencies"},
         {"name": "from_date",        "heading": "From Date",       "input_type": "date"},
-        {"name": "rate",             "heading": "Rate",            "input_type": "number"}
+        {"name": "rate",             "heading": "Rate",            "input_type": "number", "attributes": "step=any min=0"}
       ]
     },      
     {"currency_id_from":"EUR", "currency_id_to":"GBP", "from_date":"2018-01-01", "rate":   0.89050},
@@ -101,7 +102,8 @@
         {"name": "country_id",  "heading": "Code",         "input_type": "text"},
         {"name": "description", "heading": "Country Name", "input_type": "text"},
         {"name": "currency_id", "heading": "Currency",     "input_type": "select", "values":"currencies"}
-     ]
+     ],
+     "select_field": "country_id"
     },
     {"country_id":"IE",  "description":"Republic Of Ireland", "currency_id":"EUR"},
     {"country_id":"NI",  "description":"Northern Ireland",    "currency_id":"GBP"},
@@ -111,51 +113,71 @@
   ],
 
 
-  "unit_types":[
-    {"entity_name": "unit type",
-     "description": "Unit Types",
+  "measure_types":[
+    {"entity_name": "measure type",
+     "description": "Measure Types",
      "admin":       true,
      "fields":[
-        {"name": "unit_type_id", "heading": "Unit Type",   "input_type": "text"},
-        {"name": "description",  "heading": "Description", "input_type": "text"}
-      ]
+        {"name": "measure_type_id", "heading": "Measure Type", "input_type": "text"},
+        {"name": "description",     "heading": "Description",  "input_type": "text"}
+      ],
+      "select_field": "measure_type_id"
     },
-    {"unit_type_id":"CNT",  "description":"count"},
-    {"unit_type_id":"VOL",  "description":"volume"},
-    {"unit_type_id":"MASS", "description":"mass"},
-    {"unit_type_id":"DIST", "description":"distance"},
-    {"unit_type_id":"AREA", "description":"area"},
-    {"unit_type_id":"FECO", "description":"fuel economy"},
-    {"unit_type_id":"CURR", "description":"currency"},
-    {"unit_type_id":"TIME", "description":"time"}
+    {"measure_type_id":"CNT",  "description":"count"},
+    {"measure_type_id":"VOL",  "description":"volume"},
+    {"measure_type_id":"MASS", "description":"mass"},
+    {"measure_type_id":"DIST", "description":"distance"},
+    {"measure_type_id":"AREA", "description":"area"},
+    {"measure_type_id":"FECO", "description":"fuel economy"},
+    {"measure_type_id":"CURR", "description":"currency"},
+    {"measure_type_id":"TIME", "description":"time"}
   ],
 
   "unit_of_measures": [
-    {"uom_id":"L",      "description":"litre",            "unit_type_id":"VOL"},
-    {"uom_id":"ml",     "description":"milli litre",      "unit_type_id":"VOL"},
-    {"uom_id":"galImp", "description":"gallon imperial",  "unit_type_id":"VOL"},
-    {"uom_id":"L100km", "description":"L/100km",          "unit_type_id":"FECO"},
-    {"uom_id":"mpgImp", "description":"miles/gallon Imp", "unit_type_id":"FECO"},
-    {"uom_id":"kg",     "description":"kilogramme",       "unit_type_id":"MASS"},
-    {"uom_id":"g",      "description":"gramme",           "unit_type_id":"MASS"},
-    {"uom_id":"lb",     "description":"pound",            "unit_type_id":"MASS"},
-    {"uom_id":"km",     "description":"kilometre",        "unit_type_id":"DIST"},
-    {"uom_id":"m",      "description":"metre",            "unit_type_id":"DIST"},
-    {"uom_id":"cm",     "description":"centimetre",       "unit_type_id":"DIST"},
-    {"uom_id":"mm",     "description":"millimetre",       "unit_type_id":"DIST"},
-    {"uom_id":"mi",     "description":"mile",             "unit_type_id":"DIST"},
-    {"uom_id":"ft",     "description":"foot",             "unit_type_id":"DIST"},
-    {"uom_id":"yd",     "description":"yard",             "unit_type_id":"DIST"},
-    {"uom_id":"in",     "description":"inch",             "unit_type_id":"DIST"},
-    {"uom_id":"m2",     "description":"square metre",     "unit_type_id":"AREA"},
-    {"uom_id":"ea",     "description":"each",             "unit_type_id":"CNT"},
-    {"uom_id":"pc",     "description":"piece",            "unit_type_id":"CNT"},
-    {"uom_id":"year",   "description":"year",             "unit_type_id":"TIME"},
-    {"uom_id":"month",  "description":"month",            "unit_type_id":"TIME"},
-    {"uom_id":"day",    "description":"day",              "unit_type_id":"TIME"}
+    {"entity_name": "unit of measure",
+     "description": "Unit of Measures",
+     "admin":       true,
+     "fields":[
+        {"name": "uom_id",          "heading": "Unit of Measure", "input_type": "text"},
+        {"name": "description",     "heading": "Description",     "input_type": "text"},
+        {"name": "measure_type_id", "heading": "Measure Type",    "input_type": "select", "values":"measure_types"}
+      ],
+      "select_field": "uom_id"
+    },
+    {"uom_id":"L",      "description":"litre",            "measure_type_id":"VOL"},
+    {"uom_id":"ml",     "description":"milli litre",      "measure_type_id":"VOL"},
+    {"uom_id":"galImp", "description":"gallon imperial",  "measure_type_id":"VOL"},
+    {"uom_id":"L100km", "description":"L/100km",          "measure_type_id":"FECO"},
+    {"uom_id":"mpgImp", "description":"miles/gallon Imp", "measure_type_id":"FECO"},
+    {"uom_id":"kg",     "description":"kilogramme",       "measure_type_id":"MASS"},
+    {"uom_id":"g",      "description":"gramme",           "measure_type_id":"MASS"},
+    {"uom_id":"lb",     "description":"pound",            "measure_type_id":"MASS"},
+    {"uom_id":"km",     "description":"kilometre",        "measure_type_id":"DIST"},
+    {"uom_id":"m",      "description":"metre",            "measure_type_id":"DIST"},
+    {"uom_id":"cm",     "description":"centimetre",       "measure_type_id":"DIST"},
+    {"uom_id":"mm",     "description":"millimetre",       "measure_type_id":"DIST"},
+    {"uom_id":"mi",     "description":"mile",             "measure_type_id":"DIST"},
+    {"uom_id":"ft",     "description":"foot",             "measure_type_id":"DIST"},
+    {"uom_id":"yd",     "description":"yard",             "measure_type_id":"DIST"},
+    {"uom_id":"in",     "description":"inch",             "measure_type_id":"DIST"},
+    {"uom_id":"m2",     "description":"square metre",     "measure_type_id":"AREA"},
+    {"uom_id":"ea",     "description":"each",             "measure_type_id":"CNT"},
+    {"uom_id":"pc",     "description":"piece",            "measure_type_id":"CNT"},
+    {"uom_id":"year",   "description":"year",             "measure_type_id":"TIME"},
+    {"uom_id":"month",  "description":"month",            "measure_type_id":"TIME"},
+    {"uom_id":"day",    "description":"day",              "measure_type_id":"TIME"}
   ],
 
   "unit_conversions": [
+    { "entity_name": "unit conversion",
+      "description": "Unit Conversions",
+      "admin":       true,
+      "fields":[
+         {"name": "uom_id_from", "heading": "Source Unit", "input_type": "select", "values":"unit_of_measures"},
+         {"name": "uom_id_to",   "heading": "Target Unit", "input_type": "select", "values":"unit_of_measures"},
+         {"name": "rate",        "heading": "Rate",        "input_type": "number", "attributes": "step=any min=0"}
+       ]
+    },    
     {"uom_id_from":"lb",     "uom_id_to":"kg",     "rate":   0.45359237},
     {"uom_id_from":"L",      "uom_id_to":"galImp", "rate":   0.2199692482990878},
     {"uom_id_from":"L",      "uom_id_to":"ml",     "rate":1000.0},
