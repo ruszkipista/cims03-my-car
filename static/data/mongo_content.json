@@ -201,17 +201,37 @@
   ],
 
   "expenditure_types": [
+    { "entity_name": "expenditure type",
+      "description": "Expenditure Types",
+      "admin":       false,
+      "fields":[
+         {"name": "expenditure_type_id", "heading": "Expenditure Type", "input_type": "text"},
+         {"name": "description",         "heading": "Description",      "input_type": "text"}
+       ],
+       "select_field": "expenditure_type_id"
+    },
     {"expenditure_type_id":"OP",  "description":"operational expense"},
     {"expenditure_type_id":"CAP", "description":"capital expense"}
   ],
 
   "material_types": [
-    {"material_type_id":"FUEL",       "description":"fuel",       "unit_type_id":"VOL", "expenditure_type_id":"OP"},
-    {"material_type_id":"PART",       "description":"part",       "unit_type_id":"CNT", "expenditure_type_id":"CAP"},
-    {"material_type_id":"CONSUMABLE", "description":"consumable", "unit_type_id":"CNT", "expenditure_type_id":"OP"},
-    {"material_type_id":"SERVICE",    "description":"service",    "unit_type_id":"CNT", "expenditure_type_id":"OP"},
-    {"material_type_id":"INSURANCE",  "description":"insurance",  "unit_type_id":"CNT", "expenditure_type_id":"OP"},
-    {"material_type_id":"TAX",        "description":"tax",        "unit_type_id":"CNT", "expenditure_type_id":"OP"}
+    { "entity_name": "material types",
+      "description": "Material Types",
+      "admin":       true,
+      "fields":[
+         {"name": "material_type_id",    "heading": "Material Type",    "input_type": "text"},
+         {"name": "description",         "heading": "Description",      "input_type": "text"},
+         {"name": "measure_type_id",     "heading": "Measure Type",     "input_type": "select", "values":"measure_types"},
+         {"name": "expenditure_type_id", "heading": "Expenditure Type", "input_type": "select", "values":"expenditure_types"}
+       ],
+       "select_field": "material_type_id"
+    }, 
+    {"material_type_id":"FUEL",       "description":"fuel",       "measure_type_id":"VOL", "expenditure_type_id":"OP"},
+    {"material_type_id":"PART",       "description":"part",       "measure_type_id":"CNT", "expenditure_type_id":"CAP"},
+    {"material_type_id":"CONSUMABLE", "description":"consumable", "measure_type_id":"CNT", "expenditure_type_id":"OP"},
+    {"material_type_id":"SERVICE",    "description":"service",    "measure_type_id":"CNT", "expenditure_type_id":"OP"},
+    {"material_type_id":"INSURANCE",  "description":"insurance",  "measure_type_id":"CNT", "expenditure_type_id":"OP"},
+    {"material_type_id":"TAX",        "description":"tax",        "measure_type_id":"CNT", "expenditure_type_id":"OP"}
   ],
 
   "cars": [
