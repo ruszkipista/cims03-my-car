@@ -203,7 +203,7 @@
   "expenditure_types": [
     { "entity_name": "expenditure type",
       "description": "Expenditure Types",
-      "admin":       false,
+      "admin":       true,
       "fields":[
          {"name": "expenditure_type_id", "heading": "Expenditure Type", "input_type": "text"},
          {"name": "description",         "heading": "Description",      "input_type": "text"}
@@ -233,6 +233,27 @@
     {"material_type_id":"INSURANCE",  "description":"insurance",  "measure_type_id":"CNT", "expenditure_type_id":"OP"},
     {"material_type_id":"TAX",        "description":"tax",        "measure_type_id":"CNT", "expenditure_type_id":"OP"}
   ],
+  
+  "materials": [
+    { "entity_name": "material",
+      "description": "Materials",
+      "admin":       true,
+      "fields":[
+         {"name": "material_id",      "heading": "Material",      "input_type": "text"},
+         {"name": "description",      "heading": "Description",   "input_type": "text"},
+         {"name": "material_type_id", "heading": "Material Type", "input_type": "select", "values":"material_types"}
+       ],
+       "select_field": "material_id"
+    }, 
+    {"material_id": "gasoline",        "description": "gasoline",                "material_type_id": "FUEL"},
+    {"material_id": "electricity",     "description": "electricity",             "material_type_id": "FUEL"},
+    {"material_id": "motortax",        "description": "motor tax",               "material_type_id": "TAX"},
+    {"material_id": "servicematerial", "description": "service material",        "material_type_id": "CONSUMABLE"},
+    {"material_id": "carpart",         "description": "car part",                "material_type_id": "PART"},
+    {"material_id": "carservice",      "description": "car service",             "material_type_id": "SERVICE"},
+    {"material_id": "petrol95",        "description": "petrol 95",               "material_type_id": "FUEL"},
+    {"material_id": "insurance",       "description": "car liability insurance", "material_type_id": "INSURANCE"}
+  ],
 
   "cars": [
     { "car_id": "mazda3",
@@ -259,17 +280,6 @@
       "country_id": "IE",
       "carImageUrl": "http://ipocars.com/imgs/a/e/g/i/z/toyota_yaris_1_3_2001_1_lgw.jpg"
     }
-  ],
-
-  "materials": [
-    {"material_id": "gasoline",        "material_type": "FUEL",       "description": "gasoline"},
-    {"material_id": "electricity",     "material_type": "FUEL",       "description": "electricity"},
-    {"material_id": "motortax",        "material_type": "TAX",        "description": "motor tax"},
-    {"material_id": "servicematerial", "material_type": "CONSUMABLE", "description": "service material"},
-    {"material_id": "carpart",         "material_type": "PART",       "description": "car part"},
-    {"material_id": "carservice",      "material_type": "SERVICE",    "description": "car service"},
-    {"material_id": "petrol95",        "material_type": "FUEL",       "description": "petrol 95"},
-    {"material_id": "insurance",       "material_type": "INSURANCE",  "description": "car liability insurance"}
   ],
 
   "partners": [

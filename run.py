@@ -54,7 +54,8 @@ app.config["MONGO_BUFFERED_COLLECTIONS"] = [
     app.config["MONGO_MEASURE_TYPES"],
     app.config["MONGO_UNIT_OF_MEASURES"],
     app.config["MONGO_UNIT_CONVERSIONS"],
-    app.config["MONGO_EXPENDITURE_TYPES"]
+    app.config["MONGO_EXPENDITURE_TYPES"],
+    app.config["MONGO_MATERIAL_TYPES"]
 ]
 
 app.config["MONGO_COLLECTION_USERS"] = {
@@ -471,7 +472,7 @@ def init_mongo_db(load_content=False):
         coll = get_mongo_coll('material_types')
         records = list(coll.find())
         for record in records:
-            # convert Currency ID to _id
+            # convert Measure Type ID and Expenditure Type ID to _id
             measure_type_id     = next((c['_id'] for c in measure_types     if c['measure_type_id']     == record['measure_type_id']), '')
             expenditure_type_id = next((c['_id'] for c in expenditure_types if c['expenditure_type_id'] == record['expenditure_type_id']), '')
             # update the record
@@ -479,6 +480,20 @@ def init_mongo_db(load_content=False):
                 'measure_type_id':     measure_type_id,
                 'expenditure_type_id': expenditure_type_id,
                 }})     
+
+        # get all Material Types
+        material_types = list(coll.find())
+
+        # convert Materials
+        coll = get_mongo_coll('materials')
+        records = list(coll.find())
+        for record in records:
+            # convert Material Type ID to _id
+            material_type_id = next((c['_id'] for c in material_types if c['material_type_id'] == record['material_type_id']), '')
+            # update the record
+            coll.update_one({'_id':record['_id']}, {"$set":{
+                'material_type_id': material_type_id,
+                }})            
 
         # get all Categories
         coll = get_mongo_coll('categories')
