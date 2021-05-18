@@ -56,6 +56,24 @@
         </select>
       </div>
 
+      <!-- CHECKBOX type -->
+      {% elif field['input_type']=='checkbox' %}
+      <div class="col-lg-6 mb-3 px-5 pt-2">
+        <div class="form-check form-switch">
+          <label for="{{ field['name'] }}" class="form-check-label">{{ field['heading'] }}</label>
+          <input type="checkbox" class="form-check-input" name="{{ field['name'] }}" id="{{ field['name'] }}"
+                  {% if last_record[field['name']] %}checked{% endif %}>
+        </div>
+      </div>
+
+      <!-- PASSWORD type -->
+      {% elif field['input_type']=='password' %}
+      <div class="form-outline col-12 col-lg-6 mb-3">
+        <input type="password" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+               name="{{ field['name'] }}">
+        <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+      </div>
+
       {% endif %}
       {% endfor %}
       </div>
@@ -86,18 +104,31 @@
             {% if field['name']=='icon' %}
               <i class="{{ record['icon'] }} fa-2x"></i>
             {% endif %}
+
             <!-- TEXT or NUMBER type -->
             {% if field['input_type']=='text' or field['input_type']=='number' %}
               {{ record[field['name']] }}
+
             <!-- DATE type -->
             {% elif field['input_type']=='date' %}
               {{ record[field['name']]|datetime_to_str('%d/%m/%Y') }}
+
             <!-- SELECT type -->
             {% elif field['input_type']=='select' %}
               {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
                 {% set item = buffer[field['values']][record[field['name']]] %}
                 {{ item[fieldcatalog[field['values']]['select_field']] }}
               {% endif %}
+
+            <!-- CHECKBOX type -->
+            {% elif field['input_type']=='checkbox' %}
+            {% if record[field['name']] %}&nbsp;
+            <i class="far fa-check-square" data-mdb-toggle="tooltip" data-mdb-placement="right" title="{{ field['heading'] }}"></i>
+            {% endif %}
+            
+            <!-- PASSWORD type -->
+            {% elif field['input_type']=='password' %}
+              *********
 
             {% endif %}
           </td>

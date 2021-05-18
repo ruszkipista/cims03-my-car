@@ -14,7 +14,7 @@
                 </div>
                 <div class="form-outline col-10 mt-3">
                     <input type="text" id="username" name="username" class="form-control" minlength="5" maxlength="15"
-                        pattern="^[a-zA-Z\d]{5,15}$" required>
+                        pattern="^[a-zA-Z\d]{5,15}$" {% if register %}autocomplete="off"{% endif %} required>
                     <label class="form-label" for="username">Username</label>
                 </div>
                 <div class="col-11 col-lg-12 text-end mt-0">
@@ -28,7 +28,7 @@
                 </div>
                 <div class="form-outline col-10 mt-3">
                     <input type="password" id="password" name="password" class="form-control" minlength="5"
-                        maxlength="15" pattern="^[a-zA-Z\d]{5,15}$" required>
+                        maxlength="15" pattern="^[a-zA-Z\d]{5,15}$" {% if register %}autocomplete="new-password"{% endif %} required>
                     <label class="form-label" for="password">Password</label>
                 </div>
                 <div class="col-11 col-lg-12 text-end mt-0">

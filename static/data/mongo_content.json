@@ -1,15 +1,26 @@
 {
   "users": [
-    {"username": "admin", "user_is_admin": true, "password": "admin"}
+    { "entity_name": "user",
+      "description": "Users",
+      "admin":       true,
+      "fields":[
+         {"name": "username",      "heading": "User Name",      "input_type": "text",     "attributes":"readonly"},
+         {"name": "password",      "heading": "Password",       "input_type": "password", "attributes":"autocomplete=new-password"},
+         {"name": "user_is_admin", "heading": "Administrator?", "input_type": "checkbox"}
+       ]
+    },
+    {"username": "admin",       "user_is_admin": true,  "password": "admin"},
+    {"username": "ruszkipista", "user_is_admin": false, "password": "pista"},
+    {"username": "malyatunde",  "user_is_admin": false, "password": "tunde"}
   ],
 
   "images": [
     {"entity_name": "image",
-     "description": "Task Images",
-     "admin":       false,
+     "description": "Images",
+     "admin":       true,
      "fields":[
-        {"name": "source", "heading": "Upload file name"},
-        {"name": "image",  "heading": "Image"}
+        {"name": "source", "heading": "Upload file name", "input_type": "text"},
+        {"name": "image",  "heading": "Image",            "input_type": "image"}
       ]
      }
   ],
@@ -256,30 +267,64 @@
   ],
 
   "cars": [
-    { "car_id": "mazda3",
-      "description": "Mazda3",
-      "plateNumber": "08WD678",
-      "distanceUnit_id": "km",
-      "odometerUnit_id": "km",
-      "fuelMaterial_id": "petrol95",
-      "fuelUnit_id": "L",
-      "fuelEconomyUnit_id": "L100km",
-      "currency_id": "EUR",
-      "country_id": "IE",
-      "carImageUrl": "https://www.cstatic-images.com/car-pictures/maxW_id_to503/cab80mac172b0101.png"
+    { "entity_name": "car",
+      "description": "Cars",
+      "admin":       false,
+      "fields":[
+         {"name": "car_id",               "heading": "car",                  "input_type": "text"},
+         {"name": "description",          "heading": "Description",          "input_type": "text"},
+         {"name": "reg_country_id",       "heading": "Registration Country", "input_type": "select", "values":"countries"},
+         {"name": "plate_number",         "heading": "Registration Number",  "input_type": "text"},
+         {"name": "distance_unit_id",     "heading": "Distance Unit",        "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["DIST"]}},
+         {"name": "odometer_unit_id",     "heading": "Odometer Unit",        "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["DIST"]}},
+         {"name": "fuel_material_id",     "heading": "Fuel Material",        "input_type": "select", "values":"materials",        "filter":{"material_type_id":["FUEL"]}},
+         {"name": "fuel_unit_id",         "heading": "Fuel Unit",            "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["VOL"]}},
+         {"name": "fuel_economy_unit_id", "heading": "Fuel Consumption Unit","input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["FECO"]}},
+         {"name": "currency_id",          "heading": "Currency",             "input_type": "select", "values":"currencies"},
+         {"name": "owner_id",             "heading": "Owner",                "input_type": "text",   "values":"users" ,           "attributes": "read-only"},
+         {"name": "car_image_id",         "heading": "Car Image",            "input_type": "image"}
+        ],
+       "select_field": "description"
+    }, 
+    { "car_id":               "mazda3",
+      "description":          "Mazda3",
+      "reg_country_id":       "IE",
+      "plate_number":         "08WD678",
+      "distance_unit_id":     "km",
+      "odometer_unit_id":     "km",
+      "fuel_material_id":     "petrol95",
+      "fuel_unit_id":         "L",
+      "fuel_economy_unit_id": "L100km",
+      "currency_id":          "EUR",
+      "owner_id":             "ruszkipista",
+      "car_image_id":         null
     },
-    { "car_id": "yaris",
-      "description": "Yaris Sol",
-      "plateNumber": "01OY3040",
-      "distanceUnit_id": "mi",
-      "odometerUnit_id": "mi",
-      "fuelMaterial_id": "petrol95",
-      "fuelUnit_id": "L",
-      "fuelEconomyUnit_id": "L100km",
-      "currency_id": "EUR",
-      "country_id": "IE",
-      "carImageUrl": "http://ipocars.com/imgs/a/e/g/i/z/toyota_yaris_1_3_2001_1_lgw.jpg"
-    }
+    { "car_id":               "yaris",
+      "description":          "Yaris Sol",
+      "reg_country_id":       "IE",
+      "plate_number":         "01OY3040",
+      "distance_unit_id":     "km",
+      "odometer_unit_id":     "mi",
+      "fuel_material_id":     "petrol95",
+      "fuel_unit_id":         "L",
+      "fuel_economy_unit_id": "L100km",
+      "currency_id":          "EUR",
+      "owner_id":             "ruszkipista",
+      "car_image_id":         null
+    },
+    { "car_id":               "PT",
+      "description":          "PT Cruiser",
+      "reg_country_id":       "HU",
+      "plate_number":         "KGB567",
+      "distance_unit_id":     "km",
+      "odometer_unit_id":     "km",
+      "fuel_material_id":     "petrol95",
+      "fuel_unit_id":         "L",
+      "fuel_economy_unit_id": "L100km",
+      "currency_id":          "HUF",
+      "owner_id":             "malyatunde",
+      "car_image_id":         null
+    }    
   ],
 
   "partners": [
@@ -332,16 +377,16 @@
     {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-11","partner_id":"parkwayshop",      "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":4.49,                   "description":"tow rope"},
     {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-11","partner_id":"parkwayshop",      "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":7.02,                   "description":"car foot pump"},
     {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-20","partner_id":"onetimeseller",    "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":60,                     "description":"door key w/ programmed chip"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-16","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385,    "val_id_from":"20180301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-02-06","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385.00, "val_id_from":"20190301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-02-04","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385.00, "val_id_from":"20200301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2021-02-28","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":  0.00, "val_id_from":"20210301","validityLength": 1, "validityLengthUnit":"year", "description":"Motortax: Off the Road"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-20","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-95,  "uom_id":"day",  "price":1.4256, "val_id_from":"20180320","validityLength":95, "validityLengthUnit":"day",  "description":"insurance (permanent car change on Xedos policy)"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-06-23","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":407.57, "val_id_from":"20180623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-05-24","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":395.18, "val_id_from":"20190623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance Allianz"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-05-14","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":366.67, "val_id_from":"20200623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance Allianz"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-06-10","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-30,  "uom_id":"day",  "price":1,                                                                                 "description":"insurance Allianz Covid refund"},
-    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-09-14","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-91,  "uom_id":"day",  "price":1.004575,                                                                          "description":"insurance Allianz TempPause refund"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-16","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385,    "valid_from":"20180301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-02-06","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385.00, "valid_from":"20190301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-02-04","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":385.00, "valid_from":"20200301","validityLength": 1, "validityLengthUnit":"year", "description":"motortax 1 year"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2021-02-28","partner_id":"motortax",         "material_id":"motortax",        "quantity": 1,   "uom_id":"year", "price":  0.00, "valid_from":"20210301","validityLength": 1, "validityLengthUnit":"year", "description":"Motortax: Off the Road"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-20","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-95,  "uom_id":"day",  "price":1.4256, "valid_from":"20180320","validityLength":95, "validityLengthUnit":"day",  "description":"insurance (permanent car change on Xedos policy)"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-06-23","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":407.57, "valid_from":"20180623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2019-05-24","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":395.18, "valid_from":"20190623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance Allianz"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-05-14","partner_id":"allianzie",        "material_id":"insurance",       "quantity": 1,   "uom_id":"year", "price":366.67, "valid_from":"20200623","validityLength": 1, "validityLengthUnit":"year", "description":"insurance Allianz"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-06-10","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-30,  "uom_id":"day",  "price":1,                                                                                "description":"insurance Allianz Covid refund"},
+    {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2020-09-14","partner_id":"allianzie",        "material_id":"insurance",       "quantity":-91,  "uom_id":"day",  "price":1.004575,                                                                         "description":"insurance Allianz TempPause refund"},
     {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-16","partner_id":"sebastiangarage",  "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":830,  "odometer":178821, "description":"clutch kit, gearbox bracket, front LHS wishbone, rear brushing, rear axle both side"},
     {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-03-22","partner_id":"sebastiangarage",  "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":120,  "odometer":178835, "description":"oil filter, air filter, 4 spark plug, engine oil"},
     {"car_id":"mazda3","currency_id":"EUR","transactionDate":"2018-12-14","partner_id":"sebastiangarage",  "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":270,  "odometer":185700, "description":"break disc front RHS, coil spring rear RHS"},

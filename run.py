@@ -38,8 +38,10 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f".ueffo.mongodb.net" + \
                           f"/{app.config['MONGO_DB_NAME']}" + \
                           f"?retryWrites=true&w=majority"
+
 app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/data/mongo_content.json")
 app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
+app.config["MONGO_USERS"]             = 'users'
 app.config["MONGO_FIELDCATALOG"]      = 'fieldcatalog'
 app.config["MONGO_CURRENCIES"]        = 'currencies'
 app.config["MONGO_MEASURE_TYPES"]     = 'measure_types'
@@ -58,11 +60,6 @@ app.config["MONGO_BUFFERED_COLLECTIONS"] = [
     app.config["MONGO_MATERIAL_TYPES"]
 ]
 
-app.config["MONGO_COLLECTION_USERS"] = {
-        "name":"users",
-        "title":"Users",
-        "fields":["username","password"] # field "user_is_admin" is absent for security reason, can be set in the DB only!
-}
 app.config["MONGO_COLLECTION_IMAGES"] = {
         "name":"images",
         "title":"Task Images",
@@ -88,15 +85,17 @@ def register():
     if request.method == "GET":
         return render_template("reglog.html", register=True)
         
-    # POST
-    username_field = app.config["MONGO_COLLECTION_USERS"]['fields'][0]
+    # request.method == POST
+    fieldcat = get_records(app.config["MONGO_FIELDCATALOG"])[app.config["MONGO_USERS"]]
+    username_field = fieldcat['fields'][0]['name']
     username = request.form.get(username_field).lower()
-    password_field = app.config["MONGO_COLLECTION_USERS"]['fields'][1]
+    password_field = fieldcat['fields'][1]['name']
+    admin_field    = fieldcat['fields'][2]['name']
     # check if username already exists in db
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+    coll = get_mongo_coll(app.config["MONGO_USERS"])
     user_old = coll.find_one({username_field: username}, {'_id': 1})
     if user_old:
-        flash("Username already exists", 'danger')
+        flash(f"{fieldcat['fields'][0]['heading']} already exists", 'danger')
         return redirect(url_for("register"))
 
     user_new = {
@@ -105,6 +104,7 @@ def register():
     }
     # put the new user_id into 'session' cookie
     session['user_id'] = str(coll.insert_one(user_new).inserted_id)
+    session[admin_field] = False
     flash("Registration Successful!", "success")
     return redirect(url_for("tasks"))
 
@@ -114,22 +114,24 @@ def login():
     if request.method == "GET":
         return render_template("reglog.html", register=False)
 
-    # POST    
-    username_field = app.config["MONGO_COLLECTION_USERS"]['fields'][0]
-    password_field = app.config["MONGO_COLLECTION_USERS"]['fields'][1]
+    # request.method == POST
+    fieldcat = get_records(app.config["MONGO_FIELDCATALOG"])[app.config["MONGO_USERS"]]
+    username_field = fieldcat['fields'][0]['name']
+    password_field = fieldcat['fields'][1]['name']
+    admin_field    = fieldcat['fields'][2]['name']
     # check if username already exists in db
     username = request.form.get(username_field).lower()
     password = request.form.get(password_field)
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+    coll = get_mongo_coll(app.config["MONGO_USERS"])
     user_old = coll.find_one({username_field: username}, {password_field: 1, 'user_is_admin':1})
     if not user_old or not check_password_hash(user_old[password_field], password):
-        flash("Incorrect Username and/or Password", 'danger')
+        # incorrect username and/or password
+        flash(f"Incorrect {fieldcat['fields'][0]['heading']} and/or {fieldcat['fields'][1]['heading']}", 'danger')
         return redirect(url_for("login"))
 
     # put the user_id into session cookie
     session['user_id'] = str(user_old["_id"])
-    if user_old.get('user_is_admin', None):
-        session['user_is_admin'] = user_old["user_is_admin"]
+    session[admin_field] = user_old.get(admin_field, False)
     flash(f"Welcome, {username}", "success")
     return redirect(url_for("tasks"))
 
@@ -139,7 +141,7 @@ def profile():
     if request.method == "GET":
         if not session.get('user_id', None):
             return redirect(url_for("login"))
-        coll = get_mongo_coll(app.config["MONGO_COLLECTION_USERS"]['name'])
+        coll = get_mongo_coll(app.config["MONGO_USERS"])
         user = coll.find_one({'_id': ObjectId(session['user_id'])})
         return render_template("profile.html", user=user)
 
