@@ -209,6 +209,9 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         # store check box as boolean
         elif field['input_type']=='checkbox':
             record_new[field['name']] = True if record_new.get(field['name'], None)=='on' else False
+        # store password
+        elif field['input_type']=='password':
+            record_new[field['name']] = generate_password_hash(record_new.get(field['name'], None))
 
     coll = get_mongo_coll(coll_fieldcatalog[app.config['MONGO_COLLECTION_NAME']])
     try:
