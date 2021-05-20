@@ -645,14 +645,14 @@ def get_records(collection_name):
                 records = g._collections[collection_name] = { c['_id']:c for c in coll.find()}
     return records
 
-@app.template_filter('get_users_select_field')
-def _jinja2_filter_get_user(user_id, field_name):
-    fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[app.config["MONGO_USERS"]]
+@app.template_filter('get_entity_select_field')
+def _jinja2_filter_get_entity_select_field(entity_id, collection_name):
+    fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
     select_field_name = fieldcatalog['select_field']
-    coll = get_mongo_coll(app.config["MONGO_USERS"])
-    user_old = coll.find_one({'_id': user_id})
-    if user_old:
-        return user_old[select_field_name]
+    coll = get_mongo_coll(collection_name)
+    entity_old = coll.find_one({'_id': entity_id})
+    if entity_old:
+        return entity_old[select_field_name]
     else:
         return ""
 

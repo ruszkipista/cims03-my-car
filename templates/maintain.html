@@ -130,7 +130,7 @@
             <!-- USER type -->
             {% elif field_input_type=='user' %}
               {% if record[field['name']] %}
-              {{ record[field['name']]|get_users_select_field(field['name']) }}
+              {{ record[field['name']]|get_entity_select_field(field['values']) }}
               {% endif %}
 
             <!-- PASSWORD type -->
