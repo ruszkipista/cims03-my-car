@@ -136,32 +136,59 @@ def login():
     return redirect(url_for("tasks"))
 
 
-@app.route("/profile")
-def profile():
-    if request.method == "GET":
-        if not session.get('user_id', None):
-            return redirect(url_for("login"))
-        coll = get_mongo_coll(app.config["MONGO_USERS"])
-        user = coll.find_one({'_id': ObjectId(session['user_id'])})
-        return render_template("profile.html", user=user)
-
-
 @app.route("/logout")
 def logout():
+    # is a user logged in?
     if session.get('user_id', None):
         session.pop('user_id')
         flash("You have been logged out", "info")
     if session.get('user_is_admin', None):
         session.pop('user_is_admin')
-    return redirect(url_for("login"))
+    return redirect(url_for("index"))
+
+
+@app.route("/profile", methods=['GET','POST'])
+def profile():
+    # is a user logged in?
+    if not session.get('user_id', None):
+        return redirect(url_for("login"))
+    coll = get_mongo_coll(app.config["MONGO_USERS"])
+    user_old = coll.find_one({'_id': ObjectId(session['user_id'])})
+    if not user_old:
+        flash("Invalid logged in user!", 'danger')
+        return redirect(url_for("logout"))
+    if request.method == "GET":
+        return render_template("profile.html", user=user_old)
+    # request.method == POST
+    fieldcat = get_records(app.config["MONGO_FIELDCATALOG"])[app.config["MONGO_USERS"]]
+    password_field = fieldcat['fields'][1]['name']
+    password_old = request.form.get('password_old')
+    if not check_password_hash(user_old[password_field], password_old):
+        flash("Wrong old password", 'danger')
+        return redirect(url_for("profile"))
+    password_new = request.form.get('password_new')
+    if check_password_hash(user_old[password_field], password_new):
+        flash("Old and New passwords are the same, not changed!", "warning")
+        return redirect(url_for("profile"))
+    user_update = {
+        password_field: generate_password_hash(password_new),
+        "changed_by": session.get('user_id', None)
+    }
+    # update password in DB
+    coll.update_one({'_id':user_old['_id']}, {"$set":user_update})
+    flash("Your password has been changed", "success")
+    return render_template("profile.html", user=user_old)
 
 
 @app.route("/maintain/<collection_name>", methods=['GET','POST'])
 def maintain(collection_name):
-    coll_fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
+    # is a user logged in?
     if not session.get('user_id', None):
         return redirect(url_for("login"))
+    coll_fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
+    # is collection maintanable by admin only?
     if coll_fieldcatalog.get('admin', None):
+        # is logged in user an admin?
         if not session.get('user_is_admin', None):
             return redirect(url_for("index"))
     # create an empty record

@@ -10,5 +10,28 @@
             <h3 class="card-title text-center">{{ user['username'] }}'s Profile</h3>
         </div>
     </div>
+    <div class="card col-12 offset-md-2 col-md-8 offset-lg-4 col-lg-4 mt-3">
+        <form class="card-body row g-3 align-items-center" method="POST" action="{{ request.path }}">
+            <h4 class="card-title">Change Password</h3>
+            <div class="form-outline col-12 mt-3">
+                <input type="password" id="password_old" name="password_old" class="form-control"
+                    {% if register %}autocomplete="new-password"{% endif %} required>
+                <label class="form-label" for="password_old">Old Password</label>
+            </div>
+            <div class="form-outline col-12 mt-3">
+                <input type="password" id="password_new" name="password_new" class="form-control" 
+                    minlength="5" maxlength="15" pattern="^[a-zA-Z\d]{5,15}$" 
+                    {% if register %}autocomplete="new-password"{% endif %} required>
+                <label class="form-label" for="password">New Password</label>
+            </div>
+
+            <div class="col-11 col-lg-12 text-end mt-0">
+                <span id="password-rule" class="form-text">&nbsp;Must be 5-15 characters long.</span>
+            </div>
+            <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3" name="password_change">
+                <span class="lead">change password</span><i class="fas fa-sign-in-alt fa-2x ms-3"></i>
+            </button>            
+        </form>
+    </div>    
 </div>
 {% endblock %}
