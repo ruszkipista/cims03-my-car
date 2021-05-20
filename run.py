@@ -171,8 +171,9 @@ def profile():
         flash("Old and New passwords are the same, not changed!", "warning")
         return redirect(url_for("profile"))
     user_update = {
-        password_field: generate_password_hash(password_new),
-        "changed_by": session.get('user_id', None)
+        password_field:     generate_password_hash(password_new),
+        "changed_by":       user_old['_id'],
+        "date_time_update": datetime.utcnow().timestamp()
     }
     # update password in DB
     coll.update_one({'_id':user_old['_id']}, {"$set":user_update})
@@ -216,6 +217,8 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         return {}
     
     for field in coll_fieldcatalog['fields']:
+        if not field.get('input_type', False):
+            continue
         # store logged in user as last updater
         if field['input_type']=='user':
             record_new[field['name']] = ObjectId(session['user_id'])
@@ -239,6 +242,9 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         # store password
         elif field['input_type']=='password':
             record_new[field['name']] = generate_password_hash(record_new.get(field['name'], None))
+        # store timestamp
+        elif field['input_type']=='timestamp_update':
+            record_new[field['name']] = datetime.utcnow().timestamp()
 
     coll = get_mongo_coll(coll_fieldcatalog[app.config['MONGO_COLLECTION_NAME']])
     try:
@@ -431,8 +437,11 @@ def init_mongo_db(load_content=False):
         coll = get_mongo_coll('users')
         users = list(coll.find())
         for user in users:
-            password = generate_password_hash(user['password'])
-            coll.update_one({'_id':user['_id']}, {"$set":{'password':password}})
+            user_update = {
+                'password':         generate_password_hash(user['password']),
+                "date_time_insert": datetime.utcnow().timestamp()
+            }
+            coll.update_one({'_id':user['_id']}, {"$set":user_update})
 
         # get all Currencies
         coll = get_mongo_coll('currencies')
@@ -635,6 +644,17 @@ def get_records(collection_name):
             else:
                 records = g._collections[collection_name] = { c['_id']:c for c in coll.find()}
     return records
+
+@app.template_filter('get_users_select_field')
+def _jinja2_filter_get_user(user_id, field_name):
+    fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[app.config["MONGO_USERS"]]
+    select_field_name = fieldcatalog['select_field']
+    coll = get_mongo_coll(app.config["MONGO_USERS"])
+    user_old = coll.find_one({'_id': user_id})
+    if user_old:
+        return user_old[select_field_name]
+    else:
+        return ""
 
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2

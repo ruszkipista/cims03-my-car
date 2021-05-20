@@ -99,6 +99,7 @@
         {% for record in records %}
         <tr>
           {% for field in coll_fieldcat['fields'] %}
+          {% set field_input_type = field['input_type'] %}
           <td>
             <!-- ICON -->
             {% if field['name']=='icon' %}
@@ -106,29 +107,41 @@
             {% endif %}
 
             <!-- TEXT or NUMBER type -->
-            {% if field['input_type']=='text' or field['input_type']=='number' %}
+            {% if field_input_type=='text' or field_input_type=='number' %}
               {{ record[field['name']] }}
 
             <!-- DATE type -->
-            {% elif field['input_type']=='date' %}
+            {% elif field_input_type=='date' %}
               {{ record[field['name']]|datetime_to_str('%d/%m/%Y') }}
 
             <!-- SELECT type -->
-            {% elif field['input_type']=='select' %}
+            {% elif field_input_type=='select' %}
               {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
                 {% set item = buffer[field['values']][record[field['name']]] %}
                 {{ item[fieldcatalog[field['values']]['select_field']] }}
               {% endif %}
 
             <!-- CHECKBOX type -->
-            {% elif field['input_type']=='checkbox' %}
+            {% elif field_input_type=='checkbox' %}
             {% if record[field['name']] %}&nbsp;
             <i class="far fa-check-square" data-mdb-toggle="tooltip" data-mdb-placement="right" title="{{ field['heading'] }}"></i>
             {% endif %}
-            
+
+            <!-- USER type -->
+            {% elif field_input_type=='user' %}
+              {% if record[field['name']] %}
+              {{ record[field['name']]|get_users_select_field(field['name']) }}
+              {% endif %}
+
             <!-- PASSWORD type -->
-            {% elif field['input_type']=='password' %}
-              *********
+            {% elif field_input_type=='password' %}
+            *********
+            
+            <!-- TIMESTAMP as Ago -->
+            {% elif field_input_type=='timestamp_insert' or field_input_type=='timestamp_update' %}
+              {% if record[field['name']] %}
+              {{ record[field['name']]|unix_time_ago }}
+              {% endif %}
 
             {% endif %}
           </td>
