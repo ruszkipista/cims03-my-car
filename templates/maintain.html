@@ -74,6 +74,13 @@
         <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
       </div>
 
+      <!-- IMAGE type -->
+      {% elif field['input_type']=='image' %}
+      <div class="form-outline">
+        <label for="{{ field['name'] }}" class="form-label ms-3">Select an image:</label>
+        <input type="file" name="{{ field['name'] }}" id="{{ field['name'] }}">
+      </div>
+
       {% endif %}
       {% endfor %}
       </div>
@@ -137,15 +144,16 @@
             {% elif field_input_type=='password' %}
             *********
             
-            <!-- TIMESTAMP as Ago -->
+            <!-- UNIX TIMESTAMP type as ...Ago -->
             {% elif field_input_type=='timestamp_insert' or field_input_type=='timestamp_update' %}
               {% if record[field['name']] %}
               {{ record[field['name']]|unix_time_ago }}
               {% endif %}
 
+            <!-- IMAGE type -->
             {% elif field_input_type=='image' %}
               {% if record[field['name']] %}
-              <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}"><br>
+              <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
               {% endif %}
 
             {% endif %}

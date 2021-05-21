@@ -221,6 +221,7 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         flash(f"Did not {'update' if record_old else 'add'} record", "info")
         return {}
     
+    images_old = []
     for field in coll_fieldcatalog['fields']:
         if not field.get('input_type', False):
             continue
@@ -250,12 +251,30 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         # store timestamp
         elif field['input_type']=='timestamp_update':
             record_new[field['name']] = datetime.utcnow().timestamp()
+        # store image
+        elif field['input_type']=='image':
+            # following instructions from https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
+            image = request.files[field['name']]
+            if image:
+                filename_source = secure_filename(image.filename)
+                extension = filename_source.rsplit('.', 1)[1] if '.' in filename_source else ''
+                if extension in app.config["UPLOAD_EXTENSIONS"]:
+                    # store image
+                    image_new = {'source': filename_source, 'image': Binary(image.read())}
+                    coll_images = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+                    record_new[field['name']] = coll_images.insert_one(image_new).inserted_id
+                    if record_old.get(field['name'], False):
+                        images_old.append(record_old[field['name']])
 
     coll = get_mongo_coll(coll_fieldcatalog[app.config['MONGO_COLLECTION_NAME']])
     try:
         if record_old:
             # update existing record
             coll.update_one({'_id':record_old['_id']}, {"$set":record_new})
+            # delete old images if new got uploaded
+            coll_images = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+            for image_old in images_old:
+                coll_images.delete_one({"_id":image_old})
         else:
             coll.insert_one(record_new)
         # create empty record - this clears the input fields, because the update was OK
