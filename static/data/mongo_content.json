@@ -162,7 +162,7 @@
     {"uom_id":"L",      "description":"litre",            "measure_type_id":"VOL"},
     {"uom_id":"ml",     "description":"milli litre",      "measure_type_id":"VOL"},
     {"uom_id":"galImp", "description":"gallon imperial",  "measure_type_id":"VOL"},
-    {"uom_id":"L100km", "description":"L/100km",          "measure_type_id":"FECO"},
+    {"uom_id":"L/100km","description":"Liter/100km",      "measure_type_id":"FECO"},
     {"uom_id":"mpgImp", "description":"miles/gallon Imp", "measure_type_id":"FECO"},
     {"uom_id":"kg",     "description":"kilogramme",       "measure_type_id":"MASS"},
     {"uom_id":"g",      "description":"gramme",           "measure_type_id":"MASS"},
@@ -196,7 +196,7 @@
     {"uom_id_from":"lb",     "uom_id_to":"kg",     "rate":   0.45359237},
     {"uom_id_from":"L",      "uom_id_to":"galImp", "rate":   0.2199692482990878},
     {"uom_id_from":"L",      "uom_id_to":"ml",     "rate":1000.0},
-    {"uom_id_from":"L100km", "uom_id_to":"mpgImp", "rate": 282.48093627967},
+    {"uom_id_from":"L/100km", "uom_id_to":"mpgImp", "rate": 282.48093627967},
     {"uom_id_from":"kg",     "uom_id_to":"g",      "rate":1000.0},
     {"uom_id_from":"km",     "uom_id_to":"m",      "rate":1000.0},
     {"uom_id_from":"m",      "uom_id_to":"cm",     "rate": 100.0},
@@ -273,8 +273,9 @@
   "cars": [
     { "entity_name": "car",
       "description": "Cars",
-      "admin":       false,
+      "admin":       true,
       "fields":[
+         {"name": "car_image_id",         "heading": "Car Image",            "input_type": "image"},
          {"name": "car_id",               "heading": "car",                  "input_type": "text"},
          {"name": "description",          "heading": "Description",          "input_type": "text"},
          {"name": "reg_country_id",       "heading": "Registration Country", "input_type": "select", "values":"countries"},
@@ -283,10 +284,8 @@
          {"name": "odometer_unit_id",     "heading": "Odometer Unit",        "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["DIST"]}},
          {"name": "fuel_material_id",     "heading": "Fuel Material",        "input_type": "select", "values":"materials",        "filter":{"material_type_id":["FUEL"]}},
          {"name": "fuel_unit_id",         "heading": "Fuel Unit",            "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["VOL"]}},
-         {"name": "fuel_economy_unit_id", "heading": "Fuel Consumption Unit","input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["FECO"]}},
-         {"name": "currency_id",          "heading": "Currency",             "input_type": "select", "values":"currencies"},
-         {"name": "owner_id",             "heading": "Owner",                "input_type": "text",   "values":"users" ,           "attributes": "read-only"},
-         {"name": "car_image_id",         "heading": "Car Image",            "input_type": "image"}
+         {"name": "fuel_economy_unit_id", "heading": "Fuel Economy Unit",    "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["FECO"]}},
+         {"name": "currency_id",          "heading": "Reporting Currency",   "input_type": "select", "values":"currencies"}
         ],
        "select_field": "description"
     }, 
@@ -298,10 +297,10 @@
       "odometer_unit_id":     "km",
       "fuel_material_id":     "petrol95",
       "fuel_unit_id":         "L",
-      "fuel_economy_unit_id": "L100km",
+      "fuel_economy_unit_id": "L/100km",
       "currency_id":          "EUR",
       "owner_id":             "ruszkipista",
-      "car_image_id":         null
+      "car_image_id":         "mazda3.png"
     },
     { "car_id":               "yaris",
       "description":          "Yaris Sol",
@@ -311,10 +310,10 @@
       "odometer_unit_id":     "mi",
       "fuel_material_id":     "petrol95",
       "fuel_unit_id":         "L",
-      "fuel_economy_unit_id": "L100km",
+      "fuel_economy_unit_id": "L/100km",
       "currency_id":          "EUR",
       "owner_id":             "ruszkipista",
-      "car_image_id":         null
+      "car_image_id":         "yaris.png"
     },
     { "car_id":               "PT",
       "description":          "PT Cruiser",
@@ -324,10 +323,10 @@
       "odometer_unit_id":     "km",
       "fuel_material_id":     "petrol95",
       "fuel_unit_id":         "L",
-      "fuel_economy_unit_id": "L100km",
+      "fuel_economy_unit_id": "L/100km",
       "currency_id":          "HUF",
       "owner_id":             "malyatunde",
-      "car_image_id":         null
+      "car_image_id":         "ptcruiser.png"
     }    
   ],
 

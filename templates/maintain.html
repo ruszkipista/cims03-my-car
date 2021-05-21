@@ -143,6 +143,11 @@
               {{ record[field['name']]|unix_time_ago }}
               {% endif %}
 
+            {% elif field_input_type=='image' %}
+              {% if record[field['name']] %}
+              <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}"><br>
+              {% endif %}
+
             {% endif %}
           </td>
           {% endfor %}

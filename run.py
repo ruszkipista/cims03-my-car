@@ -39,25 +39,30 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f"/{app.config['MONGO_DB_NAME']}" + \
                           f"?retryWrites=true&w=majority"
 
-app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","./static/data/mongo_content.json")
+app.config["MONGO_DATA"]    = os.environ.get("MONGO_DATA","./static/data/")
+app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","mongo_content.json")
 app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
 app.config["MONGO_USERS"]             = 'users'
 app.config["MONGO_FIELDCATALOG"]      = 'fieldcatalog'
 app.config["MONGO_CURRENCIES"]        = 'currencies'
+app.config["MONGO_COUNTRIES"]         = 'countries'
 app.config["MONGO_MEASURE_TYPES"]     = 'measure_types'
 app.config["MONGO_UNIT_OF_MEASURES"]  = 'unit_of_measures'
 app.config["MONGO_UNIT_CONVERSIONS"]  = 'unit_conversions'
 app.config["MONGO_EXPENDITURE_TYPES"] = 'expenditure_types'
 app.config["MONGO_MATERIAL_TYPES"]    = 'material_types'
+app.config["MONGO_MATERIALS"]         = 'materials'
 app.config["MONGO_COLLECTION_NAME"]   = 'collection_name'
 app.config["MONGO_ENTITY_NAME"]       = 'entity_name'
 app.config["MONGO_BUFFERED_COLLECTIONS"] = [
     app.config["MONGO_CURRENCIES"],
+    app.config["MONGO_COUNTRIES"],
     app.config["MONGO_MEASURE_TYPES"],
     app.config["MONGO_UNIT_OF_MEASURES"],
     app.config["MONGO_UNIT_CONVERSIONS"],
     app.config["MONGO_EXPENDITURE_TYPES"],
-    app.config["MONGO_MATERIAL_TYPES"]
+    app.config["MONGO_MATERIAL_TYPES"],
+    app.config["MONGO_MATERIALS"],
 ]
 
 app.config["MONGO_COLLECTION_IMAGES"] = {
@@ -413,7 +418,8 @@ def init_mongo_db(load_content=False):
     with app.app_context():
         fieldcatalog = []
         # initialize collections on DB from JSON file
-        with open(app.config["MONGO_CONTENT"], mode='r', encoding="utf-8") as f:
+        with open(os.path.join(app.config["MONGO_DATA"], app.config["MONGO_CONTENT"]), 
+                  mode='r', encoding="utf-8") as f:
             collections = json.loads(f.read())
             for coll_name,coll_docs in collections.items():
                 coll = get_mongo_coll(coll_name)
@@ -520,7 +526,7 @@ def init_mongo_db(load_content=False):
             coll.update_one({'_id':record['_id']}, {"$set":{
                 'measure_type_id':     measure_type_id,
                 'expenditure_type_id': expenditure_type_id,
-                }})     
+                }})
 
         # get all Material Types
         material_types = list(coll.find())
@@ -534,7 +540,58 @@ def init_mongo_db(load_content=False):
             # update the record
             coll.update_one({'_id':record['_id']}, {"$set":{
                 'material_type_id': material_type_id,
-                }})            
+                }})
+        # get all Materials
+        materials = list(coll.find())
+
+        # get all Countries
+        coll = get_mongo_coll('countries')
+        countries = list(coll.find())
+        # get all Unit Of Measures
+        coll = get_mongo_coll('unit_of_measures')
+        unit_of_measures = list(coll.find())
+
+        coll_img = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+
+        # convert Cars
+        coll = get_mongo_coll('cars')
+        records = list(coll.find())
+        for record in records:
+            # convert Registration Country to _id
+            reg_country_id   = next((c['_id'] for c in countries        if c['country_id']  == record['reg_country_id']), '')
+            # convert Distance Unit to _id
+            distance_unit_id = next((c['_id'] for c in unit_of_measures if c['uom_id']      == record['distance_unit_id']), '')
+            # convert Odometer Unit to _id
+            odometer_unit_id = next((c['_id'] for c in unit_of_measures if c['uom_id']      == record['odometer_unit_id']), '')
+            # convert Fuel Material ID to _id
+            fuel_material_id = next((c['_id'] for c in materials        if c['material_id'] == record['fuel_material_id']), '')
+            # convert Fuel Unit to _id
+            fuel_unit_id     = next((c['_id'] for c in unit_of_measures if c['uom_id']      == record['fuel_unit_id']), '')
+            # convert Fuel Economy Unit to _id
+            fuel_economy_unit_id = next((c['_id'] for c in unit_of_measures if c['uom_id']  == record['fuel_economy_unit_id']), '')
+            # convert Currency ID to _id
+            currency_id      = next((c['_id'] for c in currencies       if c['currency_id'] == record['currency_id']), '')
+            # update the record
+            coll.update_one({'_id': record['_id']}, {"$set":{
+                'reg_country_id':       reg_country_id,
+                'distance_unit_id':     distance_unit_id,
+                'odometer_unit_id':     odometer_unit_id,
+                'fuel_material_id':     fuel_material_id,
+                'fuel_unit_id':         fuel_unit_id,
+                'fuel_economy_unit_id': fuel_economy_unit_id,
+                'currency_id':          currency_id,
+                }})   
+            # convert Car Image ID to _id
+            filename_source = record['car_image_id']
+            if filename_source:
+                with open(os.path.join(app.config["MONGO_DATA"], filename_source), mode='rb') as image:
+                    # read image
+                    image_new = { 'source': filename_source, 'image': Binary(image.read()) }
+                    # update the record
+                    coll.update_one({'_id': record['_id']}, {"$set":{
+                        'car_image_id': coll_img.insert_one(image_new).inserted_id,  # store image
+                        }})
+
 
         # get all Categories
         coll = get_mongo_coll('categories')
@@ -560,10 +617,10 @@ def init_mongo_db(load_content=False):
                 }})
 
         # create search index in Tasks
-        coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-        coll.drop_indexes()
-        coll.create_index([("name",pymongo.TEXT), 
-                           ("description",pymongo.TEXT)], name='name_description')
+        # coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
+        # coll.drop_indexes()
+        # coll.create_index([("name",pymongo.TEXT), 
+        #                    ("description",pymongo.TEXT)], name='name_description')
  
 
 def save_task_to_db(request, task_old):
