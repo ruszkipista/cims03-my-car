@@ -51,6 +51,7 @@ app.config["MONGO_UNIT_OF_MEASURES"]  = 'unit_of_measures'
 app.config["MONGO_UNIT_CONVERSIONS"]  = 'unit_conversions'
 app.config["MONGO_EXPENDITURE_TYPES"] = 'expenditure_types'
 app.config["MONGO_MATERIAL_TYPES"]    = 'material_types'
+app.config["MONGO_RELATIONSHIP_TYPES"]= 'relationship_types'
 app.config["MONGO_MATERIALS"]         = 'materials'
 app.config["MONGO_COLLECTION_NAME"]   = 'collection_name'
 app.config["MONGO_ENTITY_NAME"]       = 'entity_name'
@@ -63,6 +64,7 @@ app.config["MONGO_BUFFERED_COLLECTIONS"] = [
     app.config["MONGO_EXPENDITURE_TYPES"],
     app.config["MONGO_MATERIAL_TYPES"],
     app.config["MONGO_MATERIALS"],
+    app.config["MONGO_RELATIONSHIP_TYPES"],
 ]
 
 app.config["MONGO_COLLECTION_IMAGES"] = {
@@ -242,6 +244,17 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
             if record_id:
                 # insert foreing key as object into field
                 record_new[field['name']] = ObjectId(record_id)
+        # store foreign key from lookup
+        elif field['input_type']=='lookup':
+            # get foreign key of text value
+            value = record_new.get(field['name'], None)
+            if value:
+                # get foreign key
+                coll_lookup = get_mongo_coll(field['values'])
+                select_field_name = get_records(app.config["MONGO_FIELDCATALOG"])[field['values']]['select_field']
+                record_id = coll_lookup.find_one({select_field_name:value},{'_id': 1})
+                # insert foreing key as object into field
+                record_new[field['name']] = record_id['_id']                
         # store check box as boolean
         elif field['input_type']=='checkbox':
             record_new[field['name']] = True if record_new.get(field['name'], None)=='on' else False
@@ -460,13 +473,16 @@ def init_mongo_db(load_content=False):
 
         # encrypt password in Users
         coll = get_mongo_coll('users')
-        users = list(coll.find())
-        for user in users:
+        records = list(coll.find())
+        for record in records:
             user_update = {
-                'password':         generate_password_hash(user['password']),
+                'password':         generate_password_hash(record['password']),
                 "date_time_insert": datetime.utcnow().timestamp()
             }
-            coll.update_one({'_id':user['_id']}, {"$set":user_update})
+            coll.update_one({'_id':record['_id']}, {"$set":user_update})
+
+        # get all Users
+        users = list(coll.find())
 
         # get all Currencies
         coll = get_mongo_coll('currencies')
@@ -610,7 +626,27 @@ def init_mongo_db(load_content=False):
                     coll.update_one({'_id': record['_id']}, {"$set":{
                         'car_image_id': coll_img.insert_one(image_new).inserted_id,  # store image
                         }})
+        # get all Cars
+        cars = list(coll.find())
 
+        # get all Relationship Types
+        coll = get_mongo_coll('relationship_types')
+        rel_types = list(coll.find())
+
+        # convert Users-Cars
+        coll = get_mongo_coll('users_cars')
+        records = list(coll.find())
+        for record in records:
+            # convert Material Type ID to _id
+            user_id         = next((c['_id'] for c in users     if c['username']        == record['user_id']), '')
+            car_id          = next((c['_id'] for c in cars      if c['car_id']          == record['car_id']), '')
+            relationship_id = next((c['_id'] for c in rel_types if c['relationship_id'] == record['relationship_id']), '')
+            # update the record
+            coll.update_one({'_id':record['_id']}, {"$set":{
+                'user_id':         user_id,
+                'car_id':          car_id,
+                'relationship_id': relationship_id,
+                }})
 
         # get all Categories
         coll = get_mongo_coll('categories')
@@ -726,7 +762,10 @@ def _jinja2_filter_get_entity_select_field(entity_id, collection_name):
     fieldcatalog = get_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
     select_field_name = fieldcatalog['select_field']
     coll = get_mongo_coll(collection_name)
-    entity_old = coll.find_one({'_id': entity_id})
+    try:
+        entity_old = coll.find_one({'_id': entity_id}, {select_field_name: 1})
+    except:
+        return ""
     if entity_old:
         return entity_old[select_field_name]
     else:

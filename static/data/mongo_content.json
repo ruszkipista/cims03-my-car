@@ -299,7 +299,6 @@
       "fuel_unit_id":         "L",
       "fuel_economy_unit_id": "L/100km",
       "currency_id":          "EUR",
-      "owner_id":             "ruszkipista",
       "car_image_id":         "mazda3.png"
     },
     { "car_id":               "yaris",
@@ -312,7 +311,6 @@
       "fuel_unit_id":         "L",
       "fuel_economy_unit_id": "L/100km",
       "currency_id":          "EUR",
-      "owner_id":             "ruszkipista",
       "car_image_id":         "yaris.png"
     },
     { "car_id":               "PT",
@@ -325,9 +323,40 @@
       "fuel_unit_id":         "L",
       "fuel_economy_unit_id": "L/100km",
       "currency_id":          "HUF",
-      "owner_id":             "malyatunde",
       "car_image_id":         "ptcruiser.png"
     }    
+  ],
+
+  "relationship_types": [
+    { "entity_name": "relationship type",
+      "description": "Relationship Type",
+      "admin":       true,
+      "fields":[
+         {"name": "relationship_id", "heading": "Code",        "input_type": "text"},
+         {"name": "description",     "heading": "Description", "input_type": "text"}
+      ],
+      "select_field": "description"
+    }, 
+    {"relationship_id": "owner",   "description": "Owner"},
+    {"relationship_id": "driver",  "description": "Driver"},
+    {"relationship_id": "insured", "description": "Insured"}
+  ],
+
+  "users_cars": [
+    { "entity_name": "users-cars",
+      "description": "Users-Cars",
+      "admin":       true,
+      "fields":[
+         {"name": "user_id",         "heading": "Username",     "input_type": "lookup", "values": "users"},
+         {"name": "car_id",          "heading": "Car",          "input_type": "lookup", "values": "cars"},
+         {"name": "relationship_id", "heading": "Relationship", "input_type": "select", "values": "relationship_types"}
+      ]
+    }, 
+    {"user_id": "ruszkipista", "car_id":  "mazda3", "relationship_id":"owner"},
+    {"user_id": "ruszkipista", "car_id":  "yaris",  "relationship_id":"owner"},
+    {"user_id": "malyatunde",  "car_id":  "yaris",  "relationship_id":"driver"},
+    {"user_id": "malyatunde",  "car_id":  "PT",     "relationship_id":"owner"},
+    {"user_id": "ruszkipista", "car_id":  "PT",     "relationship_id":"driver"}
   ],
 
   "partners": [

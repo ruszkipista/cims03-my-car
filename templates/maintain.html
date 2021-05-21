@@ -66,7 +66,7 @@
                 <option value=""></option>
                 {% for _id in buffer[field['values']] %}
                 <option value="{{ _id }}" {% if _id==last_record[field['name']] %}selected{% endif %}>
-                  {{ buffer[field['values']][_id][fieldcatalog[field['values']]['select_field']] }}
+                  {{- buffer[field['values']][_id][fieldcatalog[field['values']]['select_field']] -}}
                 </option>
                 {% endfor %}
               </select>
@@ -96,6 +96,14 @@
               <label for="{{ field['name'] }}" class="form-label ms-3">Select an image:</label>
               <input type="file" name="{{ field['name'] }}" id="{{ field['name'] }}">
             </div>
+            
+            <!-- LOOKUP type -->
+            {% elif field['input_type']=='lookup' %}
+            <div class="form-outline col-12 col-lg-6 mb-3">
+              <input type="text" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+                    name="{{ field['name'] }}" value="{{ last_record[field['name']]|get_entity_select_field(field['values']) }}">
+              <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+            </div>            
 
             {% endif %}
             {% endfor %}
@@ -153,8 +161,8 @@
             <i class="far fa-check-square" data-mdb-toggle="tooltip" data-mdb-placement="right" title="{{ field['heading'] }}"></i>
             {% endif %}
 
-            <!-- USER type -->
-            {% elif field_input_type=='user' %}
+            <!-- LOOKUP type -->
+            {% elif field_input_type=='lookup' %}
               {% if record[field['name']] %}
               {{ record[field['name']]|get_entity_select_field(field['values']) }}
               {% endif %}
