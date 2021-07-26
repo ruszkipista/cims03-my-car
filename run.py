@@ -1,4 +1,5 @@
 import os
+import certifi
 from flask import Flask, render_template, g, request, redirect, flash, send_file, session, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -439,7 +440,7 @@ def get_mongo_coll(collection):
     conn = getattr(g, '_database_mongo', None)
     if conn is None:
         try:
-            conn = g._database_mongo = pymongo.MongoClient(app.config["MONGO_URI"])
+            conn = g._database_mongo = pymongo.MongoClient(app.config["MONGO_URI"], tlsCAFile=certifi.where())
         except pymongo.errors.ConnectionFailure as e:
             print(f"Could not connect to MongoDB {app.config['MONGO_DB_NAME']}: {e}")
             return None

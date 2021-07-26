@@ -1,6 +1,6 @@
 env.py
 __pycache__/
 .vscode/
-env/
+venv/
 *.gdoc
 *.pdf

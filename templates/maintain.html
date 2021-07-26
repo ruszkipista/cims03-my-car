@@ -180,7 +180,12 @@
             <!-- IMAGE type -->
             {% elif field_input_type=='image' %}
               {% if record[field['name']] %}
-              <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
+                {% if 'values' in field %}
+                  {% set image_id = field['name'] %}
+                {% else %}
+                  {% set image_id = '_id' %}
+                {% endif %}
+                <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[image_id]) }}" alt="{{ field['heading'] }}">
               {% endif %}
 
             {% endif %}
