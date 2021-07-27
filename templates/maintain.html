@@ -90,7 +90,7 @@
               <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
             </div>
 
-            <!-- IMAGE type -->
+            <!-- IMAGEID type -->
             {% elif field['input_type']=='image' %}
             <div class="form-outline">
               <label for="{{ field['name'] }}" class="form-label ms-3">Select an image:</label>
@@ -177,15 +177,16 @@
               {{ record[field['name']]|unix_time_ago }}
               {% endif %}
 
+            <!-- IMAGEID type -->
+            {% elif field_input_type=='imageid' %}
+              {% if record[field['name']] %}
+              <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
+              {% endif %}
+
             <!-- IMAGE type -->
             {% elif field_input_type=='image' %}
               {% if record[field['name']] %}
-                {% if 'values' in field %}
-                  {% set image_id = field['name'] %}
-                {% else %}
-                  {% set image_id = '_id' %}
-                {% endif %}
-                <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[image_id]) }}" alt="{{ field['heading'] }}">
+              <img class="img-fluid" src="{{ url_for('serve_image', image_id=record['_id']) }}" alt="{{ field['heading'] }}">
               {% endif %}
 
             {% endif %}

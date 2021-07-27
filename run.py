@@ -266,7 +266,7 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         elif field['input_type']=='timestamp_update':
             record_new[field['name']] = datetime.utcnow().timestamp()
         # store image
-        elif field['input_type']=='image':
+        elif field['input_type']=='imageid':
             # following instructions from https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
             image = request.files[field['name']]
             if image:
