@@ -126,36 +126,54 @@ def login():
         return render_template("reglog.html", register=False)
 
     # request.method == POST
-    fieldcat = get_records(app.config["MONGO_FIELDCATALOG"])[app.config["MONGO_USERS"]]
-    username_field = fieldcat['fields'][0]['name']
-    password_field = fieldcat['fields'][1]['name']
-    admin_field    = fieldcat['fields'][2]['name']
+
     # check if username already exists in db
-    username = request.form.get(username_field).lower()
-    password = request.form.get(password_field)
-    coll = get_mongo_coll(app.config["MONGO_USERS"])
-    user_old = coll.find_one({username_field: username}, {password_field: 1, 'user_is_admin':1})
-    if not user_old or not check_password_hash(user_old[password_field], password):
+    username = get_form_reglog_field_username(request)
+    password = get_form_reglog_field_password(request)
+    user_old = get_db_user_by_name(username)
+    # check if stored and entered passwords match
+    if not user_old or not check_password_hash(get_user_password(user_old), password):
         # incorrect username and/or password
-        flash(f"Incorrect {fieldcat['fields'][0]['heading']} and/or {fieldcat['fields'][1]['heading']}", 'danger')
+        flash(f"Incorrect Username and/or Password", 'danger')
         return redirect(url_for("login"))
 
     # put the user_id into session cookie
-    session['user_id'] = str(user_old["_id"])
-    session[admin_field] = user_old.get(admin_field, False)
+    login_user(user_old)
     flash(f"Welcome, {username}", "success")
     return redirect(url_for("tasks"))
+
+
+def get_form_reglog_field_username(request):
+    return request.form.get('username', None)
+
+
+def get_form_reglog_field_password(request):
+    return request.form.get('password', None)
+
+def get_db_user_by_name(username):
+    coll = get_mongo_coll(app.config["MONGO_USERS"])
+    user = coll.find_one({"username": username.lower()}, {"password": 1, 'user_is_admin':1})
+    return user
+
+
+def login_user(user):
+    session['user_id'] = str(user["_id"])
+    session['user_is_admin'] = user.get("user_is_admin", False)
 
 
 @app.route("/logout")
 def logout():
     # is a user logged in?
-    if session.get('user_id', None):
-        session.pop('user_id')
-        flash("You have been logged out", "info")
-    if session.get('user_is_admin', None):
-        session.pop('user_is_admin')
+    loggedin_user_id = get_user_id()
+    if loggedin_user_id:
+        user_logout()
+        flash("You have been logged out", "info")       
     return redirect(url_for("index"))
+
+
+def user_logout():
+    session.pop('user_id')
+    session.pop('user_is_admin')
 
 
 @app.route("/profile", methods=['GET','POST'])
@@ -165,7 +183,7 @@ def profile():
     if not loggedin_user_id:
         return redirect(url_for("login"))
 
-    loggedin_user = get_user(loggedin_user_id)
+    loggedin_user = get_user_by_id(loggedin_user_id)
     if not loggedin_user:
         flash("Invalid logged in user!", 'danger')
         return redirect(url_for("logout"))
@@ -193,14 +211,14 @@ def profile():
 
 
 def get_form_profile_field_password_old(request):
-    return request.form.get('password_old')
+    return request.form.get('password_old', None)
 
 
 def get_form_profile_field_password_new(request):
-    return request.form.get('password_new')
+    return request.form.get('password_new', None)
 
 
-def get_user(user_id):
+def get_user_by_id(user_id):
     coll = get_mongo_coll(app.config["MONGO_USERS"])
     user = coll.find_one({'_id': user_id})
     return user
