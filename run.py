@@ -94,30 +94,53 @@ def register():
         return render_template("reglog.html", register=True)
         
     # request.method == POST
-    fieldcat = get_records(app.config["MONGO_FIELDCATALOG"])[app.config["MONGO_USERS"]]
-    username_field = fieldcat['fields'][0]['name']
-    username = request.form.get(username_field).lower()
-    password_field = fieldcat['fields'][1]['name']
-    admin_field    = fieldcat['fields'][2]['name']
+    username_entered = get_form_reglog_field_username(request)
     # check if username already exists in db
-    coll = get_mongo_coll(app.config["MONGO_USERS"])
-    user_old = coll.find_one({username_field: username}, {'_id': 1})
-    if user_old:
-        flash(f"{fieldcat['fields'][0]['heading']} already exists", 'danger')
+    user_old = get_db_user_by_name(username_entered)
+    if user_old:    
+        flash(f"Username already exists", 'danger')
         return redirect(url_for("register"))
 
-    user_new = {
-        username_field: username,
-        admin_field: False,
-        password_field: generate_password_hash(request.form.get(password_field)),
-        'date_time_insert': datetime.utcnow().timestamp()
-    }
+    password_entered = get_form_reglog_field_password(request)
+    is_admin_entered = get_form_reglog_field_is_admin(request)
+    user_new = insert_db_user(username_entered, password_entered, is_admin_entered)
 
     # put the new user_id into 'session' cookie
-    session['user_id'] = str(coll.insert_one(user_new).inserted_id)
-    session[admin_field] = user_new[admin_field]
+    login_user(user_new)
     flash("Registration Successful!", "success")
-    return redirect(url_for("tasks"))
+    return redirect(url_for("index"))
+
+
+def get_form_reglog_field_username(request):
+    return request.form.get('username', None)
+
+
+def get_form_reglog_field_password(request):
+    return request.form.get('password', None)
+
+
+def get_form_reglog_field_is_admin(request):
+    return request.form.get('user_is_admin', None)
+
+
+def insert_db_user(username, password, is_admin):
+    user_new = {
+        "username": username,
+        "is_admin": is_admin,
+        "password": generate_password_hash(password),
+        "date_time_insert": get_utc_timestamp()
+    }
+    loggedin_user = get_db_user_id()
+    if loggedin_user:
+        user_new["changed_by"] = loggedin_user
+
+    coll = get_mongo_coll(app.config["MONGO_USERS"])
+    user_new["_id"] = coll.insert_one(user_new).inserted_id
+    return user_new
+
+
+def get_utc_timestamp():
+    return datetime.utcnow().timestamp()
 
 
 @app.route("/login", methods=['GET','POST'])
@@ -126,13 +149,13 @@ def login():
         return render_template("reglog.html", register=False)
 
     # request.method == POST
-
-    # check if username already exists in db
     username_entered = get_form_reglog_field_username(request)
     password_entered = get_form_reglog_field_password(request)
     user_old = get_db_user_by_name(username_entered)
-    password_stored = get_user_password(user_old)
-    # check if stored and entered passwords match
+    if user_old:
+        password_stored = get_db_user_password(user_old)
+    # check if username does not exist in db
+    # or stored and entered passwords differs
     if not user_old or not check_password_hash(password_stored, password_entered):
         flash(f"Incorrect Username and/or Password", 'danger')
         return redirect(url_for("login"))
@@ -143,13 +166,6 @@ def login():
     return redirect(url_for("tasks"))
 
 
-def get_form_reglog_field_username(request):
-    return request.form.get('username', None)
-
-
-def get_form_reglog_field_password(request):
-    return request.form.get('password', None)
-
 def get_db_user_by_name(username):
     coll = get_mongo_coll(app.config["MONGO_USERS"])
     user = coll.find_one({"username": username.lower()}, {"password": 1, 'user_is_admin':1})
@@ -157,21 +173,21 @@ def get_db_user_by_name(username):
 
 
 def login_user(user):
-    session['user_id'] = str(user["_id"])
-    session['user_is_admin'] = user.get("user_is_admin", False)
+    session['user_id'] = str(get_db_user_id(user))
+    session['user_is_admin'] = get_db_user_is_admin(user)
 
 
 @app.route("/logout")
 def logout():
     # is a user logged in?
-    loggedin_user_id = get_user_id()
+    loggedin_user_id = get_db_user_id()
     if loggedin_user_id:
-        user_logout()
+        user_db_logout()
         flash("You have been logged out", "info")       
     return redirect(url_for("index"))
 
 
-def user_logout():
+def user_db_logout():
     session.pop('user_id')
     session.pop('user_is_admin')
 
@@ -179,11 +195,11 @@ def user_logout():
 @app.route("/profile", methods=['GET','POST'])
 def profile():
     # is a user logged in?
-    loggedin_user_id = get_user_id()
+    loggedin_user_id = get_db_user_id()
     if not loggedin_user_id:
         return redirect(url_for("login"))
 
-    loggedin_user = get_user_by_id(loggedin_user_id)
+    loggedin_user = get_db_user_by_id(loggedin_user_id)
     if not loggedin_user:
         flash("Invalid logged in user!", 'danger')
         return redirect(url_for("logout"))
@@ -193,7 +209,7 @@ def profile():
 
     # request.method == POST
     password_old = get_form_profile_field_password_old(request)
-    password_stored = get_user_password(loggedin_user)
+    password_stored = get_db_user_password(loggedin_user)
     if not check_password_hash(password_stored, password_old):
         flash("Wrong old password", 'danger')
         return redirect(url_for("profile"))
@@ -204,7 +220,7 @@ def profile():
         return redirect(url_for("profile"))
 
     # update password in DB
-    is_update_ok = set_user_password(get_user_id(loggedin_user), password_new)
+    is_update_ok = set_db_user_password(get_db_user_id(loggedin_user), password_new)
     if is_update_ok:
         flash("Your password has been changed", "success")
     return render_template("profile.html", user=loggedin_user)
@@ -218,27 +234,31 @@ def get_form_profile_field_password_new(request):
     return request.form.get('password_new', None)
 
 
-def get_user_by_id(user_id):
+def get_db_user_by_id(user_id):
     coll = get_mongo_coll(app.config["MONGO_USERS"])
     user = coll.find_one({'_id': user_id})
     return user
 
 
-def get_user_id(user=None):
+def get_db_user_id(user=None):
     if user:
         return user.get('_id', None)
     return ObjectId(session.get('user_id', None))
 
 
-def get_user_password(user):
+def get_db_user_password(user):
     return user.get('password', None)
 
 
-def set_user_password(user_id, password_new):
+def get_db_user_is_admin(user):
+    return user.get('user_is_admin', None)
+
+
+def set_db_user_password(user_id, password_new):
     user_update = {
         "password":         generate_password_hash(password_new),
         "changed_by":       ObjectId(session['user_id']),
-        "date_time_update": datetime.utcnow().timestamp()
+        "date_time_update": get_utc_timestamp()
     }
     coll = get_mongo_coll(app.config["MONGO_USERS"])
     result = coll.update_one({'_id':user_id}, {"$set":user_update})
@@ -311,18 +331,22 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
                 select_field_name = get_records(app.config["MONGO_FIELDCATALOG"])[field['values']]['select_field']
                 record_id = coll_lookup.find_one({select_field_name:value},{'_id': 1})
                 # insert foreing key as object into field
-                record_new[field['name']] = record_id['_id']                
+                record_new[field['name']] = record_id['_id']
         # store check box as boolean
         elif field['input_type']=='checkbox':
             record_new[field['name']] = True if record_new.get(field['name'], None)=='on' else False
         # store password
         elif field['input_type']=='password':
-            record_new[field['name']] = generate_password_hash(record_new.get(field['name'], None))
+            entered_password = record_new.get(field['name'], None)
+            if entered_password and len(entered_password)>0:
+                record_new[field['name']] = generate_password_hash(entered_password)
+            else:
+                record_new.pop(field['name'])
         # store timestamp
         elif field['input_type']=='timestamp_update' and record_old:
-            record_new[field['name']] = datetime.utcnow().timestamp()
+            record_new[field['name']] = get_utc_timestamp()
         elif field['input_type']=='timestamp_insert' and not record_old:
-            record_new[field['name']] = datetime.utcnow().timestamp()
+            record_new[field['name']] = get_utc_timestamp()
         # store image
         elif field['input_type']=='imageid':
             # following instructions from https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
@@ -417,7 +441,7 @@ def tasks():
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     tasks = list(coll.find({'user_id':ObjectId(session['user_id'])}))
     if not tasks:
-        flash("There are no tasks. Create one below!", "info")
+        flash("There are no cars. Create one below!", "info")
     return render_template("tasks.html", 
         page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
         categories=get_records('categories'),
@@ -536,7 +560,7 @@ def init_mongo_db(load_content=False):
         for record in records:
             user_update = {
                 'password':         generate_password_hash(record['password']),
-                "date_time_insert": datetime.utcnow().timestamp()
+                "date_time_insert": get_utc_timestamp()
             }
             coll.update_one({'_id':record['_id']}, {"$set":user_update})
 
@@ -715,7 +739,7 @@ def init_mongo_db(load_content=False):
         tasks = coll.find()
         for task in tasks:
             # add timestamp
-            timestamp = datetime.utcnow().timestamp()
+            timestamp = get_utc_timestamp()
             # convert category description to _id in Tasks
             category_id = next((c['_id'] for c in categories if c['description'] == task['category_id']), '')
             # convert category description to _id in Tasks
@@ -768,7 +792,7 @@ def save_task_to_db(request, task_old):
     coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
     try:
         if task_old:
-            task_new['date_time_update'] = datetime.utcnow().timestamp()
+            task_new['date_time_update'] = get_utc_timestamp()
             # update existing task
             coll.update_one({'_id':task_old['_id']}, {"$set":task_new})
             # delete old image
@@ -776,7 +800,7 @@ def save_task_to_db(request, task_old):
                 coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
                 coll.delete_one({"_id":task_old["image_id"]})
         else:
-            task_new['date_time_insert'] = datetime.utcnow().timestamp()
+            task_new['date_time_insert'] = get_utc_timestamp()
             coll.insert_one(task_new)
         # create empty task - this clears the input fields, because the update was OK
         task_new = {}
@@ -852,7 +876,7 @@ def _jinja2_filter_time_ago(unix_timestamp:int):
         (5806080000, 'Last century', 'Next century'), # 60*60*24*7*4*12*100*2
         (58060800000, 'centuries', 2903040000)        # 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
     )
-    seconds = datetime.utcnow().timestamp() - unix_timestamp
+    seconds = get_utc_timestamp() - unix_timestamp
     if 0 <= seconds < 1:
         return 'Just now'
     if seconds < 0 :
