@@ -108,11 +108,14 @@ def register():
 
     user_new = {
         username_field: username,
-        password_field: generate_password_hash(request.form.get(password_field))
+        admin_field: False,
+        password_field: generate_password_hash(request.form.get(password_field)),
+        'date_time_insert': datetime.utcnow().timestamp()
     }
+
     # put the new user_id into 'session' cookie
     session['user_id'] = str(coll.insert_one(user_new).inserted_id)
-    session[admin_field] = False
+    session[admin_field] = user_new[admin_field]
     flash("Registration Successful!", "success")
     return redirect(url_for("tasks"))
 
@@ -229,7 +232,7 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         if not field.get('input_type', False):
             continue
         # store logged in user as last updater
-        if field['input_type']=='user':
+        if field['input_type']=='changedby':
             record_new[field['name']] = ObjectId(session['user_id'])
         # convert date value to datetime object
         elif field['input_type']=='date':
@@ -263,7 +266,9 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         elif field['input_type']=='password':
             record_new[field['name']] = generate_password_hash(record_new.get(field['name'], None))
         # store timestamp
-        elif field['input_type']=='timestamp_update':
+        elif field['input_type']=='timestamp_update' and record_old:
+            record_new[field['name']] = datetime.utcnow().timestamp()
+        elif field['input_type']=='timestamp_insert' and not record_old:
             record_new[field['name']] = datetime.utcnow().timestamp()
         # store image
         elif field['input_type']=='imageid':

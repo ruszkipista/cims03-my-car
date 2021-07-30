@@ -4,11 +4,11 @@
       "description": "Users",
       "admin":       true,
       "fields":[
-         {"name": "username",         "heading": "User Name",      "input_type": "text",     "attributes":"readonly"},
+         {"name": "username",         "heading": "User Name",      "input_type": "text"},
          {"name": "password",         "heading": "Password",       "input_type": "password", "attributes":"autocomplete=new-password"},
          {"name": "user_is_admin",    "heading": "Administrator?", "input_type": "checkbox"},
          {"name": "date_time_insert", "heading": "Registered",     "input_type": "timestamp_insert"},
-         {"name": "changed_by",       "heading": "Changed By",     "input_type": "user",     "values":"users"},
+         {"name": "changed_by",       "heading": "Changed By",     "input_type": "changedby", "values":"users"},
          {"name": "date_time_update", "heading": "Updated",        "input_type": "timestamp_update"}
        ],
        "select_field": "username"
