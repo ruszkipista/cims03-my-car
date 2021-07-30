@@ -161,35 +161,70 @@ def logout():
 @app.route("/profile", methods=['GET','POST'])
 def profile():
     # is a user logged in?
-    if not session.get('user_id', None):
+    loggedin_user_id = get_user_id()
+    if not loggedin_user_id:
         return redirect(url_for("login"))
-    coll = get_mongo_coll(app.config["MONGO_USERS"])
-    user_old = coll.find_one({'_id': ObjectId(session['user_id'])})
-    if not user_old:
+
+    loggedin_user = get_user(loggedin_user_id)
+    if not loggedin_user:
         flash("Invalid logged in user!", 'danger')
         return redirect(url_for("logout"))
+
     if request.method == "GET":
-        return render_template("profile.html", user=user_old)
+        return render_template("profile.html", user=loggedin_user)
+
     # request.method == POST
-    fieldcat = get_records(app.config["MONGO_FIELDCATALOG"])[app.config["MONGO_USERS"]]
-    password_field = fieldcat['fields'][1]['name']
-    password_old = request.form.get('password_old')
-    if not check_password_hash(user_old[password_field], password_old):
+    password_old = get_form_profile_field_password_old(request)
+    password_stored = get_user_password(loggedin_user)
+    if not check_password_hash(password_stored, password_old):
         flash("Wrong old password", 'danger')
         return redirect(url_for("profile"))
-    password_new = request.form.get('password_new')
-    if check_password_hash(user_old[password_field], password_new):
+
+    password_new = get_form_profile_field_password_new(request)
+    if check_password_hash(password_stored, password_new):
         flash("Old and New passwords are the same, not changed!", "warning")
         return redirect(url_for("profile"))
+
+    # update password in DB
+    is_update_ok = set_user_password(get_user_id(loggedin_user), password_new)
+    if is_update_ok:
+        flash("Your password has been changed", "success")
+    return render_template("profile.html", user=loggedin_user)
+
+
+def get_form_profile_field_password_old(request):
+    return request.form.get('password_old')
+
+
+def get_form_profile_field_password_new(request):
+    return request.form.get('password_new')
+
+
+def get_user(user_id):
+    coll = get_mongo_coll(app.config["MONGO_USERS"])
+    user = coll.find_one({'_id': user_id})
+    return user
+
+
+def get_user_id(user=None):
+    if user:
+        return user.get('_id', None)
+    return ObjectId(session.get('user_id', None))
+
+
+def get_user_password(user):
+    return user.get('password', None)
+
+
+def set_user_password(user_id, password_new):
     user_update = {
-        password_field:     generate_password_hash(password_new),
-        "changed_by":       user_old['_id'],
+        "password":         generate_password_hash(password_new),
+        "changed_by":       ObjectId(session['user_id']),
         "date_time_update": datetime.utcnow().timestamp()
     }
-    # update password in DB
-    coll.update_one({'_id':user_old['_id']}, {"$set":user_update})
-    flash("Your password has been changed", "success")
-    return render_template("profile.html", user=user_old)
+    coll = get_mongo_coll(app.config["MONGO_USERS"])
+    result = coll.update_one({'_id':user_id}, {"$set":user_update})
+    return result.modified_count == 1
 
 
 @app.route("/maintain/<collection_name>", methods=['GET','POST'])
