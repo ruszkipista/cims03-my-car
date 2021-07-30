@@ -128,18 +128,18 @@ def login():
     # request.method == POST
 
     # check if username already exists in db
-    username = get_form_reglog_field_username(request)
-    password = get_form_reglog_field_password(request)
-    user_old = get_db_user_by_name(username)
+    username_entered = get_form_reglog_field_username(request)
+    password_entered = get_form_reglog_field_password(request)
+    user_old = get_db_user_by_name(username_entered)
+    password_stored = get_user_password(user_old)
     # check if stored and entered passwords match
-    if not user_old or not check_password_hash(get_user_password(user_old), password):
-        # incorrect username and/or password
+    if not user_old or not check_password_hash(password_stored, password_entered):
         flash(f"Incorrect Username and/or Password", 'danger')
         return redirect(url_for("login"))
 
     # put the user_id into session cookie
     login_user(user_old)
-    flash(f"Welcome, {username}", "success")
+    flash(f"Welcome, {username_entered}", "success")
     return redirect(url_for("tasks"))
 
 
