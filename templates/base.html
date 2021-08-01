@@ -35,8 +35,8 @@
             </li>
             {% if session['user_id'] %}
             <li class="nav-item">
-              <a class="nav-link {% if url_for('tasks')==request.path %}active{% endif %}"
-                href="{{ url_for('tasks') }}">Tasks</a>
+              <a class="nav-link {% if url_for('maintain', collection_name='cars')==request.path %}active{% endif %}"
+                href="{{ url_for('maintain', collection_name='cars') }}">Cars</a>
             </li>
             {% if session['user_is_admin'] %}
             {% for coll_fieldcat in fieldcatalog.values() %}

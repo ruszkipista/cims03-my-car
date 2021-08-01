@@ -29,53 +29,6 @@
      }
   ],
 
-  "tasks": [{
-      "name": "Visit parents",
-      "description": "buy tickets and pack bags",
-      "category_id": "Travel",
-      "is_complete": false,
-      "is_urgent": true,
-      "due_date": "2021-04-30",
-      "user_id": "admin"
-    },
-    {
-      "name": "apply for jobs",
-      "description": "send 100 job application",
-      "category_id": "Work",
-      "is_complete": false,
-      "is_urgent": false,
-      "due_date": "2021-09-30",
-      "user_id": "admin"
-    },
-    {
-      "name": "buy ice cream",
-      "description": "chocolate, vanilla",
-      "category_id": "Shopping",
-      "is_complete": false,
-      "is_urgent": false,
-      "due_date": "2021-05-10",
-      "user_id": "admin"
-    }
-  ],
-
-  "categories": [
-    {"entity_name": "category",
-     "description": "Task Categories",
-     "admin":       true,
-     "fields":[
-        {"name": "description", "heading": "Description",      "input_type": "text", "attributes": "minlength=3 maxlength=25"},
-        {"name": "icon",        "heading": "Font Awsome Icon", "input_type": "text"}
-     ],
-     "select_field": "description"
-    },
-    {"description": "Travel",    "icon": "fas fa-suitcase-rolling"},
-    {"description": "Tax issue", "icon": "fas fa-university"},
-    {"description": "Shopping",  "icon": "fas fa-shopping-cart"},
-    {"description": "Home",      "icon": "fas fa-home"},
-    {"description": "Work",      "icon": "fas fa-briefcase"}
-  ],
-
-
   "currencies" : [
     {"entity_name": "currency",
      "description": "Currencies",
@@ -273,7 +226,7 @@
   "cars": [
     { "entity_name": "car",
       "description": "Cars",
-      "admin":       true,
+      "admin":       false,
       "fields":[
          {"name": "car_image_id",         "heading": "Car Image",            "input_type": "imageid"},
          {"name": "car_id",               "heading": "car",                  "input_type": "text"},

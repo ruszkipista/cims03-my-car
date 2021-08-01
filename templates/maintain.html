@@ -119,6 +119,26 @@
     </div>
   </div>
 
+    <!-- search -->
+    {% if not update %}
+    <div class="row m-0 p-0 my-3">
+        <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
+          <div class="row ps-3">
+            <div class="form-outline col-6">
+              <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control">
+              <label for="query" class="form-label">Search {{ coll_fieldcat['description'] }}</label>
+            </div>
+            <div class="col-6">
+              <button type="submit" class="btn bg-primary text-shadow text-light">
+                <i class="fas fa-search"></i> Search
+              </button>
+              <a href="{{ url_for('maintain', collection_name=collection_name) }}" class="btn bg-danger text-shadow ms-3 text-light">Reset</a>
+            </div>
+          </div>
+        </form>
+    </div>
+    {% endif %}
+
   {% if records %}
   <div class="row m-0 p-0">
     <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
@@ -194,10 +214,10 @@
           </td>
           {% endfor %}
           <td class="text-center">
-              <a href="{{ url_for('update_record', collection_name=coll_fieldcat['collection_name'], record_id=record['_id']) }}">
+              <a href="{{ url_for('update_record', collection_name=collection_name, record_id=record['_id']) }}">
                 <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
               </a>
-              <a href="{{ url_for('delete_record', collection_name=coll_fieldcat['collection_name'], record_id=record['_id']) }}" 
+              <a href="{{ url_for('delete_record', collection_name=collection_name, record_id=record['_id']) }}" 
                  data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
                 <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Delete"></i>
               </a>

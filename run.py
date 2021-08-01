@@ -1,6 +1,7 @@
 import os
 import certifi
 from flask import Flask, render_template, g, request, redirect, flash, send_file, session, url_for
+from pymongo import collection
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -43,7 +44,9 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
 app.config["MONGO_DATA"]    = os.environ.get("MONGO_DATA","./static/data/")
 app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","mongo_content.json")
 app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
+app.config["MONGO_IMAGES"]            = 'images'
 app.config["MONGO_USERS"]             = 'users'
+app.config["MONGO_CARS"]              = 'cars'
 app.config["MONGO_FIELDCATALOG"]      = 'fieldcatalog'
 app.config["MONGO_CURRENCIES"]        = 'currencies'
 app.config["MONGO_COUNTRIES"]         = 'countries'
@@ -67,19 +70,6 @@ app.config["MONGO_BUFFERED_COLLECTIONS"] = [
     app.config["MONGO_MATERIALS"],
     app.config["MONGO_RELATIONSHIP_TYPES"],
 ]
-
-app.config["MONGO_COLLECTION_IMAGES"] = {
-        "name":"images",
-        "title":"Task Images",
-        "fields":["source","image"]
-}
-app.config["MONGO_COLLECTION_TASKS"] = {
-        "name":"tasks",
-        "title":"Task Master",
-        "fields":["name","description","is_urgent","due_date","is_complete","date_time_insert","date_time_update",
-                  "category_id","image_id","user_id"]
-}
-
 
 # App routes
 #==============
@@ -106,7 +96,7 @@ def register():
     user_new = insert_db_user(username_entered, password_entered, is_admin_entered)
 
     # put the new user_id into 'session' cookie
-    login_user(user_new)
+    login_db_user(user_new)
     flash("Registration Successful!", "success")
     return redirect(url_for("index"))
 
@@ -161,9 +151,12 @@ def login():
         return redirect(url_for("login"))
 
     # put the user_id into session cookie
-    login_user(user_old)
+    login_db_user(user_old)
     flash(f"Welcome, {username_entered}", "success")
-    return redirect(url_for("tasks"))
+    if get_db_user_is_admin():
+        return redirect(url_for("index"))
+    else:
+        return redirect(url_for("maintain", collection_name=app.config["MONGO_CARS"]))
 
 
 def get_db_user_by_name(username):
@@ -172,7 +165,7 @@ def get_db_user_by_name(username):
     return user
 
 
-def login_user(user):
+def login_db_user(user):
     session['user_id'] = str(get_db_user_id(user))
     session['user_is_admin'] = get_db_user_is_admin(user)
 
@@ -182,12 +175,12 @@ def logout():
     # is a user logged in?
     loggedin_user_id = get_db_user_id()
     if loggedin_user_id:
-        user_db_logout()
+        logout_db_user()
         flash("You have been logged out", "info")       
     return redirect(url_for("index"))
 
 
-def user_db_logout():
+def logout_db_user():
     session.pop('user_id')
     session.pop('user_is_admin')
 
@@ -250,8 +243,11 @@ def get_db_user_password(user):
     return user.get('password', None)
 
 
-def get_db_user_is_admin(user):
-    return user.get('user_is_admin', None)
+def get_db_user_is_admin(user=None):
+    if user:
+        return user.get('user_is_admin', None)
+    else:
+        return session.get('user_is_admin', None)
 
 
 def set_db_user_password(user_id, password_new):
@@ -357,7 +353,7 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
                 if extension in app.config["UPLOAD_EXTENSIONS"]:
                     # store image
                     image_new = {'source': filename_source, 'image': Binary(image.read())}
-                    coll_images = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+                    coll_images = get_mongo_coll(app.config["MONGO_IMAGES"])
                     record_new[field['name']] = coll_images.insert_one(image_new).inserted_id
                     if record_old.get(field['name'], False):
                         images_old.append(record_old[field['name']])
@@ -371,7 +367,7 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
         except:
             flash(f"Error in update operation!", "danger")        
         # delete old images if new got uploaded
-        coll_images = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+        coll_images = get_mongo_coll(app.config["MONGO_IMAGES"])
         for image_old in images_old:
             coll_images.delete_one({"_id":image_old})
     else:
@@ -430,91 +426,26 @@ def delete_record(collection_name, record_id):
     return redirect(url_for('maintain', collection_name=collection_name))
 
 
-@app.route("/tasks", methods=['GET','POST'])
-def tasks():
-    if not session.get('user_id', None):
-        return redirect(url_for("login"))
-    # create an empty task
-    task = {}
-    if request.method == 'POST':
-        task = save_task_to_db(request, task)
-        # if task is empty, then the update was successful
-        if not task:
-            return redirect(url_for('tasks'))
-
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-    tasks = list(coll.find({'user_id':ObjectId(session['user_id'])}))
-    if not tasks:
-        flash("There are no cars. Create one below!", "info")
-    return render_template("tasks.html", 
-        page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_records('categories'),
-        query="",
-        tasks=tasks, 
-        last_task=task)
-
-
 @app.route("/search", methods=["GET", "POST"])
-def search():
+def search(collection_name):
     query = request.form.get("query")
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-    tasks = list(coll.find({"$text": {"$search": query}}))
-    if not tasks:
-        flash("No results found", "warning")
-    return render_template("tasks.html", 
-        page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_records('categories'),
-        query=query,
-        tasks=tasks, 
-        last_task={})
+    coll = get_mongo_coll(collection_name)
+    records = list(coll.find({"$text": {"$search": query}}))
+    if not records:
+        records = list(coll.find())
+        if records:
+            flash("No results found", "warning")
+        else:
+            flash("There are no records.", 'info')
+    return render_template("maintain.html",
+        collection_name=collection_name,
+        records=records, 
+        last_record={})
 
 
-@app.route("/tasks/update/<task_id>", methods=['GET','POST'])
-def update_task(task_id):
-    if not session.get('user_id', None):
-        return redirect(url_for("login"))
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-    task = coll.find_one({"_id":ObjectId(task_id), "user_id":ObjectId(session["user_id"])})
-    if not task:
-        flash(f"Task {task_id} does not exist", "danger")
-        return redirect(url_for('tasks'))
-
-    if request.method == 'POST':
-        task = save_task_to_db(request, task)
-        # if task is empty, then the update was successful
-        if not task:
-            return redirect(url_for('tasks'))
-
-    tasks = coll.find()
-    return render_template("tasks.html", 
-        page_title=app.config["MONGO_COLLECTION_TASKS"]["title"],
-        categories=get_records('categories'),
-        query="",
-        tasks=tasks, 
-        last_task=task)
-
-
-@app.route("/tasks/delete/<task_id>", methods=['POST'])
-def delete_task(task_id):
-    if not session.get('user_id', None):
-        return redirect(url_for("login"))
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-    task = coll.find_one({"_id":ObjectId(task_id), "user_id":ObjectId(session["user_id"])})
-    if not task:
-        flash(f"Task {task_id} does not exist", "danger")
-    else:
-        # delete task
-        coll.delete_one({"_id":task["_id"]})
-        # delete image
-        if task.get("image_id",None) is not None:
-            coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
-            coll.delete_one({"_id":task["image_id"]})
-    return redirect(url_for('tasks'))
-
-
-@app.route("/tasks/image/<image_id>")
+@app.route("/serve/image/<image_id>")
 def serve_image(image_id):
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+    coll = get_mongo_coll(app.config["MONGO_IMAGES"])
     image = coll.find_one({"_id":ObjectId(image_id)})
     if image:
         return send_file(BytesIO(image['image']), mimetype='application/octet-stream')
@@ -563,7 +494,6 @@ def init_mongo_db(load_content=False):
             unique_fields = [ (field["name"], pymongo.ASCENDING) 
                                 for field in coll_def["fields"] if field.get("unique", False)]
             if unique_fields:
-                print(unique_fields)
                 coll = get_mongo_coll(coll_def["collection_name"])
                 coll.create_index(unique_fields, unique=True)
 
@@ -682,7 +612,7 @@ def init_mongo_db(load_content=False):
         coll = get_mongo_coll('unit_of_measures')
         unit_of_measures = list(coll.find())
 
-        coll_img = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+        coll_img = get_mongo_coll(app.config["MONGO_IMAGES"])
 
         # convert Cars
         coll = get_mongo_coll('cars')
@@ -742,85 +672,7 @@ def init_mongo_db(load_content=False):
                 'user_id':         user_id,
                 'car_id':          car_id,
                 'relationship_id': relationship_id,
-                }})
-
-        # get all Categories
-        coll = get_mongo_coll('categories')
-        categories = list(coll.find())
-        # in Tasks
-        coll = get_mongo_coll('tasks')
-        tasks = coll.find()
-        for task in tasks:
-            # add timestamp
-            timestamp = get_utc_timestamp()
-            # convert category description to _id in Tasks
-            category_id = next((c['_id'] for c in categories if c['description'] == task['category_id']), '')
-            # convert category description to _id in Tasks
-            user_id = next((u['_id'] for u in users if u['username'] == task['user_id']), '')
-            # convert due_date isodatestring to datetime
-            due_date = datetime.strptime(task['due_date'], '%Y-%m-%d')
-            # update a task in Tasks
-            coll.update_one({'_id':task['_id']}, {"$set":{
-                'date_time_insert': timestamp,
-                'category_id':      category_id,
-                'user_id':          user_id,
-                'due_date':         due_date
-                }})
-
-        # create search index in Tasks
-        # coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-        # coll.drop_indexes()
-        # coll.create_index([("name",pymongo.TEXT), 
-        #                    ("description",pymongo.TEXT)], name='name_description')
- 
-
-def save_task_to_db(request, task_old):
-    fields = app.config["MONGO_COLLECTION_TASKS"]['fields']
-    task_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != task_old.get(f,None)}
-    task_new['user_id'] = ObjectId(session['user_id'])
-    due_date = request.form.get('due_date',None)
-    if due_date == '':
-        del task_new['due_date']
-    elif due_date is not None:
-        task_new['due_date'] = datetime.fromisoformat(due_date)
-
-    category_id = task_new.get('category_id', None)
-    if category_id:
-        task_new['category_id'] = ObjectId(category_id)
-
-    task_new['is_complete'] = True if task_new.get('is_complete', None)=='on' else False
-    task_new['is_urgent']   = True if task_new.get('is_urgent',   None)=='on' else False
-    # following instructions from https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
-    data = request.files['SourceFileName']
-    if data:
-        filename_source = secure_filename(data.filename)
-        extension = filename_source.rsplit('.', 1)[1] if '.' in filename_source else ''
-        if extension in app.config["UPLOAD_EXTENSIONS"]:
-            # store image
-            image_new = {}
-            image_new['source'] = filename_source
-            image_new['image'] = Binary(data.read())
-            coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
-            task_new["image_id"] = coll.insert_one(image_new).inserted_id
-    coll = get_mongo_coll(app.config["MONGO_COLLECTION_TASKS"]['name'])
-    try:
-        if task_old:
-            task_new['date_time_update'] = get_utc_timestamp()
-            # update existing task
-            coll.update_one({'_id':task_old['_id']}, {"$set":task_new})
-            # delete old image
-            if task_new.get("image_id", False) and task_old.get("image_id", False):
-                coll = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
-                coll.delete_one({"_id":task_old["image_id"]})
-        else:
-            task_new['date_time_insert'] = get_utc_timestamp()
-            coll.insert_one(task_new)
-        # create empty task - this clears the input fields, because the update was OK
-        task_new = {}
-        flash(f"One task successfully {'updated' if task_old else 'added'}", "success")
-    except:
-        flash(f"Error in {'update' if task_old else 'insert'} operation!", "danger")
-    return task_new
+            }})
 
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
