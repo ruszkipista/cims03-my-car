@@ -4,7 +4,7 @@
       "description": "Users",
       "admin":       true,
       "fields":[
-         {"name": "username",         "heading": "User Name",      "input_type": "text"},
+         {"name": "username",         "heading": "User Name",      "input_type": "text",     "unique": true},
          {"name": "password",         "heading": "Password",       "input_type": "password", "attributes":"autocomplete=new-password"},
          {"name": "user_is_admin",    "heading": "Administrator?", "input_type": "checkbox"},
          {"name": "date_time_insert", "heading": "Registered",     "input_type": "timestamp_insert"},

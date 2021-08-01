@@ -363,21 +363,25 @@ def save_record_to_db(request, coll_fieldcatalog, record_old):
                         images_old.append(record_old[field['name']])
 
     coll = get_mongo_coll(coll_fieldcatalog[app.config['MONGO_COLLECTION_NAME']])
-    try:
-        if record_old:
+    if record_old:
+        try:
             # update existing record
             coll.update_one({'_id':record_old['_id']}, {"$set":record_new})
-            # delete old images if new got uploaded
-            coll_images = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
-            for image_old in images_old:
-                coll_images.delete_one({"_id":image_old})
-        else:
+            flash(f"Successfully updated one {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} record", "success")
+        except:
+            flash(f"Error in update operation!", "danger")        
+        # delete old images if new got uploaded
+        coll_images = get_mongo_coll(app.config["MONGO_COLLECTION_IMAGES"]['name'])
+        for image_old in images_old:
+            coll_images.delete_one({"_id":image_old})
+    else:
+        try:
             coll.insert_one(record_new)
-        # create empty record - this clears the input fields, because the update was OK
-        record_new = {}
-        flash(f"Successfully {'updated' if record_old else 'added'} one {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} record", "success")
-    except:
-        flash(f"Error in {'update' if record_old else 'insert'} operation!", "danger")
+            # create empty record - this clears the input fields, because the update was OK
+            record_new = {}
+            flash(f"Successfully added one {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} record", "success")
+        except:
+            flash(f"Error in insert operation!", "danger")
     return record_new
 
 
@@ -553,6 +557,15 @@ def init_mongo_db(load_content=False):
         coll = get_mongo_coll(app.config["MONGO_FIELDCATALOG"])
         coll.delete_many({})
         coll.insert_many(fieldcatalog)
+
+        # create indices for unique fields
+        for coll_def in fieldcatalog:
+            unique_fields = [ (field["name"], pymongo.ASCENDING) 
+                                for field in coll_def["fields"] if field.get("unique", False)]
+            if unique_fields:
+                print(unique_fields)
+                coll = get_mongo_coll(coll_def["collection_name"])
+                coll.create_index(unique_fields, unique=True)
 
         # encrypt password in Users
         coll = get_mongo_coll('users')
