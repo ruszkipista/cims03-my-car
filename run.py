@@ -56,7 +56,6 @@ app.config["MONGO_EXPENDITURE_TYPES"] = 'expenditure_types'
 app.config["MONGO_MATERIAL_TYPES"]    = 'material_types'
 app.config["MONGO_RELATIONSHIP_TYPES"]= 'relationship_types'
 app.config["MONGO_MATERIALS"]         = 'materials'
-app.config["MONGO_ENTITY_NAME"]       = 'entity_name'
 app.config["MONGO_BUFFERED_COLLECTIONS"] = [
     app.config["MONGO_CURRENCIES"],
     app.config["MONGO_COUNTRIES"],
@@ -108,10 +107,7 @@ def insert_db_user(username, password, is_admin):
     loggedin_user = get_db_user_id()
     if loggedin_user:
         user_new["changed_by"] = loggedin_user
-
-    coll = get_mongo_coll(app.config["MONGO_USERS"])
-    user_new["_id"] = coll.insert_one(user_new).inserted_id
-    return user_new
+    return insert_db_record(app.config["MONGO_USERS"], user_new)
 
 
 def get_db_user_by_name(username):
@@ -183,7 +179,7 @@ def get_db_filtered_records(collection_name, query):
 
 def get_db_entity_name(collection_name):
     coll_fieldcatalog = get_db_fieldcatalog(collection_name)
-    return coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]
+    return coll_fieldcatalog["entity_name"]
 
 
 def get_db_fieldcatalog(collection_name):
@@ -193,6 +189,17 @@ def get_db_fieldcatalog(collection_name):
 def get_db_record_by_id(collection_name, record_id):
     coll = get_mongo_coll(collection_name)
     return coll.find_one({"_id":ObjectId(record_id)})
+
+
+def insert_db_record(collection_name, record):
+    coll = get_mongo_coll(collection_name)
+    record["_id"] = coll.insert_one(record).inserted_id
+    return record
+
+
+def update_db_record(collection_name, record_old, record_new):
+    coll = get_mongo_coll(collection_name)
+    coll.update_one({"_id":record_old["_id"]}, {"$set":record_new})
 
 
 def delete_db_record(collection_name, record):
@@ -412,11 +419,9 @@ def save_record_to_db(request, collection_name, record_old):
                     if record_old.get(field['name'], False):
                         images_old.append(record_old[field['name']])
 
-    coll = get_mongo_coll(coll_fieldcatalog[collection_name])
     if record_old:
         try:
-            # update existing record
-            coll.update_one({'_id':record_old['_id']}, {"$set":record_new})
+            update_db_record(collection_name, record_old, record_new)
             flash(f"Successfully updated one {get_db_entity_name(collection_name)} record", "success")
         except:
             flash(f"Error in update operation!", "danger")        
@@ -426,10 +431,10 @@ def save_record_to_db(request, collection_name, record_old):
             coll_images.delete_one({"_id":image_old})
     else:
         try:
-            coll.insert_one(record_new)
+            record_new = insert_db_record(collection_name, record_new)
             # create empty record - this clears the input fields, because the update was OK
             record_new = {}
-            flash(f"Successfully added one {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} record", "success")
+            flash(f"Successfully added one {get_db_entity_name(collection_name)} record", "success")
         except:
             flash(f"Error in insert operation!", "danger")
     return record_new
@@ -482,7 +487,7 @@ def delete_record(collection_name, record_id):
     else:
         # delete record
         delete_db_record(collection_name, record)
-        flash(f"Deleted one {coll_fieldcatalog[app.config['MONGO_ENTITY_NAME']]} record", "info")
+        flash(f"Deleted one {get_db_entity_name(collection_name)} record", "info")
     return redirect(url_for('maintain', collection_name=collection_name))
 
 
@@ -546,13 +551,14 @@ def init_mongo_db(load_content=False):
                 coll.delete_many({})
                 # separate fieldcatalog record from data records
                 for doc in coll_docs:
-                    if doc.get(app.config["MONGO_ENTITY_NAME"], False):
+                    if doc.get("entity_name", False):
                         doc["collection_name"] = coll_name
                         fieldcatalog.append(doc)
-                # remove fieldcatalog record, leave only data records
-                coll_docs = [doc for doc in coll_docs if not doc.get(app.config["MONGO_ENTITY_NAME"], False)]
-                if coll_docs:
-                    coll.insert_many(coll_docs)
+                if load_content:
+                    # remove fieldcatalog record, leave only data records
+                    coll_docs = [doc for doc in coll_docs if not doc.get("entity_name", False)]
+                    if coll_docs:
+                        coll.insert_many(coll_docs)
 
         # write out Fieldcatalog
         coll = get_mongo_coll(app.config["MONGO_FIELDCATALOG"])
