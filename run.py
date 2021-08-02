@@ -1,7 +1,6 @@
 import os
 import certifi
 from flask import Flask, render_template, g, request, redirect, flash, send_file, session, url_for
-from pymongo import collection
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -57,7 +56,6 @@ app.config["MONGO_EXPENDITURE_TYPES"] = 'expenditure_types'
 app.config["MONGO_MATERIAL_TYPES"]    = 'material_types'
 app.config["MONGO_RELATIONSHIP_TYPES"]= 'relationship_types'
 app.config["MONGO_MATERIALS"]         = 'materials'
-app.config["MONGO_COLLECTION_NAME"]   = 'collection_name'
 app.config["MONGO_ENTITY_NAME"]       = 'entity_name'
 app.config["MONGO_BUFFERED_COLLECTIONS"] = [
     app.config["MONGO_CURRENCIES"],
@@ -129,7 +127,11 @@ def get_db_user_by_id(user_id):
 def get_db_user_id(user=None):
     if user:
         return user.get('_id', None)
-    return ObjectId(session.get('user_id', None))
+    user_id = session.get('user_id', None)
+    if user_id:
+        return ObjectId(user_id)
+    else:
+        return user_id
 
 
 def get_db_user_password(user):
@@ -149,8 +151,9 @@ def login_db_user(user):
 
 
 def logout_db_user():
-    session.pop('user_id')
-    session.pop('user_is_admin')
+    if session.get('user_id', None):
+        session.pop('user_id')
+        session.pop('user_is_admin')
 
 
 def set_db_user_password(user_id, password_new):
@@ -162,6 +165,10 @@ def set_db_user_password(user_id, password_new):
     coll = get_mongo_coll(app.config["MONGO_USERS"])
     result = coll.update_one({'_id':user_id}, {"$set":user_update})
     return result.modified_count == 1
+
+
+def get_db_image_by_id(image_id):
+    return get_db_record_by_id(app.config["MONGO_IMAGES"], image_id)
 
 
 def get_db_all_records(collection_name):
@@ -193,7 +200,7 @@ def delete_db_record(collection_name, record):
     coll.delete_one({"_id":record["_id"]})
 
 
-def is_db_admin_maintainable(collection_name):
+def get_db_is_admin_maintainable(collection_name):
     coll_fieldcatalog = get_db_fieldcatalog(collection_name)
     return coll_fieldcatalog.get('admin', None)
 
@@ -202,6 +209,8 @@ def is_db_admin_maintainable(collection_name):
 #==============
 @app.route("/")  # trigger point through webserver: "/"= root directory
 def index():
+    # is logged in user valid?
+    loggedin_user = get_loggedin_user()
     return render_template("index.html", page_title="Home")
 
 
@@ -301,27 +310,25 @@ def get_loggedin_user():
         # get user record from DB
         loggedin_user = get_db_user_by_id(loggedin_user_id)
         if not loggedin_user:
-            flash("Invalid logged in user!", 'danger')
             logout_db_user()
+            flash("Invalid logged in user has been logged out!", 'danger')
     return loggedin_user
 
 
 @app.route("/maintain/<collection_name>", methods=['GET','POST'])
 def maintain(collection_name):
+    # validate logged in user
     loggedin_user = get_loggedin_user()
     if not loggedin_user:
         return redirect(url_for("login"))
+    # is collection maintanable by admin only and user is not logged in as admin?
+    if get_db_is_admin_maintainable(collection_name) and not get_db_user_is_admin():
+        return redirect(url_for("index"))
 
-    coll_fieldcatalog = get_db_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
-    # is collection maintanable by admin only?
-    if coll_fieldcatalog.get('admin', None):
-        # is logged in user an admin?
-        if get_db_user_is_admin():
-            return redirect(url_for("index"))
     # create an empty record
     record = {}
     if request.method == 'POST':
-        record = save_record_to_db(request, collection_name, record)
+        record = save_record_to_db(request, collection_name, {})
         if not record:
             return redirect(url_for('maintain', collection_name=collection_name))
 
@@ -405,7 +412,7 @@ def save_record_to_db(request, collection_name, record_old):
                     if record_old.get(field['name'], False):
                         images_old.append(record_old[field['name']])
 
-    coll = get_mongo_coll(coll_fieldcatalog[app.config['MONGO_COLLECTION_NAME']])
+    coll = get_mongo_coll(coll_fieldcatalog[collection_name])
     if record_old:
         try:
             # update existing record
@@ -430,11 +437,12 @@ def save_record_to_db(request, collection_name, record_old):
 
 @app.route("/update/<collection_name>/<record_id>", methods=['GET','POST'])
 def update_record(collection_name, record_id):
+    # validate logged in user
     loggedin_user = get_loggedin_user()
     if not loggedin_user:
         return redirect(url_for("login"))
-
-    if is_db_admin_maintainable(collection_name) and not get_db_user_is_admin():
+    # is collection maintanable by admin only and user is not logged in as admin?
+    if get_db_is_admin_maintainable(collection_name) and not get_db_user_is_admin():
         return redirect(url_for("index"))
     
     record = get_db_record_by_id(collection_name, record_id)
@@ -456,9 +464,13 @@ def update_record(collection_name, record_id):
 
 @app.route("/delete/<collection_name>/<record_id>", methods=['POST'])
 def delete_record(collection_name, record_id):
+    # validate logged in user
     loggedin_user = get_loggedin_user()
     if not loggedin_user:
         return redirect(url_for("login"))
+    # is collection maintanable by admin only and user is not logged in as admin?
+    if get_db_is_admin_maintainable(collection_name) and not get_db_user_is_admin():
+        return redirect(url_for("index"))
 
     coll_fieldcatalog = get_db_records(app.config["MONGO_FIELDCATALOG"])[collection_name]
 
@@ -476,9 +488,13 @@ def delete_record(collection_name, record_id):
 
 @app.route("/search", methods=["GET", "POST"])
 def search(collection_name):
+    # validate logged in user
     loggedin_user = get_loggedin_user()
     if not loggedin_user:
         return redirect(url_for("login"))
+     # is collection maintanable by admin only and user is not logged in as admin?
+    if get_db_is_admin_maintainable(collection_name) and not get_db_user_is_admin():
+        return redirect(url_for("index"))
 
     query = get_form_search_field_query(request)
     records = get_db_filtered_records(collection_name, query)
@@ -496,8 +512,11 @@ def search(collection_name):
 
 @app.route("/serve/image/<image_id>")
 def serve_image(image_id):
-    coll = get_mongo_coll(app.config["MONGO_IMAGES"])
-    image = coll.find_one({"_id":ObjectId(image_id)})
+    # validate logged in user
+    loggedin_user = get_loggedin_user()
+    if not loggedin_user:
+        return redirect(url_for("login"))
+    image = get_db_image_by_id(image_id)
     if image:
         return send_file(BytesIO(image['image']), mimetype='application/octet-stream')
 
@@ -528,7 +547,7 @@ def init_mongo_db(load_content=False):
                 # separate fieldcatalog record from data records
                 for doc in coll_docs:
                     if doc.get(app.config["MONGO_ENTITY_NAME"], False):
-                        doc[app.config["MONGO_COLLECTION_NAME"]] = coll_name
+                        doc["collection_name"] = coll_name
                         fieldcatalog.append(doc)
                 # remove fieldcatalog record, leave only data records
                 coll_docs = [doc for doc in coll_docs if not doc.get(app.config["MONGO_ENTITY_NAME"], False)]
@@ -751,7 +770,7 @@ def get_db_records(collection_name):
         coll = get_mongo_coll(collection_name)
         if coll:
             if collection_name==app.config["MONGO_FIELDCATALOG"]:
-                records = g._collections[collection_name] = {doc[app.config["MONGO_COLLECTION_NAME"]]:doc for doc in coll.find()}
+                records = g._collections[collection_name] = {doc["collection_name"]:doc for doc in coll.find()}
             else:
                 records = g._collections[collection_name] = { c['_id']:c for c in coll.find()}
     return records
