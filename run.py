@@ -224,10 +224,13 @@ def delete_db_all_records(collection_name):
 
 
 def translate_db_value_to_id(source_collection_name, record, source_field):
-    source_fieldcatalog = get_db_fieldcatalog(source_collection_name)
-    target_collection_name = source_fieldcatalog[source_field]['values']
+    # print(source_collection_name, record, source_field)
+    source_fieldcatalog = get_db_fieldcatalog(source_collection_name)['fields']
+    # print(source_fieldcatalog)
+    source_field_def = next((f for f in source_fieldcatalog if f['name']==source_field), '')
+    target_collection_name = source_field_def['values']
     target_fieldcatalog = get_db_fieldcatalog(target_collection_name)
-    target_key = target_fieldcatalog[source_field]['select_field']
+    target_key = target_fieldcatalog['select_field']
     target_collection = get_db_all_records(target_collection_name)
     record[source_field] = next((t['_id'] for t in target_collection if t[target_key] == record[source_field]), '')
 
@@ -246,7 +249,8 @@ def insert_db_image(filename, image_binary):
         'source': filename, 
         'image':  image_binary
     }
-    return insert_db_record(app.config["MONGO_IMAGES"], image_new)
+    image_new = insert_db_record(app.config["MONGO_IMAGES"], image_new)
+    return image_new['_id']
 
 
 # App routes
@@ -617,6 +621,8 @@ def init_mongo_db(file_name, clear_content=False):
                     coll_records = init_db_unit_conversions(coll_name, coll_records)
                 elif coll_name=="material_types":
                     coll_records = init_db_material_types(coll_name, coll_records)
+                elif coll_name=="materials":
+                    coll_records = init_db_materials(coll_name, coll_records)
                 elif coll_name=="cars":
                     coll_records = init_db_cars(coll_name, coll_records)
                 elif coll_name=="users_cars":
@@ -641,6 +647,7 @@ def init_db_users(collection_name, records):
         record['password'] = generate_password_hash(record['password'])
         # set time stamp
         record['date_time_insert'] = get_utc_timestamp()
+    return records
 
 
 def init_db_currency_conversions(collection_name, records):
@@ -650,18 +657,21 @@ def init_db_currency_conversions(collection_name, records):
         # convert Currency ID to _id
         translate_db_value_to_id(collection_name, record, 'currency_id_from')
         translate_db_value_to_id(collection_name, record, 'currency_id_to')
+    return records
 
 
 def init_db_countries(collection_name, records):
     for record in records:
         # convert Currency ID to _id
         translate_db_value_to_id(collection_name, record, 'currency_id')
+    return records
 
 
 def init_db_unit_of_measures(collection_name, records):
     for record in records:
         # convert Measure Type ID to _id
         translate_db_value_to_id(collection_name, record, 'measure_type_id')
+    return records
 
 
 def init_db_unit_conversions(collection_name, records):
@@ -669,6 +679,7 @@ def init_db_unit_conversions(collection_name, records):
         # convert Unit of Measure ID to _id
         translate_db_value_to_id(collection_name, record, 'uom_id_from')
         translate_db_value_to_id(collection_name, record, 'uom_id_to')
+    return records
 
 
 def init_db_material_types(collection_name, records):
@@ -677,12 +688,14 @@ def init_db_material_types(collection_name, records):
         translate_db_value_to_id(collection_name, record, 'measure_type_id')
         # convert Expenditure Type ID to _id
         translate_db_value_to_id(collection_name, record, 'expenditure_type_id')
+    return records
 
 
 def init_db_materials(collection_name, records):
     for record in records:
         # convert Material Type ID to _id
         translate_db_value_to_id(collection_name, record, 'material_type_id')
+    return records
 
 
 def init_db_cars(collection_name, records):
@@ -703,6 +716,7 @@ def init_db_cars(collection_name, records):
         translate_db_value_to_id(collection_name, record, 'currency_id')
         # convert Image FileName to _id
         translate_db_image_to_id(collection_name, record, 'car_image_id')
+    return records
 
 
 def init_db_users_cars(collection_name, records):
@@ -713,6 +727,7 @@ def init_db_users_cars(collection_name, records):
         translate_db_value_to_id(collection_name, record, 'car_id')
         # convert Relationship ID to _id
         translate_db_value_to_id(collection_name, record, 'relationship_id')
+    return records
 
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
