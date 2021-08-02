@@ -1,247 +1,29 @@
 {
   "users": [
-    { "entity_name": "user",
-      "description": "Users",
-      "admin":       true,
-      "fields":[
-         {"name": "username",         "heading": "User Name",      "input_type": "text",     "unique": true},
-         {"name": "password",         "heading": "Password",       "input_type": "password", "attributes":"autocomplete=new-password"},
-         {"name": "user_is_admin",    "heading": "Administrator?", "input_type": "checkbox"},
-         {"name": "date_time_insert", "heading": "Registered",     "input_type": "timestamp_insert"},
-         {"name": "changed_by",       "heading": "Changed By",     "input_type": "changedby", "values":"users"},
-         {"name": "date_time_update", "heading": "Updated",        "input_type": "timestamp_update"}
-       ],
-       "select_field": "username"
-    },
-    {"username": "admin",       "user_is_admin": true,  "password": "admin"},
-    {"username": "ruszkipista", "user_is_admin": false, "password": "pista"},
-    {"username": "malyatunde",  "user_is_admin": false, "password": "tunde"}
-  ],
-
-  "images": [
-    {"entity_name": "image",
-     "description": "Images",
-     "admin":       true,
-     "fields":[
-        {"name": "source", "heading": "Upload file name", "input_type": "text"},
-        {"name": "image",  "heading": "Image",            "input_type": "image"}
-      ]
-     }
+    {"username": "ruszki", "user_is_admin": false, "password": "pista"},
+    {"username": "malya",  "user_is_admin": false, "password": "tunde"}
   ],
 
   "currencies" : [
-    {"entity_name": "currency",
-     "description": "Currencies",
-     "admin":       true,
-     "fields":[
-        {"name": "currency_id", "heading": "Code",        "input_type": "text"},
-        {"name": "description", "heading": "Description", "input_type": "text"},
-        {"name": "sign",        "heading": "Sign",        "input_type": "text"}
-      ],
-      "select_field": "currency_id"
-    },    
     {"currency_id":"USD", "description":"USA dollar",    "sign":"$"},
-    {"currency_id":"EUR", "description":"Euro",          "sign":"€"},
     {"currency_id":"GBP", "description":"British pound", "sign":"£"},
     {"currency_id":"HUF", "description":"HU Forint",     "sign":"Ft"}
   ],
 
-  "currency_conversions" : [
-    {"entity_name": "currency rate",
-     "description": "Currency Rates",
-     "admin":       true,
-     "fields":[
-        {"name": "currency_id_from", "heading": "Source Currency", "input_type": "select", "values":"currencies"},
-        {"name": "currency_id_to",   "heading": "Target Currency", "input_type": "select", "values":"currencies"},
-        {"name": "from_date",        "heading": "From Date",       "input_type": "date"},
-        {"name": "rate",             "heading": "Rate",            "input_type": "number", "attributes": "step=any min=0"}
-      ]
-    },      
+  "currency_conversions" : [     
     {"currency_id_from":"EUR", "currency_id_to":"GBP", "from_date":"2018-01-01", "rate":   0.89050},
     {"currency_id_from":"EUR", "currency_id_to":"HUF", "from_date":"2018-01-01", "rate": 323.82},
     {"currency_id_from":"EUR", "currency_id_to":"USD", "from_date":"2018-01-01", "rate":   1.134}
   ],
 
   "countries": [
-    {"entity_name": "country",
-     "description": "Countries",
-     "admin":      true,
-     "fields":[
-        {"name": "country_id",  "heading": "Code",         "input_type": "text"},
-        {"name": "description", "heading": "Country Name", "input_type": "text"},
-        {"name": "currency_id", "heading": "Currency",     "input_type": "select", "values":"currencies"}
-     ],
-     "select_field": "country_id"
-    },
-    {"country_id":"IE",  "description":"Republic Of Ireland", "currency_id":"EUR"},
     {"country_id":"NI",  "description":"Northern Ireland",    "currency_id":"GBP"},
     {"country_id":"UK",  "description":"United Kingdom",      "currency_id":"GBP"},
     {"country_id":"HU",  "description":"Hungary",             "currency_id":"HUF"},
     {"country_id":"USA", "description":"US America",          "currency_id":"USD"}
   ],
 
-
-  "measure_types":[
-    {"entity_name": "measure type",
-     "description": "Measure Types",
-     "admin":       true,
-     "fields":[
-        {"name": "measure_type_id", "heading": "Measure Type", "input_type": "text"},
-        {"name": "description",     "heading": "Description",  "input_type": "text"}
-      ],
-      "select_field": "measure_type_id"
-    },
-    {"measure_type_id":"CNT",  "description":"count"},
-    {"measure_type_id":"VOL",  "description":"volume"},
-    {"measure_type_id":"MASS", "description":"mass"},
-    {"measure_type_id":"DIST", "description":"distance"},
-    {"measure_type_id":"AREA", "description":"area"},
-    {"measure_type_id":"FECO", "description":"fuel economy"},
-    {"measure_type_id":"CURR", "description":"currency"},
-    {"measure_type_id":"TIME", "description":"time"}
-  ],
-
-  "unit_of_measures": [
-    {"entity_name": "unit of measure",
-     "description": "Unit of Measures",
-     "admin":       true,
-     "fields":[
-        {"name": "uom_id",          "heading": "Unit of Measure", "input_type": "text"},
-        {"name": "description",     "heading": "Description",     "input_type": "text"},
-        {"name": "measure_type_id", "heading": "Measure Type",    "input_type": "select", "values":"measure_types"}
-      ],
-      "select_field": "uom_id"
-    },
-    {"uom_id":"L",      "description":"litre",            "measure_type_id":"VOL"},
-    {"uom_id":"ml",     "description":"milli litre",      "measure_type_id":"VOL"},
-    {"uom_id":"galImp", "description":"gallon imperial",  "measure_type_id":"VOL"},
-    {"uom_id":"L/100km","description":"Liter/100km",      "measure_type_id":"FECO"},
-    {"uom_id":"mpgImp", "description":"miles/gallon Imp", "measure_type_id":"FECO"},
-    {"uom_id":"kg",     "description":"kilogramme",       "measure_type_id":"MASS"},
-    {"uom_id":"g",      "description":"gramme",           "measure_type_id":"MASS"},
-    {"uom_id":"lb",     "description":"pound",            "measure_type_id":"MASS"},
-    {"uom_id":"km",     "description":"kilometre",        "measure_type_id":"DIST"},
-    {"uom_id":"m",      "description":"metre",            "measure_type_id":"DIST"},
-    {"uom_id":"cm",     "description":"centimetre",       "measure_type_id":"DIST"},
-    {"uom_id":"mm",     "description":"millimetre",       "measure_type_id":"DIST"},
-    {"uom_id":"mi",     "description":"mile",             "measure_type_id":"DIST"},
-    {"uom_id":"ft",     "description":"foot",             "measure_type_id":"DIST"},
-    {"uom_id":"yd",     "description":"yard",             "measure_type_id":"DIST"},
-    {"uom_id":"in",     "description":"inch",             "measure_type_id":"DIST"},
-    {"uom_id":"m2",     "description":"square metre",     "measure_type_id":"AREA"},
-    {"uom_id":"ea",     "description":"each",             "measure_type_id":"CNT"},
-    {"uom_id":"pc",     "description":"piece",            "measure_type_id":"CNT"},
-    {"uom_id":"year",   "description":"year",             "measure_type_id":"TIME"},
-    {"uom_id":"month",  "description":"month",            "measure_type_id":"TIME"},
-    {"uom_id":"day",    "description":"day",              "measure_type_id":"TIME"}
-  ],
-
-  "unit_conversions": [
-    { "entity_name": "unit conversion",
-      "description": "Unit Conversions",
-      "admin":       true,
-      "fields":[
-         {"name": "uom_id_from", "heading": "Source Unit", "input_type": "select", "values":"unit_of_measures"},
-         {"name": "uom_id_to",   "heading": "Target Unit", "input_type": "select", "values":"unit_of_measures"},
-         {"name": "rate",        "heading": "Rate",        "input_type": "number", "attributes": "step=any min=0"}
-       ]
-    },    
-    {"uom_id_from":"lb",     "uom_id_to":"kg",     "rate":   0.45359237},
-    {"uom_id_from":"L",      "uom_id_to":"galImp", "rate":   0.2199692482990878},
-    {"uom_id_from":"L",      "uom_id_to":"ml",     "rate":1000.0},
-    {"uom_id_from":"L/100km", "uom_id_to":"mpgImp", "rate": 282.48093627967},
-    {"uom_id_from":"kg",     "uom_id_to":"g",      "rate":1000.0},
-    {"uom_id_from":"km",     "uom_id_to":"m",      "rate":1000.0},
-    {"uom_id_from":"m",      "uom_id_to":"cm",     "rate": 100.0},
-    {"uom_id_from":"m",      "uom_id_to":"mm",     "rate":1000.0},
-    {"uom_id_from":"cm",     "uom_id_to":"mm",     "rate":  10.0},
-    {"uom_id_from":"mi",     "uom_id_to":"km",     "rate":   1.609344},
-    {"uom_id_from":"mi",     "uom_id_to":"ft",     "rate":5280},
-    {"uom_id_from":"mi",     "uom_id_to":"yd",     "rate":1760},
-    {"uom_id_from":"ft",     "uom_id_to":"m",      "rate":   0.3048},
-    {"uom_id_from":"ft",     "uom_id_to":"in",     "rate":  12.0},
-    {"uom_id_from":"yd",     "uom_id_to":"ft",     "rate":   3.0},
-    {"uom_id_from":"yd",     "uom_id_to":"m",      "rate":   0.9144},
-    {"uom_id_from":"in",     "uom_id_to":"mm",     "rate":  25.4},
-    {"uom_id_from":"year",   "uom_id_to":"month",  "rate":  12},
-    {"uom_id_from":"year",   "uom_id_to":"day",    "rate": 365.25},
-    {"uom_id_from":"month",  "uom_id_to":"day",    "rate":  30.4166}
-  ],
-
-  "expenditure_types": [
-    { "entity_name": "expenditure type",
-      "description": "Expenditure Types",
-      "admin":       true,
-      "fields":[
-         {"name": "expenditure_type_id", "heading": "Expenditure Type", "input_type": "text"},
-         {"name": "description",         "heading": "Description",      "input_type": "text"}
-       ],
-       "select_field": "expenditure_type_id"
-    },
-    {"expenditure_type_id":"OP",  "description":"operational expense"},
-    {"expenditure_type_id":"CAP", "description":"capital expense"}
-  ],
-
-  "material_types": [
-    { "entity_name": "material types",
-      "description": "Material Types",
-      "admin":       true,
-      "fields":[
-         {"name": "material_type_id",    "heading": "Material Type",    "input_type": "text"},
-         {"name": "description",         "heading": "Description",      "input_type": "text"},
-         {"name": "measure_type_id",     "heading": "Measure Type",     "input_type": "select", "values":"measure_types"},
-         {"name": "expenditure_type_id", "heading": "Expenditure Type", "input_type": "select", "values":"expenditure_types"}
-       ],
-       "select_field": "material_type_id"
-    }, 
-    {"material_type_id":"FUEL",       "description":"fuel",       "measure_type_id":"VOL", "expenditure_type_id":"OP"},
-    {"material_type_id":"PART",       "description":"part",       "measure_type_id":"CNT", "expenditure_type_id":"CAP"},
-    {"material_type_id":"CONSUMABLE", "description":"consumable", "measure_type_id":"CNT", "expenditure_type_id":"OP"},
-    {"material_type_id":"SERVICE",    "description":"service",    "measure_type_id":"CNT", "expenditure_type_id":"OP"},
-    {"material_type_id":"INSURANCE",  "description":"insurance",  "measure_type_id":"CNT", "expenditure_type_id":"OP"},
-    {"material_type_id":"TAX",        "description":"tax",        "measure_type_id":"CNT", "expenditure_type_id":"OP"}
-  ],
-  
-  "materials": [
-    { "entity_name": "material",
-      "description": "Materials",
-      "admin":       true,
-      "fields":[
-         {"name": "material_id",      "heading": "Material",      "input_type": "text"},
-         {"name": "description",      "heading": "Description",   "input_type": "text"},
-         {"name": "material_type_id", "heading": "Material Type", "input_type": "select", "values":"material_types"}
-       ],
-       "select_field": "material_id"
-    }, 
-    {"material_id": "gasoline",        "description": "gasoline",                "material_type_id": "FUEL"},
-    {"material_id": "electricity",     "description": "electricity",             "material_type_id": "FUEL"},
-    {"material_id": "motortax",        "description": "motor tax",               "material_type_id": "TAX"},
-    {"material_id": "servicematerial", "description": "service material",        "material_type_id": "CONSUMABLE"},
-    {"material_id": "carpart",         "description": "car part",                "material_type_id": "PART"},
-    {"material_id": "carservice",      "description": "car service",             "material_type_id": "SERVICE"},
-    {"material_id": "petrol95",        "description": "petrol 95",               "material_type_id": "FUEL"},
-    {"material_id": "insurance",       "description": "car liability insurance", "material_type_id": "INSURANCE"}
-  ],
-
   "cars": [
-    { "entity_name": "car",
-      "description": "Cars",
-      "admin":       false,
-      "fields":[
-         {"name": "car_image_id",         "heading": "Car Image",            "input_type": "imageid"},
-         {"name": "car_id",               "heading": "car",                  "input_type": "text"},
-         {"name": "description",          "heading": "Description",          "input_type": "text"},
-         {"name": "reg_country_id",       "heading": "Registration Country", "input_type": "select", "values":"countries"},
-         {"name": "plate_number",         "heading": "Registration Number",  "input_type": "text"},
-         {"name": "distance_unit_id",     "heading": "Distance Unit",        "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["DIST"]}},
-         {"name": "odometer_unit_id",     "heading": "Odometer Unit",        "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["DIST"]}},
-         {"name": "fuel_material_id",     "heading": "Fuel Material",        "input_type": "select", "values":"materials",        "filter":{"material_type_id":["FUEL"]}},
-         {"name": "fuel_unit_id",         "heading": "Fuel Unit",            "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["VOL"]}},
-         {"name": "fuel_economy_unit_id", "heading": "Fuel Economy Unit",    "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["FECO"]}},
-         {"name": "currency_id",          "heading": "Reporting Currency",   "input_type": "select", "values":"currencies"}
-        ],
-       "select_field": "description"
-    }, 
     { "car_id":               "mazda3",
       "description":          "Mazda3",
       "reg_country_id":       "IE",
@@ -280,31 +62,7 @@
     }    
   ],
 
-  "relationship_types": [
-    { "entity_name": "relationship type",
-      "description": "Relationship Type",
-      "admin":       true,
-      "fields":[
-         {"name": "relationship_id", "heading": "Code",        "input_type": "text"},
-         {"name": "description",     "heading": "Description", "input_type": "text"}
-      ],
-      "select_field": "description"
-    }, 
-    {"relationship_id": "owner",   "description": "Owner"},
-    {"relationship_id": "driver",  "description": "Driver"},
-    {"relationship_id": "insured", "description": "Insured"}
-  ],
-
   "users_cars": [
-    { "entity_name": "users-cars",
-      "description": "Users-Cars",
-      "admin":       true,
-      "fields":[
-         {"name": "user_id",         "heading": "Username",     "input_type": "lookup", "values": "users"},
-         {"name": "car_id",          "heading": "Car",          "input_type": "lookup", "values": "cars"},
-         {"name": "relationship_id", "heading": "Relationship", "input_type": "select", "values": "relationship_types"}
-      ]
-    }, 
     {"user_id": "ruszkipista", "car_id":  "mazda3", "relationship_id":"owner"},
     {"user_id": "ruszkipista", "car_id":  "yaris",  "relationship_id":"owner"},
     {"user_id": "malyatunde",  "car_id":  "yaris",  "relationship_id":"driver"},

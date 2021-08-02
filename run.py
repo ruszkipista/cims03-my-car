@@ -40,9 +40,10 @@ app.config["MONGO_URI"] = f"mongodb+srv:" + \
                           f"/{app.config['MONGO_DB_NAME']}" + \
                           f"?retryWrites=true&w=majority"
 
-app.config["MONGO_DATA"]    = os.environ.get("MONGO_DATA","./static/data/")
-app.config["MONGO_CONTENT"] = os.environ.get("MONGO_CONTENT","mongo_content.json")
-app.config["MONGO_INIT"]    = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
+app.config["MONGO_DATA"] = os.environ.get("MONGO_DATA","./static/data/")
+app.config["MONGO_BASE"] = os.environ.get("MONGO_BASE","db_base.json")
+app.config["MONGO_DEMO"] = os.environ.get("MONGO_DEMO","db_demo.json")
+app.config["MONGO_INIT"] = os.environ.get("MONGO_INIT",   "False").lower() in {'1','true','t','yes','y'}# => Heroku Congig Vars
 app.config["MONGO_IMAGES"]            = 'images'
 app.config["MONGO_USERS"]             = 'users'
 app.config["MONGO_CARS"]              = 'cars'
@@ -210,6 +211,42 @@ def delete_db_record(collection_name, record):
 def get_db_is_admin_maintainable(collection_name):
     coll_fieldcatalog = get_db_fieldcatalog(collection_name)
     return coll_fieldcatalog.get('admin', None)
+
+
+def insert_db_many_records(collection_name, records):
+    coll = get_mongo_coll(collection_name)
+    coll.insert_many(records)
+
+
+def delete_db_all_records(collection_name):
+    coll = get_mongo_coll(collection_name)
+    coll.delete_many({})
+
+
+def translate_db_value_to_id(source_collection_name, record, source_field):
+    source_fieldcatalog = get_db_fieldcatalog(source_collection_name)
+    target_collection_name = source_fieldcatalog[source_field]['values']
+    target_fieldcatalog = get_db_fieldcatalog(target_collection_name)
+    target_key = target_fieldcatalog[source_field]['select_field']
+    target_collection = get_db_all_records(target_collection_name)
+    record[source_field] = next((t['_id'] for t in target_collection if t[target_key] == record[source_field]), '')
+
+def translate_db_image_to_id(source_collection_name, record, source_field):
+    filename = record[source_field]
+    if filename:
+        with open(os.path.join(app.config["MONGO_DATA"], filename), mode='rb') as image_file:
+            # read file into memory
+            image_binary = Binary(image_file.read())
+            # insert image into DB, update the record with new ID
+            record[source_field] = insert_db_image(filename, image_binary)
+
+
+def insert_db_image(filename, image_binary):
+    image_new = { 
+        'source': filename, 
+        'image':  image_binary
+    }
+    return insert_db_record(app.config["MONGO_IMAGES"], image_new)
 
 
 # App routes
@@ -387,7 +424,7 @@ def save_record_to_db(request, collection_name, record_old):
                 coll_lookup = get_mongo_coll(field['values'])
                 select_field_name = get_db_records(app.config["MONGO_FIELDCATALOG"])[field['values']]['select_field']
                 record_id = coll_lookup.find_one({select_field_name:value},{'_id': 1})
-                # insert foreing key as object into field
+                # insert foreign key as object into field
                 record_new[field['name']] = record_id['_id']
         # store check box as boolean
         elif field['input_type']=='checkbox':
@@ -539,216 +576,143 @@ def get_mongo_coll(collection):
     return conn[app.config["MONGO_DB_NAME"]][collection]
 
 
-def init_mongo_db(load_content=False):
+def init_mongo_db(file_name, clear_content=False):
     with app.app_context():
-        fieldcatalog = []
         # initialize collections on DB from JSON file
-        with open(os.path.join(app.config["MONGO_DATA"], app.config["MONGO_CONTENT"]), 
-                  mode='r', encoding="utf-8") as f:
+        with open(file_name, mode='r', encoding="utf-8") as f:
             collections = json.loads(f.read())
+
+            if clear_content:
+                fieldcatalog = []
+                for coll_name,coll_docs in collections.items():
+                    # filter fieldcatalog records
+                    for doc in coll_docs:
+                        if doc.get("entity_name", False):
+                            doc["collection_name"] = coll_name
+                            fieldcatalog.append(doc)
+                # write out Fieldcatalog
+                coll_fieldcatalog = get_mongo_coll(app.config["MONGO_FIELDCATALOG"])
+                if fieldcatalog:
+                    coll_fieldcatalog.delete_many({})
+                    coll_fieldcatalog.insert_many(fieldcatalog)
+
             for coll_name,coll_docs in collections.items():
-                coll = get_mongo_coll(coll_name)
-                coll.delete_many({})
-                # separate fieldcatalog record from data records
+                if clear_content:
+                    delete_db_all_records(coll_name)
+                # filter data records
+                coll_records = []
                 for doc in coll_docs:
-                    if doc.get("entity_name", False):
-                        doc["collection_name"] = coll_name
-                        fieldcatalog.append(doc)
-                if load_content:
-                    # remove fieldcatalog record, leave only data records
-                    coll_docs = [doc for doc in coll_docs if not doc.get("entity_name", False)]
-                    if coll_docs:
-                        coll.insert_many(coll_docs)
+                    if not doc.get("entity_name", False):
+                        coll_records.append(doc)
 
-        # write out Fieldcatalog
-        coll = get_mongo_coll(app.config["MONGO_FIELDCATALOG"])
-        coll.delete_many({})
-        coll.insert_many(fieldcatalog)
+                if coll_name=="users":
+                    coll_records = init_db_users(coll_name, coll_records)
+                elif coll_name=="currency_conversions":
+                    coll_records = init_db_currency_conversions(coll_name, coll_records)
+                elif coll_name=="countries":
+                    coll_records = init_db_countries(coll_name, coll_records)
+                elif coll_name=="unit_of_measures":
+                    coll_records = init_db_unit_of_measures(coll_name, coll_records)
+                elif coll_name=="unit_conversions":
+                    coll_records = init_db_unit_conversions(coll_name, coll_records)
+                elif coll_name=="material_types":
+                    coll_records = init_db_material_types(coll_name, coll_records)
+                elif coll_name=="cars":
+                    coll_records = init_db_cars(coll_name, coll_records)
+                elif coll_name=="users_cars":
+                    coll_records = init_db_users_cars(coll_name, coll_records)
 
-        # create indices for unique fields
-        for coll_def in fieldcatalog:
-            unique_fields = [ (field["name"], pymongo.ASCENDING) 
-                                for field in coll_def["fields"] if field.get("unique", False)]
-            if unique_fields:
-                coll = get_mongo_coll(coll_def["collection_name"])
-                coll.create_index(unique_fields, unique=True)
+                if coll_records:
+                    insert_db_many_records(coll_name, coll_records)
 
-        # encrypt password in Users
-        coll = get_mongo_coll('users')
-        records = list(coll.find())
-        for record in records:
-            user_update = {
-                'password':         generate_password_hash(record['password']),
-                "date_time_insert": get_utc_timestamp()
-            }
-            coll.update_one({'_id':record['_id']}, {"$set":user_update})
+            if clear_content:
+                # create index for unique field(s)
+                for coll_def in fieldcatalog:
+                    unique_fields = [ (field["name"], pymongo.ASCENDING) 
+                                        for field in coll_def["fields"] if field.get("unique", False)]
+                    if unique_fields:
+                        coll = get_mongo_coll(coll_def["collection_name"])
+                        coll.create_index(unique_fields, unique=True)
 
-        # get all Users
-        users = list(coll.find())
 
-        # get all Currencies
-        coll = get_mongo_coll('currencies')
-        currencies = list(coll.find())
+def init_db_users(collection_name, records):
+    for record in records:
+        # encrypt password in user
+        record['password'] = generate_password_hash(record['password'])
+        # set time stamp
+        record['date_time_insert'] = get_utc_timestamp()
 
-        # convert Currency_Conversions
-        coll = get_mongo_coll('currency_conversions')
-        records = list(coll.find())
-        for record in records:
-            # convert From Date isodatestring to datetime
-            from_date = datetime.strptime(record['from_date'], '%Y-%m-%d')
-            # convert Currency ID to _id
-            currency_id_from = next((c['_id'] for c in currencies if c['currency_id'] == record['currency_id_from']), '')
-            currency_id_to   = next((c['_id'] for c in currencies if c['currency_id'] == record['currency_id_to']), '')
-            # update the record
-            coll.update_one({'_id':record['_id']}, {"$set":{
-                'currency_id_from': currency_id_from,
-                'currency_id_to':   currency_id_to,
-                'from_date': from_date
-                }})
 
-        # convert Countries
-        coll = get_mongo_coll('countries')
-        records = list(coll.find())
-        for record in records:
-            # convert Currency ID to _id
-            currency_id = next((c['_id'] for c in currencies if c['currency_id'] == record['currency_id']), '')
-            # update the record
-            coll.update_one({'_id':record['_id']}, {"$set":{
-                'currency_id': currency_id,
-                }})            
+def init_db_currency_conversions(collection_name, records):
+    for record in records:
+        # convert From Date isodatestring to datetime
+        record['from_date'] = datetime.strptime(record['from_date'], '%Y-%m-%d')
+        # convert Currency ID to _id
+        translate_db_value_to_id(collection_name, record, 'currency_id_from')
+        translate_db_value_to_id(collection_name, record, 'currency_id_to')
 
-        # get all Measure Types
-        coll = get_mongo_coll('measure_types')
-        measure_types = list(coll.find())
 
-        # convert Unit of Measures
-        coll = get_mongo_coll('unit_of_measures')
-        records = list(coll.find())
-        for record in records:
-            # convert Measure Type ID to _id
-            measure_type_id = next((c['_id'] for c in measure_types if c['measure_type_id'] == record['measure_type_id']), '')
-            # update the record
-            coll.update_one({'_id':record['_id']}, {"$set":{
-                'measure_type_id': measure_type_id,
-                }})
+def init_db_countries(collection_name, records):
+    for record in records:
+        # convert Currency ID to _id
+        translate_db_value_to_id(collection_name, record, 'currency_id')
 
-        # get all Unit of Measures
-        unit_of_measures = list(coll.find())
 
-        # convert Unit Conversions
-        coll = get_mongo_coll('unit_conversions')
-        records = list(coll.find())
-        for record in records:
-            # convert Unit of Measure ID to _id
-            uom_id_from = next((c['_id'] for c in unit_of_measures if c['uom_id'] == record['uom_id_from']), '')
-            uom_id_to   = next((c['_id'] for c in unit_of_measures if c['uom_id'] == record['uom_id_to']), '')
-            # update the record
-            coll.update_one({'_id':record['_id']}, {"$set":{
-                'uom_id_from': uom_id_from,
-                'uom_id_to':   uom_id_to
-                }})
+def init_db_unit_of_measures(collection_name, records):
+    for record in records:
+        # convert Measure Type ID to _id
+        translate_db_value_to_id(collection_name, record, 'measure_type_id')
 
-        # get all Expenditure Types
-        coll = get_mongo_coll('expenditure_types')
-        expenditure_types = list(coll.find())
 
-        # convert Material Types
-        coll = get_mongo_coll('material_types')
-        records = list(coll.find())
-        for record in records:
-            # convert Measure Type ID and Expenditure Type ID to _id
-            measure_type_id     = next((c['_id'] for c in measure_types     if c['measure_type_id']     == record['measure_type_id']), '')
-            expenditure_type_id = next((c['_id'] for c in expenditure_types if c['expenditure_type_id'] == record['expenditure_type_id']), '')
-            # update the record
-            coll.update_one({'_id':record['_id']}, {"$set":{
-                'measure_type_id':     measure_type_id,
-                'expenditure_type_id': expenditure_type_id,
-                }})
+def init_db_unit_conversions(collection_name, records):
+    for record in records:
+        # convert Unit of Measure ID to _id
+        translate_db_value_to_id(collection_name, record, 'uom_id_from')
+        translate_db_value_to_id(collection_name, record, 'uom_id_to')
 
-        # get all Material Types
-        material_types = list(coll.find())
 
-        # convert Materials
-        coll = get_mongo_coll('materials')
-        records = list(coll.find())
-        for record in records:
-            # convert Material Type ID to _id
-            material_type_id = next((c['_id'] for c in material_types if c['material_type_id'] == record['material_type_id']), '')
-            # update the record
-            coll.update_one({'_id':record['_id']}, {"$set":{
-                'material_type_id': material_type_id,
-                }})
-        # get all Materials
-        materials = list(coll.find())
+def init_db_material_types(collection_name, records):
+    for record in records:
+        # convert Measure Type ID to _id
+        translate_db_value_to_id(collection_name, record, 'measure_type_id')
+        # convert Expenditure Type ID to _id
+        translate_db_value_to_id(collection_name, record, 'expenditure_type_id')
 
-        # get all Countries
-        coll = get_mongo_coll('countries')
-        countries = list(coll.find())
-        # get all Unit Of Measures
-        coll = get_mongo_coll('unit_of_measures')
-        unit_of_measures = list(coll.find())
 
-        coll_img = get_mongo_coll(app.config["MONGO_IMAGES"])
+def init_db_materials(collection_name, records):
+    for record in records:
+        # convert Material Type ID to _id
+        translate_db_value_to_id(collection_name, record, 'material_type_id')
 
-        # convert Cars
-        coll = get_mongo_coll('cars')
-        records = list(coll.find())
-        for record in records:
-            # convert Registration Country to _id
-            reg_country_id   = next((c['_id'] for c in countries        if c['country_id']  == record['reg_country_id']), '')
-            # convert Distance Unit to _id
-            distance_unit_id = next((c['_id'] for c in unit_of_measures if c['uom_id']      == record['distance_unit_id']), '')
-            # convert Odometer Unit to _id
-            odometer_unit_id = next((c['_id'] for c in unit_of_measures if c['uom_id']      == record['odometer_unit_id']), '')
-            # convert Fuel Material ID to _id
-            fuel_material_id = next((c['_id'] for c in materials        if c['material_id'] == record['fuel_material_id']), '')
-            # convert Fuel Unit to _id
-            fuel_unit_id     = next((c['_id'] for c in unit_of_measures if c['uom_id']      == record['fuel_unit_id']), '')
-            # convert Fuel Economy Unit to _id
-            fuel_economy_unit_id = next((c['_id'] for c in unit_of_measures if c['uom_id']  == record['fuel_economy_unit_id']), '')
-            # convert Currency ID to _id
-            currency_id      = next((c['_id'] for c in currencies       if c['currency_id'] == record['currency_id']), '')
-            # update the record
-            coll.update_one({'_id': record['_id']}, {"$set":{
-                'reg_country_id':       reg_country_id,
-                'distance_unit_id':     distance_unit_id,
-                'odometer_unit_id':     odometer_unit_id,
-                'fuel_material_id':     fuel_material_id,
-                'fuel_unit_id':         fuel_unit_id,
-                'fuel_economy_unit_id': fuel_economy_unit_id,
-                'currency_id':          currency_id,
-                }})   
-            # convert Car Image ID to _id
-            filename_source = record['car_image_id']
-            if filename_source:
-                with open(os.path.join(app.config["MONGO_DATA"], filename_source), mode='rb') as image:
-                    # read image
-                    image_new = { 'source': filename_source, 'image': Binary(image.read()) }
-                    # update the record
-                    coll.update_one({'_id': record['_id']}, {"$set":{
-                        'car_image_id': coll_img.insert_one(image_new).inserted_id,  # store image
-                        }})
-        # get all Cars
-        cars = list(coll.find())
 
-        # get all Relationship Types
-        coll = get_mongo_coll('relationship_types')
-        rel_types = list(coll.find())
+def init_db_cars(collection_name, records):
+    for record in records:
+        # convert Registration Country to _id
+        translate_db_value_to_id(collection_name, record, 'reg_country_id')
+        # convert Distance Unit to _id
+        translate_db_value_to_id(collection_name, record, 'distance_unit_id')
+        # convert Odometer Unit to _id
+        translate_db_value_to_id(collection_name, record, 'odometer_unit_id')
+        # convert Fuel Material ID to _id
+        translate_db_value_to_id(collection_name, record, 'fuel_material_id')
+        # convert Fuel Unit to _id
+        translate_db_value_to_id(collection_name, record, 'fuel_unit_id')
+        # convert Fuel Economy Unit to _id
+        translate_db_value_to_id(collection_name, record, 'fuel_economy_unit_id')
+        # convert Currency ID to _id
+        translate_db_value_to_id(collection_name, record, 'currency_id')
+        # convert Image FileName to _id
+        translate_db_image_to_id(collection_name, record, 'car_image_id')
 
-        # convert Users-Cars
-        coll = get_mongo_coll('users_cars')
-        records = list(coll.find())
-        for record in records:
-            # convert Material Type ID to _id
-            user_id         = next((c['_id'] for c in users     if c['username']        == record['user_id']), '')
-            car_id          = next((c['_id'] for c in cars      if c['car_id']          == record['car_id']), '')
-            relationship_id = next((c['_id'] for c in rel_types if c['relationship_id'] == record['relationship_id']), '')
-            # update the record
-            coll.update_one({'_id':record['_id']}, {"$set":{
-                'user_id':         user_id,
-                'car_id':          car_id,
-                'relationship_id': relationship_id,
-            }})
+
+def init_db_users_cars(collection_name, records):
+    for record in records:
+        # convert User Name to _id
+        translate_db_value_to_id(collection_name, record, 'user_id')
+        # convert Car ID to _id
+        translate_db_value_to_id(collection_name, record, 'car_id')
+        # convert Relationship ID to _id
+        translate_db_value_to_id(collection_name, record, 'relationship_id')
 
 
 # inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
@@ -848,7 +812,8 @@ def close_db_connection(exception):
 #=================
 if __name__ == "__main__":
     if app.config["MONGO_INIT"]:
-        init_mongo_db()
+        init_mongo_db(os.path.join(app.config["MONGO_DATA"], app.config["MONGO_BASE"]), True)
+        init_mongo_db(os.path.join(app.config["MONGO_DATA"], app.config["MONGO_DEMO"]), False)
 
     app.run(
         host  = app.config["FLASK_IP"],
