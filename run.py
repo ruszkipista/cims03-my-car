@@ -268,8 +268,15 @@ def get_db_record_by_id(collection_name, record_id):
     return coll.find_one({"_id":ObjectId(record_id)})
 
 
-def get_db_field_lookup_pairs(collection_name, field_names):
-    return [ (f, get_db_lookup_collection_name(collection_name, f)) for f in field_names ]
+def get_db_field_type_lookup_triples(collection_name, field_names):
+    triples = []
+    coll_fields = get_db_fieldcatalog(collection_name)['fields']
+    for field_name in field_names:
+        field_def = next((f for f in coll_fields if f['name']==field_name), '')
+        lookup_collection_name = field_def.get('values', None)
+        input_type = field_def.get('input_type', None)
+        triples.append((field_name,input_type,lookup_collection_name))
+    return triples
 
 
 def insert_db_record(collection_name, record):
@@ -303,32 +310,25 @@ def delete_db_all_records(collection_name):
     coll.delete_many({})
 
 
-def get_db_lookup_collection_name(source_collection_name, source_field_name):
-    coll_fields = get_db_fieldcatalog(source_collection_name)['fields']
-    field_def = next((f for f in coll_fields if f['name']==source_field_name), '')
-    lookup_collection_name = field_def.get('values', None)
-    return lookup_collection_name
-
-
 def translate_db_password_to_hash(source_field_name, record):
     record[source_field_name] = generate_password_hash(record[source_field_name])
 
 
-def translate_db_value_to_id(source_field_name, lookup_collection_name, record):
-    lookup = get_db_select_field_lookup(lookup_collection_name)
-    lookup_value = lookup.get(record[source_field_name], None)
+def translate_db_value_to_id(source_field_name, input_type, lookup_collection_name, record):
+    lookup_value = None
+    if input_type == 'imageid':
+        filename = record[source_field_name]
+        if filename:
+            with open(os.path.join(app.config["OS_DATA_PATH"], filename), mode='rb') as image_file:
+                # read file into memory
+                image_binary = Binary(image_file.read())
+                # insert image into DB, get new ID
+                lookup_value = insert_db_image(filename, image_binary)
+    else:
+        lookup = get_db_select_field_lookup(lookup_collection_name)
+        lookup_value = lookup.get(record[source_field_name], None)
     if lookup_value:
         record[source_field_name] = lookup_value
-
-
-def translate_db_image_to_id(source_field_name, record):
-    filename = record[source_field_name]
-    if filename:
-        with open(os.path.join(app.config["OS_DATA_PATH"], filename), mode='rb') as image_file:
-            # read file into memory
-            image_binary = Binary(image_file.read())
-            # insert image into DB, update the record with new ID
-            record[source_field_name] = insert_db_image(filename, image_binary)
 
 
 def insert_db_image(filename, image_binary):
@@ -410,94 +410,87 @@ def init_db_users(collection_name, records):
     return records
 
 
-def init_db_images(coll_name, coll_records):
-    pass
-
-
 def init_db_currency_conversions(collection_name, records):
     field_names = ['currency_id_from','currency_id_to']
-    field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert From Date isodatestring to datetime
         record['from_date'] = datetime.strptime(record['from_date'], '%Y-%m-%d')
         # convert Currency ID to _id
-        for field, lookup in field_lookup_pairs:
-            translate_db_value_to_id(field, lookup, record)
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
     return records
 
 
 def init_db_countries(collection_name, records):
     field_names = ['currency_id']
-    field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert Currency ID to _id
-        for field, lookup in field_lookup_pairs:
-            translate_db_value_to_id(field, lookup, record)
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
     return records
 
 
 def init_db_unit_of_measures(collection_name, records):
     field_names = ['measure_type_id']
-    field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert Measure Type ID to _id
-        for field, lookup in field_lookup_pairs:
-            translate_db_value_to_id(field, lookup, record)
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
     return records
 
 
 def init_db_unit_conversions(collection_name, records):
     field_names = ['uom_id_from','uom_id_to']
-    field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert Unit of Measure ID to _id
-        for field, lookup in field_lookup_pairs:
-            translate_db_value_to_id(field, lookup, record)
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
     return records
 
 
 def init_db_material_types(collection_name, records):
     field_names = ['measure_type_id','expenditure_type_id']
-    field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert Measure Type ID and Expenditure Type ID to _id
-        for field, lookup in field_lookup_pairs:
-            translate_db_value_to_id(field, lookup, record)
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
     return records
 
 
 def init_db_materials(collection_name, records):
     field_names = ['material_type_id']
-    field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert Material Type ID to _id
-        for field, lookup in field_lookup_pairs:
-            translate_db_value_to_id(field, lookup, record)
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
     return records
 
 
 def init_db_cars(collection_name, records):
     field_names = ['reg_country_id','distance_unit_id', 'odometer_unit_id', 'fuel_material_id',
-                   'fuel_unit_id', 'fuel_economy_unit_id', 'currency_id']
-    field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
+                   'fuel_unit_id', 'fuel_economy_unit_id', 'currency_id', 'car_image_id']
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
-        # save image to images collection and reference the _id
-        translate_db_image_to_id('car_image_id', record)
         # convert Registration Country, Distance Unit, Odometer Unit, Fuel Material ID,
-        # Fuel Unit, Fuel Economy Unit, Currency ID, Image FileName to _id
-        for field, lookup in field_lookup_pairs:
-            translate_db_value_to_id(field, lookup, record)
+        # Fuel Unit, Fuel Economy Unit, Currency ID, Car Image FileName to _id
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
     return records
 
 
 def init_db_users_cars(collection_name, records):
     field_names = ['user_id', 'car_id', 'relationship_id']
-    field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert User Name, Car ID, Relationship ID to _id
-        for field, lookup in field_lookup_pairs:
-            print(field, lookup, record)
-            translate_db_value_to_id(field, lookup, record)
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
     return records
 
 
