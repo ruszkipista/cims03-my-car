@@ -63,11 +63,11 @@
   ],
 
   "users_cars": [
-    {"user_id": "ruszkipista", "car_id":  "mazda3", "relationship_id":"owner"},
-    {"user_id": "ruszkipista", "car_id":  "yaris",  "relationship_id":"owner"},
-    {"user_id": "malyatunde",  "car_id":  "yaris",  "relationship_id":"driver"},
-    {"user_id": "malyatunde",  "car_id":  "PT",     "relationship_id":"owner"},
-    {"user_id": "ruszkipista", "car_id":  "PT",     "relationship_id":"driver"}
+    {"user_id": "ruszki", "car_id":  "mazda3", "relationship_id":"owner"},
+    {"user_id": "ruszki", "car_id":  "yaris",  "relationship_id":"owner"},
+    {"user_id": "malya",  "car_id":  "yaris",  "relationship_id":"driver"},
+    {"user_id": "malya",  "car_id":  "PT",     "relationship_id":"owner"},
+    {"user_id": "ruszki", "car_id":  "PT",     "relationship_id":"driver"}
   ],
 
   "partners": [

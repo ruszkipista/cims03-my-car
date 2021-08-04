@@ -23,8 +23,9 @@
      "fields":[
         {"name": "source", "heading": "Upload file name", "input_type": "text"},
         {"name": "image",  "heading": "Image",            "input_type": "image"}
-      ]
-     }
+     ],
+     "select_field": "source"
+    }
   ],
 
   "currencies" : [
@@ -36,7 +37,8 @@
         {"name": "description", "heading": "Description", "input_type": "text"},
         {"name": "sign",        "heading": "Sign",        "input_type": "text"}
       ],
-      "select_field": "currency_id"
+      "select_field": "currency_id",
+      "buffered": true
     },    
     {"currency_id":"EUR", "description":"Euro",          "sign":"€"}
   ],
@@ -63,7 +65,8 @@
         {"name": "description", "heading": "Country Name", "input_type": "text"},
         {"name": "currency_id", "heading": "Currency",     "input_type": "select", "values":"currencies"}
      ],
-     "select_field": "country_id"
+     "select_field": "country_id",
+     "buffered": true
     },
     {"country_id":"IE",  "description":"Republic Of Ireland", "currency_id":"EUR"}
   ],
@@ -77,7 +80,8 @@
         {"name": "measure_type_id", "heading": "Measure Type", "input_type": "text"},
         {"name": "description",     "heading": "Description",  "input_type": "text"}
       ],
-      "select_field": "measure_type_id"
+      "select_field": "measure_type_id",
+      "buffered": true
     },
     {"measure_type_id":"CNT",  "description":"count"},
     {"measure_type_id":"VOL",  "description":"volume"},
@@ -97,8 +101,9 @@
         {"name": "uom_id",          "heading": "Unit of Measure", "input_type": "text"},
         {"name": "description",     "heading": "Description",     "input_type": "text"},
         {"name": "measure_type_id", "heading": "Measure Type",    "input_type": "select", "values":"measure_types"}
-      ],
-      "select_field": "uom_id"
+     ],
+     "select_field": "uom_id",
+     "buffered": true
     },
     {"uom_id":"L",      "description":"litre",            "measure_type_id":"VOL"},
     {"uom_id":"ml",     "description":"milli litre",      "measure_type_id":"VOL"},
@@ -132,7 +137,8 @@
          {"name": "uom_id_from", "heading": "Source Unit", "input_type": "select", "values":"unit_of_measures"},
          {"name": "uom_id_to",   "heading": "Target Unit", "input_type": "select", "values":"unit_of_measures"},
          {"name": "rate",        "heading": "Rate",        "input_type": "number", "attributes": "step=any min=0"}
-       ]
+      ],
+      "buffered": true
     },    
     {"uom_id_from":"lb",     "uom_id_to":"kg",     "rate":   0.45359237},
     {"uom_id_from":"L",      "uom_id_to":"galImp", "rate":   0.2199692482990878},
@@ -163,8 +169,9 @@
       "fields":[
          {"name": "expenditure_type_id", "heading": "Expenditure Type", "input_type": "text"},
          {"name": "description",         "heading": "Description",      "input_type": "text"}
-       ],
-       "select_field": "expenditure_type_id"
+      ],
+      "select_field": "expenditure_type_id",
+      "buffered": true
     },
     {"expenditure_type_id":"OP",  "description":"operational expense"},
     {"expenditure_type_id":"CAP", "description":"capital expense"}
@@ -179,8 +186,9 @@
          {"name": "description",         "heading": "Description",      "input_type": "text"},
          {"name": "measure_type_id",     "heading": "Measure Type",     "input_type": "select", "values":"measure_types"},
          {"name": "expenditure_type_id", "heading": "Expenditure Type", "input_type": "select", "values":"expenditure_types"}
-       ],
-       "select_field": "material_type_id"
+      ],
+      "select_field": "material_type_id",
+      "buffered": true
     }, 
     {"material_type_id":"FUEL",       "description":"fuel",       "measure_type_id":"VOL", "expenditure_type_id":"OP"},
     {"material_type_id":"PART",       "description":"part",       "measure_type_id":"CNT", "expenditure_type_id":"CAP"},
@@ -198,8 +206,9 @@
          {"name": "material_id",      "heading": "Material",      "input_type": "text"},
          {"name": "description",      "heading": "Description",   "input_type": "text"},
          {"name": "material_type_id", "heading": "Material Type", "input_type": "select", "values":"material_types"}
-       ],
-       "select_field": "material_id"
+      ],
+      "select_field": "material_id",
+      "buffered": true
     }, 
     {"material_id": "gasoline",        "description": "gasoline",                "material_type_id": "FUEL"},
     {"material_id": "electricity",     "description": "electricity",             "material_type_id": "FUEL"},
@@ -216,7 +225,7 @@
       "description": "Cars",
       "admin":       false,
       "fields":[
-         {"name": "car_image_id",         "heading": "Car Image",            "input_type": "imageid"},
+         {"name": "car_image_id",         "heading": "Car Image",            "input_type": "imageid", "values": "images"},
          {"name": "car_id",               "heading": "car",                  "input_type": "text"},
          {"name": "description",          "heading": "Description",          "input_type": "text"},
          {"name": "reg_country_id",       "heading": "Registration Country", "input_type": "select", "values":"countries"},
@@ -228,7 +237,7 @@
          {"name": "fuel_economy_unit_id", "heading": "Fuel Economy Unit",    "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["FECO"]}},
          {"name": "currency_id",          "heading": "Reporting Currency",   "input_type": "select", "values":"currencies"}
         ],
-       "select_field": "description"
+       "select_field": "car_id"
     }  
   ],
 
@@ -240,7 +249,8 @@
          {"name": "relationship_id", "heading": "Code",        "input_type": "text"},
          {"name": "description",     "heading": "Description", "input_type": "text"}
       ],
-      "select_field": "description"
+      "select_field": "relationship_id",
+      "buffered": true
     }, 
     {"relationship_id": "owner",   "description": "Owner"},
     {"relationship_id": "driver",  "description": "Driver"},
