@@ -321,7 +321,7 @@ def translate_db_value_to_id(source_field_name, lookup_collection_name, record):
         record[source_field_name] = lookup_value
 
 
-def translate_db_image_to_id(source_collection_name, record, source_field_name):
+def translate_db_image_to_id(source_field_name, record):
     filename = record[source_field_name]
     if filename:
         with open(os.path.join(app.config["OS_DATA_PATH"], filename), mode='rb') as image_file:
@@ -410,6 +410,10 @@ def init_db_users(collection_name, records):
     return records
 
 
+def init_db_images(coll_name, coll_records):
+    pass
+
+
 def init_db_currency_conversions(collection_name, records):
     field_names = ['currency_id_from','currency_id_to']
     field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
@@ -474,9 +478,11 @@ def init_db_materials(collection_name, records):
 
 def init_db_cars(collection_name, records):
     field_names = ['reg_country_id','distance_unit_id', 'odometer_unit_id', 'fuel_material_id',
-                   'fuel_unit_id', 'fuel_economy_unit_id', 'currency_id', 'car_image_id']
+                   'fuel_unit_id', 'fuel_economy_unit_id', 'currency_id']
     field_lookup_pairs = get_db_field_lookup_pairs(collection_name, field_names)
     for record in records:
+        # save image to images collection and reference the _id
+        translate_db_image_to_id('car_image_id', record)
         # convert Registration Country, Distance Unit, Odometer Unit, Fuel Material ID,
         # Fuel Unit, Fuel Economy Unit, Currency ID, Image FileName to _id
         for field, lookup in field_lookup_pairs:
