@@ -270,6 +270,17 @@
   ],
 
   "partners": [
+    { "entity_name": "partner",
+      "description": "Partner",
+      "admin":       false,
+      "fields":[
+         {"name": "partner_id",  "heading": "Partner Name", "input_type": "text"},
+         {"name": "description", "heading": "Description",  "input_type": "text"},
+         {"name": "country_id",  "heading": "Country",      "input_type": "select", "values": "countries"},
+         {"name": "address",     "heading": "Address",      "input_type": "text"}
+      ],
+      "select_field": "partner_id"
+    }
   ],
 
   "transactions": [

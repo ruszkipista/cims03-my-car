@@ -34,20 +34,14 @@
                 href="{{ url_for('index') }}">Home</a>
             </li>
             {% if session['user_id'] %}
-            <li class="nav-item">
-              <a class="nav-link {% if url_for('maintain', collection_name='cars')==request.path %}active{% endif %}"
-                href="{{ url_for('maintain', collection_name='cars') }}">Cars</a>
-            </li>
-            {% if session['user_is_admin'] %}
             {% for coll_fieldcat in fieldcatalog.values() %}
-            {% if coll_fieldcat['admin'] %}
+            {% if coll_fieldcat['admin']==session['user_is_admin'] %}
             <li class="nav-item">
               <a class="nav-link {% if url_for('maintain', collection_name=coll_fieldcat['collection_name'])==request.path %}active{% endif %}"
                 href="{{ url_for('maintain', collection_name=coll_fieldcat['collection_name']) }}">{{ coll_fieldcat['description'] }}</a>
             </li>
             {% endif %}
             {% endfor %}
-            {% endif %}
             <li class="nav-item">
               <a class="nav-link {% if url_for('profile')==request.path %}active{% endif %}"
                 href="{{ url_for('profile') }}">Profile</a>
