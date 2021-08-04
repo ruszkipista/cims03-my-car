@@ -387,6 +387,8 @@ def init_db_mongo(file_name, clear_content=False):
                     coll_records = init_db_cars(coll_name, coll_records)
                 elif coll_name=="users_cars":
                     coll_records = init_db_users_cars(coll_name, coll_records)
+                elif coll_name=="partners":
+                    coll_records = init_db_partners(coll_name, coll_records)
 
                 if coll_records:
                     insert_db_many_records(coll_name, coll_records)
@@ -489,6 +491,16 @@ def init_db_users_cars(collection_name, records):
     field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert User Name, Car ID, Relationship ID to _id
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
+    return records
+
+
+def init_db_partners(collection_name, records):
+    field_names = ['country_id']
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
+    for record in records:
+        # convert Country ID to _id
         for field, type, lookup in field_type_lookup_triples:
             translate_db_value_to_id(field, type, lookup, record)
     return records
@@ -632,9 +644,10 @@ def maintain(collection_name):
 
 def save_record_to_db(request, collection_name, record_old):
     coll_fieldcatalog = get_db_fieldcatalog(collection_name)
-
     fields = [field['name'] for field in coll_fieldcatalog['fields']]
-    record_new = {f:request.form.get(f) for f in fields if request.form.get(f,None) is not None and request.form.get(f) != record_old.get(f,None)}
+    record_new = {f:request.form.get(f) for f in fields 
+                    if request.form.get(f,None) is not None and \
+                       request.form.get(f) != record_old.get(f,None)}
     if not record_new:
         flash(f"Did not {'update' if record_old else 'add'} record", "info")
         return {}

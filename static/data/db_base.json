@@ -260,7 +260,7 @@
   "users_cars": [
     { "entity_name": "users-cars",
       "description": "Users-Cars",
-      "admin":       true,
+      "admin":       false,
       "fields":[
          {"name": "user_id",         "heading": "Username",     "input_type": "lookup", "values": "users"},
          {"name": "car_id",          "heading": "Car",          "input_type": "lookup", "values": "cars"},
@@ -271,7 +271,7 @@
 
   "partners": [
     { "entity_name": "partner",
-      "description": "Partner",
+      "description": "Partners",
       "admin":       false,
       "fields":[
          {"name": "partner_id",  "heading": "Partner Name", "input_type": "text"},
