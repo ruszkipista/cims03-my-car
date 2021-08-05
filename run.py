@@ -311,13 +311,13 @@ def delete_db_all_records(collection_name):
 
 
 def translate_db_external_to_internal(source_field_name, input_type, lookup_collection_name, record):
-    external_value = record[source_field_name]
+    external_value = record.get(source_field_name, None)
     internal_value = None
 
     if input_type == "changedby":
         internal_value = get_db_user_id()
 
-    if input_type == 'imageid':
+    elif input_type == 'imageid':
         filename = record[source_field_name]
         if filename:
             with open(os.path.join(app.config["OS_DATA_PATH"], filename), mode='rb') as image_file:
@@ -348,7 +348,7 @@ def translate_db_external_to_internal(source_field_name, input_type, lookup_coll
 
     else:
         lookup = get_db_select_field_lookup(lookup_collection_name)
-        internal_value = lookup.get(record[source_field_name], None)
+        internal_value = lookup.get(external_value, None)
 
     if internal_value:
         record[source_field_name] = internal_value
@@ -441,7 +441,7 @@ def init_db_users(collection_name, records):
 
 
 def init_db_currency_conversions(collection_name, records):
-    field_names = ['currency_id_from','currency_id_to']
+    field_names = ['currency_id_from','currency_id_to','from_date']
     field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert From Date isodatestring to datetime
@@ -692,18 +692,27 @@ def save_record_to_db(request, collection_name, record_old={}):
     images_old = []
     for field in coll_fieldcatalog['fields']:
         field_name = field['name']
-        field_input_type = field.get('input_type', False)
+        field_values = field.get('values', None)
+        field_input_type = field.get('input_type', None)
         if not field_input_type:
             continue
 
         # store logged in user as last updater
-        if field_input_type=='changedby':
-            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
+        # store foreign key from lookup of text value
+        # store password
+        if field_input_type in {'changedby', 'lookup', 'password'}:
+            translate_db_external_to_internal(field_name, field_input_type, field_values, record_new)
+
+        # store timestamp
+        elif field_input_type=='timestamp_update' and record_old:
+            translate_db_external_to_internal(field_name, field_input_type, field_values, record_new)
+        elif field_input_type=='timestamp_insert' and not record_old:
+            translate_db_external_to_internal(field_name, field_input_type, field_values, record_new)
 
         # convert date value to datetime object
         elif field_input_type=='date':
             record_new[field_name] = request.form.get(field_name, None)
-            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
+            translate_db_external_to_internal(field_name, field_input_type, field_values, record_new)
 
         # store foreign key from select-option
         elif field_input_type=='select':
@@ -712,25 +721,9 @@ def save_record_to_db(request, collection_name, record_old={}):
                 # insert foreign key as object into field
                 record_new[field_name] = ObjectId(record_new[field_name])
 
-        # store foreign key from lookup of text value
-        elif field_input_type=='lookup':
-            translate_db_external_to_internal(field_name, field['values'], record_new)
-
         # store check box as boolean
         elif field_input_type=='checkbox':
-            record_new[field_name] = True if record_new[field_name]=='on' else False
-
-        # store password
-        elif field_input_type=='password':
-            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
-
-        # store timestamp
-        elif field_input_type=='timestamp_update' and record_old:
-            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
-            
-        # store timestamp
-        elif field_input_type=='timestamp_insert' and not record_old:
-            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
+            record_new[field_name] = True if record_new.get(field_name, 'off')=='on' else False
 
         # store image
         elif field_input_type=='imageid':
@@ -749,12 +742,13 @@ def save_record_to_db(request, collection_name, record_old={}):
         try:
             update_db_record(collection_name, record_old, record_new)
             flash(f"Successfully updated one {get_db_entity_name(collection_name)} record", "success")
+            # delete old images if new got uploaded
+            coll_images = get_db_collection(app.config["MONGO_IMAGES"])
+            for image_old in images_old:
+                coll_images.delete_one({"_id":image_old})
+            record_new = {}
         except:
             flash(f"Error in update operation!", "danger")        
-        # delete old images if new got uploaded
-        coll_images = get_db_collection(app.config["MONGO_IMAGES"])
-        for image_old in images_old:
-            coll_images.delete_one({"_id":image_old})
     else:
         try:
             record_new = insert_db_record(collection_name, record_new)
@@ -762,7 +756,7 @@ def save_record_to_db(request, collection_name, record_old={}):
             record_new = {}
             flash(f"Successfully added one {get_db_entity_name(collection_name)} record", "success")
         except:
-            flash(f"Error in insert operation!", "danger")
+            flash(f"Error in addition operation!", "danger")
     return record_new
 
 
@@ -887,7 +881,7 @@ def _jinja2_filter_get_entity_select_field(entity_id, collection_name):
 
 @app.template_filter('unix_time_ago')
 def _jinja2_filter_time_ago(unix_timestamp:int):
-    translate_unix_timestamp_to_time_ago_text(unix_timestamp)
+    return translate_unix_timestamp_to_time_ago_text(unix_timestamp)
 
 
 # Flask pattern from https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3/
