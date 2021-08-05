@@ -273,8 +273,8 @@ def get_db_field_type_lookup_triples(collection_name, field_names):
     coll_fields = get_db_fieldcatalog(collection_name)['fields']
     for field_name in field_names:
         field_def = next((f for f in coll_fields if f['name']==field_name), '')
-        lookup_collection_name = field_def.get('values', None)
         input_type = field_def.get('input_type', None)
+        lookup_collection_name = field_def.get('values', None)
         triples.append((field_name,input_type,lookup_collection_name))
     return triples
 
@@ -314,12 +314,8 @@ def translate_db_password_to_hash(source_field_name, record):
     record[source_field_name] = generate_password_hash(record[source_field_name])
 
 
-def translate_db_isodate_to_datetime(source_field_name, record):
-    record[source_field_name] = datetime.strptime(record[source_field_name], '%Y-%m-%d')
-
-
 def translate_db_value_to_id(source_field_name, input_type, lookup_collection_name, record):
-    lookup_value = None
+    translated_value = None
     if input_type == 'imageid':
         filename = record[source_field_name]
         if filename:
@@ -327,12 +323,18 @@ def translate_db_value_to_id(source_field_name, input_type, lookup_collection_na
                 # read file into memory
                 image_binary = Binary(image_file.read())
                 # insert image into DB, get new ID
-                lookup_value = insert_db_image(filename, image_binary)
+                translated_value = insert_db_image(filename, image_binary)
+
+    elif input_type == 'date':
+        # convert isodatestring YYYY-MM-DD into datetime object
+        translated_value = datetime.strptime(record[source_field_name], '%Y-%m-%d')
+
     else:
         lookup = get_db_select_field_lookup(lookup_collection_name)
-        lookup_value = lookup.get(record[source_field_name], None)
-    if lookup_value:
-        record[source_field_name] = lookup_value
+        translated_value = lookup.get(record[source_field_name], None)
+
+    if translated_value:
+        record[source_field_name] = translated_value
 
 
 def insert_db_image(filename, image_binary):
@@ -423,7 +425,6 @@ def init_db_currency_conversions(collection_name, records):
     field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert From Date isodatestring to datetime
-        translate_db_isodate_to_datetime('from_date', record)
         # convert Currency ID to _id
         for field, type, lookup in field_type_lookup_triples:
             translate_db_value_to_id(field, type, lookup, record)
@@ -512,11 +513,10 @@ def init_db_partners(collection_name, records):
 
 
 def init_db_transactions(collection_name, records):
-    field_names = ['car_id','partner_id', 'material_id', 'uom_id', 'currency_id']
+    field_names = ['car_id', 'transaction_date', 'partner_id', 'material_id', 'uom_id', 'currency_id']
     field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert From Date isodatestring to datetime
-        translate_db_isodate_to_datetime('transaction_date', record)
         # convert entity key fields into _id
         for field, type, lookup in field_type_lookup_triples:
             translate_db_value_to_id(field, type, lookup, record)
