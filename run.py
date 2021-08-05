@@ -310,12 +310,13 @@ def delete_db_all_records(collection_name):
     coll.delete_many({})
 
 
-def translate_db_password_to_hash(source_field_name, record):
-    record[source_field_name] = generate_password_hash(record[source_field_name])
+def translate_db_external_to_internal(source_field_name, input_type, lookup_collection_name, record):
+    external_value = record[source_field_name]
+    internal_value = None
 
+    if input_type == "changedby":
+        internal_value = get_db_user_id()
 
-def translate_db_value_to_id(source_field_name, input_type, lookup_collection_name, record):
-    translated_value = None
     if input_type == 'imageid':
         filename = record[source_field_name]
         if filename:
@@ -323,18 +324,34 @@ def translate_db_value_to_id(source_field_name, input_type, lookup_collection_na
                 # read file into memory
                 image_binary = Binary(image_file.read())
                 # insert image into DB, get new ID
-                translated_value = insert_db_image(filename, image_binary)
+                internal_value = insert_db_image(filename, image_binary)
+
+    elif input_type == 'password':
+        if external_value and len(external_value)>0:
+            internal_value = generate_password_hash(external_value)
+        else:
+            record.pop(source_field_name)
 
     elif input_type == 'date':
-        # convert isodatestring YYYY-MM-DD into datetime object
-        translated_value = datetime.strptime(record[source_field_name], '%Y-%m-%d')
+        if external_value == '' or external_value is None:
+            del record[source_field_name]
+            internal_value = None
+        else:
+            # convert isodatestring YYYY-MM-DD into datetime object
+            internal_value = datetime.fromisoformat(external_value)
+
+    elif input_type == 'timestamp_update':
+        internal_value = get_utc_timestamp()
+
+    elif input_type == 'timestamp_insert':
+        internal_value = get_utc_timestamp()
 
     else:
         lookup = get_db_select_field_lookup(lookup_collection_name)
-        translated_value = lookup.get(record[source_field_name], None)
+        internal_value = lookup.get(record[source_field_name], None)
 
-    if translated_value:
-        record[source_field_name] = translated_value
+    if internal_value:
+        record[source_field_name] = internal_value
 
 
 def insert_db_image(filename, image_binary):
@@ -412,11 +429,14 @@ def init_db_mongo(file_name, clear_content=False):
 
 
 def init_db_users(collection_name, records):
+    field_names = ['password','date_time_insert']
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
-        # encrypt password in user
-        translate_db_password_to_hash('password', record)
-        # set time stamp
+        # encrypt password
+        # set timestamp of creation
         record['date_time_insert'] = get_utc_timestamp()
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -427,7 +447,7 @@ def init_db_currency_conversions(collection_name, records):
         # convert From Date isodatestring to datetime
         # convert Currency ID to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -437,7 +457,7 @@ def init_db_countries(collection_name, records):
     for record in records:
         # convert Currency ID to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -447,7 +467,7 @@ def init_db_unit_of_measures(collection_name, records):
     for record in records:
         # convert Measure Type ID to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -457,7 +477,7 @@ def init_db_unit_conversions(collection_name, records):
     for record in records:
         # convert Unit of Measure ID to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -467,7 +487,7 @@ def init_db_material_types(collection_name, records):
     for record in records:
         # convert Measure Type ID and Expenditure Type ID to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -477,7 +497,7 @@ def init_db_materials(collection_name, records):
     for record in records:
         # convert Material Type ID to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 def init_db_cars(collection_name, records):
@@ -488,7 +508,7 @@ def init_db_cars(collection_name, records):
         # convert Registration Country, Distance Unit, Odometer Unit, Fuel Material ID,
         # Fuel Unit, Fuel Economy Unit, Currency ID, Car Image FileName to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -498,7 +518,7 @@ def init_db_users_cars(collection_name, records):
     for record in records:
         # convert User Name, Car ID, Relationship ID to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -508,7 +528,7 @@ def init_db_partners(collection_name, records):
     for record in records:
         # convert Country ID to _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -519,7 +539,7 @@ def init_db_transactions(collection_name, records):
         # convert From Date isodatestring to datetime
         # convert entity key fields into _id
         for field, type, lookup in field_type_lookup_triples:
-            translate_db_value_to_id(field, type, lookup, record)
+            translate_db_external_to_internal(field, type, lookup, record)
     return records
 
 
@@ -659,7 +679,7 @@ def maintain(collection_name):
         last_record=record)
     
 
-def save_record_to_db(request, collection_name, record_old):
+def save_record_to_db(request, collection_name, record_old={}):
     coll_fieldcatalog = get_db_fieldcatalog(collection_name)
     fields = [field['name'] for field in coll_fieldcatalog['fields']]
     record_new = {f:request.form.get(f) for f in fields 
@@ -675,42 +695,43 @@ def save_record_to_db(request, collection_name, record_old):
         field_input_type = field.get('input_type', False)
         if not field_input_type:
             continue
-        field_value = record_new.get(field_name, None)
+
         # store logged in user as last updater
         if field_input_type=='changedby':
-            record_new[field_name] = ObjectId(session['user_id'])
+            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
+
         # convert date value to datetime object
         elif field_input_type=='date':
-            date_value = request.form.get(field_name,None)
-            if date_value == '':
-                del record_new[field_name]
-            elif date_value is not None:
-                record_new[field_name] = datetime.fromisoformat(date_value)
+            record_new[field_name] = request.form.get(field_name, None)
+            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
+
         # store foreign key from select-option
         elif field_input_type=='select':
             # get foreign key of selected value
-            record_id = field_value
-            if record_id:
-                # insert foreing key as object into field
-                record_new[field_name] = ObjectId(record_id)
-        # store foreign key from lookup
+            if record_new.get(field_name, None):
+                # insert foreign key as object into field
+                record_new[field_name] = ObjectId(record_new[field_name])
+
+        # store foreign key from lookup of text value
         elif field_input_type=='lookup':
-            # get foreign key of text value
-            translate_db_value_to_id(field_name, field['values'], record_new)
+            translate_db_external_to_internal(field_name, field['values'], record_new)
+
         # store check box as boolean
         elif field_input_type=='checkbox':
-            record_new[field_name] = True if field_value=='on' else False
+            record_new[field_name] = True if record_new[field_name]=='on' else False
+
         # store password
         elif field_input_type=='password':
-            if field_value and len(field_value)>0:
-                translate_db_password_to_hash(field_name, record_new)
-            else:
-                record_new.pop(field_name)
+            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
+
         # store timestamp
         elif field_input_type=='timestamp_update' and record_old:
-            record_new[field_name] = get_utc_timestamp()
+            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
+            
+        # store timestamp
         elif field_input_type=='timestamp_insert' and not record_old:
-            record_new[field_name] = get_utc_timestamp()
+            translate_db_external_to_internal(field_name, field_input_type, None, record_new)
+
         # store image
         elif field_input_type=='imageid':
             # following instructions from https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
@@ -720,9 +741,7 @@ def save_record_to_db(request, collection_name, record_old):
                 extension = filename_source.rsplit('.', 1)[1] if '.' in filename_source else ''
                 if extension in app.config["UPLOAD_EXTENSIONS"]:
                     # store image
-                    image_new = {'source': filename_source, 'image': Binary(image.read())}
-                    coll_images = get_db_collection(app.config["MONGO_IMAGES"])
-                    record_new[field_name] = coll_images.insert_one(image_new).inserted_id
+                    record_new[field_name] = insert_db_image(filename_source, Binary(image.read()))
                     if record_old.get(field_name, False):
                         images_old.append(record_old[field_name])
 
