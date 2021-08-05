@@ -314,6 +314,10 @@ def translate_db_password_to_hash(source_field_name, record):
     record[source_field_name] = generate_password_hash(record[source_field_name])
 
 
+def translate_db_isodate_to_datetime(source_field_name, record):
+    record[source_field_name] = datetime.strptime(record[source_field_name], '%Y-%m-%d')
+
+
 def translate_db_value_to_id(source_field_name, input_type, lookup_collection_name, record):
     lookup_value = None
     if input_type == 'imageid':
@@ -389,6 +393,8 @@ def init_db_mongo(file_name, clear_content=False):
                     coll_records = init_db_users_cars(coll_name, coll_records)
                 elif coll_name=="partners":
                     coll_records = init_db_partners(coll_name, coll_records)
+                elif coll_name=="transactions":
+                    coll_records = init_db_transactions(coll_name, coll_records)
 
                 if coll_records:
                     insert_db_many_records(coll_name, coll_records)
@@ -417,7 +423,7 @@ def init_db_currency_conversions(collection_name, records):
     field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert From Date isodatestring to datetime
-        record['from_date'] = datetime.strptime(record['from_date'], '%Y-%m-%d')
+        translate_db_isodate_to_datetime('from_date', record)
         # convert Currency ID to _id
         for field, type, lookup in field_type_lookup_triples:
             translate_db_value_to_id(field, type, lookup, record)
@@ -473,7 +479,6 @@ def init_db_materials(collection_name, records):
             translate_db_value_to_id(field, type, lookup, record)
     return records
 
-
 def init_db_cars(collection_name, records):
     field_names = ['reg_country_id','distance_unit_id', 'odometer_unit_id', 'fuel_material_id',
                    'fuel_unit_id', 'fuel_economy_unit_id', 'currency_id', 'car_image_id']
@@ -501,6 +506,18 @@ def init_db_partners(collection_name, records):
     field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
         # convert Country ID to _id
+        for field, type, lookup in field_type_lookup_triples:
+            translate_db_value_to_id(field, type, lookup, record)
+    return records
+
+
+def init_db_transactions(collection_name, records):
+    field_names = ['car_id','partner_id', 'material_id', 'uom_id', 'currency_id']
+    field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
+    for record in records:
+        # convert From Date isodatestring to datetime
+        translate_db_isodate_to_datetime('transaction_date', record)
+        # convert entity key fields into _id
         for field, type, lookup in field_type_lookup_triples:
             translate_db_value_to_id(field, type, lookup, record)
     return records

@@ -11,7 +11,8 @@
          {"name": "changed_by",       "heading": "Changed By",     "input_type": "changedby", "values":"users"},
          {"name": "date_time_update", "heading": "Updated",        "input_type": "timestamp_update"}
        ],
-       "select_field": "username"
+       "select_field": "username",
+       "buffered": true
     },
     {"username": "admin",  "user_is_admin": true,  "password": "admin"}
   ],
@@ -223,7 +224,7 @@
   "cars": [
     { "entity_name": "car",
       "description": "Cars",
-      "admin":       false,
+      "admin":       true,
       "fields":[
          {"name": "car_image_id",         "heading": "Car Image",            "input_type": "imageid", "values": "images"},
          {"name": "car_id",               "heading": "car",                  "input_type": "text"},
@@ -237,7 +238,8 @@
          {"name": "fuel_economy_unit_id", "heading": "Fuel Economy Unit",    "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["FECO"]}},
          {"name": "currency_id",          "heading": "Reporting Currency",   "input_type": "select", "values":"currencies"}
         ],
-       "select_field": "car_id"
+       "select_field": "car_id",
+       "buffered": true
     }  
   ],
 
@@ -260,10 +262,10 @@
   "users_cars": [
     { "entity_name": "users-cars",
       "description": "Users-Cars",
-      "admin":       false,
+      "admin":       true,
       "fields":[
-         {"name": "user_id",         "heading": "Username",     "input_type": "lookup", "values": "users"},
-         {"name": "car_id",          "heading": "Car",          "input_type": "lookup", "values": "cars"},
+         {"name": "user_id",         "heading": "Username",     "input_type": "select", "values": "users"},
+         {"name": "car_id",          "heading": "Car",          "input_type": "select", "values": "cars"},
          {"name": "relationship_id", "heading": "Relationship", "input_type": "select", "values": "relationship_types"}
       ]
     }
@@ -279,11 +281,29 @@
          {"name": "country_id",  "heading": "Country",      "input_type": "select", "values": "countries"},
          {"name": "address",     "heading": "Address",      "input_type": "text"}
       ],
-      "select_field": "partner_id"
+      "select_field": "partner_id",
+      "buffered": true
     }
   ],
 
   "transactions": [
+    { "entity_name": "transaction",
+      "description": "Transactions",
+      "admin":       false,
+      "fields":[
+         {"name": "car_id",           "heading": "Car",           "input_type": "select", "values": "cars"},
+         {"name": "transaction_date", "heading": "Date",          "input_type": "date"},
+         {"name": "description",      "heading": "Description",   "input_type": "text"},
+         {"name": "partner_id",       "heading": "Partner",       "input_type": "select", "values": "partners"},
+         {"name": "material_id",      "heading": "Goods/Service", "input_type": "select", "values": "materials"},
+         {"name": "quantity",         "heading": "Quantity",      "input_type": "number"},
+         {"name": "uom_id",           "heading": "Unit",          "input_type": "select", "values": "unit_of_measures"},
+         {"name": "price",            "heading": "Unit Price",    "input_type": "number"},
+         {"name": "currency_id",      "heading": "Currency",      "input_type": "select", "values": "currencies"},
+         {"name": "odometer",         "heading": "Odometer",      "input_type": "number", "attributes":"min=0 max=9999999 step=1"}
+      ],
+      "sort": [{"transaction_date":-1}]
+    }
   ]
 
 }
