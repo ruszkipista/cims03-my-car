@@ -296,13 +296,13 @@
          {"name": "description",      "heading": "Description",   "input_type": "text"},
          {"name": "partner_id",       "heading": "Partner",       "input_type": "select", "values": "partners"},
          {"name": "material_id",      "heading": "Goods/Service", "input_type": "select", "values": "materials"},
+         {"name": "odometer",         "heading": "Odometer",      "input_type": "number", "attributes":"min=0 max=9999999 step=1"},
          {"name": "quantity",         "heading": "Quantity",      "input_type": "number", "attributes":"step=any"},
          {"name": "uom_id",           "heading": "Unit",          "input_type": "select", "values": "unit_of_measures"},
          {"name": "price",            "heading": "Unit Price",    "input_type": "number", "attributes":"step=any min=0"},
-         {"name": "currency_id",      "heading": "Currency",      "input_type": "select", "values": "currencies"},
-         {"name": "odometer",         "heading": "Odometer",      "input_type": "number", "attributes":"min=0 max=9999999 step=1"}
+         {"name": "currency_id",      "heading": "Currency",      "input_type": "select", "values": "currencies"}
       ],
-      "sort": [{"transaction_date":-1}]
+      "sort": {"transaction_date":-1}
     }
   ]
 

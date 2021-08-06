@@ -212,6 +212,10 @@ def get_db_image_by_id(image_id):
 
 def get_db_all_records(collection_name):
     coll = get_db_collection(collection_name)
+    fieldcatalog = get_db_fieldcatalog(collection_name)
+    sorting = fieldcatalog.get('sort', None)
+    if sorting:
+        return coll.find().sort(list(sorting.items()))
     return list(coll.find())
 
 
