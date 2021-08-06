@@ -1,7 +1,7 @@
 {
   "users": [
-    {"username": "ruszki", "user_is_admin": false, "password": "pista"},
-    {"username": "malya",  "user_is_admin": false, "password": "tunde"}
+    {"username": "user1", "user_is_admin": false, "password": "user1"},
+    {"username": "user2", "user_is_admin": false, "password": "user2"}
   ],
 
   "currencies" : [

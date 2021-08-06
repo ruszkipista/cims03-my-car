@@ -797,8 +797,6 @@ def delete_record(collection_name, record_id):
     if get_db_is_admin_maintainable(collection_name) and not get_db_user_is_admin():
         return redirect(url_for("index"))
 
-    if not session.get('user_is_admin', None):
-        return redirect(url_for("index"))
     record = get_db_record_by_id(collection_name, record_id)
     if not record:
         flash(f"Record {record_id} does not exist", "danger")
