@@ -140,13 +140,15 @@ def get_db_collection(collection):
     return conn[app.config["MONGO_DB_NAME"]][collection]
 
 
-def insert_db_user(username, password, is_admin):
+def insert_db_user(username, password, is_admin=False):
     user_new = {
         "username": username,
-        "is_admin": is_admin,
         "password": generate_password_hash(password),
         "date_time_insert": get_utc_timestamp()
     }
+    if is_admin:
+        user_new["user_is_admin"] = True
+ 
     loggedin_user = get_db_user_id()
     if loggedin_user:
         user_new["changed_by"] = loggedin_user
@@ -179,9 +181,9 @@ def get_db_user_password(record):
 
 def get_db_user_is_admin(user=None):
     if user:
-        return user.get('user_is_admin', None)
+        return user.get('user_is_admin', False)
     else:
-        return session.get('user_is_admin', None)
+        return session.get('user_is_admin', False)
 
 
 def login_db_user(user):
@@ -570,8 +572,7 @@ def register():
         return redirect(url_for("register"))
 
     password_entered = get_form_reglog_field_password(request)
-    is_admin_entered = get_form_reglog_field_is_admin(request)
-    user_new = insert_db_user(username_entered, password_entered, is_admin_entered)
+    user_new = insert_db_user(username_entered, password_entered)
 
     # put the new user_id into 'session' cookie
     login_db_user(user_new)

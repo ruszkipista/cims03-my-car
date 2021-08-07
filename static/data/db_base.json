@@ -293,8 +293,8 @@
       "fields":[
          {"name": "car_id",           "heading": "Car",           "input_type": "select", "values": "cars"},
          {"name": "transaction_date", "heading": "Date",          "input_type": "date"},
-         {"name": "description",      "heading": "Description",   "input_type": "text"},
          {"name": "partner_id",       "heading": "Partner",       "input_type": "select", "values": "partners"},
+         {"name": "description",      "heading": "Description",   "input_type": "text"},
          {"name": "material_id",      "heading": "Goods/Service", "input_type": "select", "values": "materials"},
          {"name": "odometer",         "heading": "Odometer",      "input_type": "number", "attributes":"min=0 max=9999999 step=1"},
          {"name": "quantity",         "heading": "Quantity",      "input_type": "number", "attributes":"step=any"},
