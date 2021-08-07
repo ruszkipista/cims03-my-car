@@ -361,12 +361,18 @@ def translate_db_external_to_internal(source_field_name, input_type, lookup_coll
 
 
 def insert_db_image(filename, image_binary):
-    image_new = { 
+    record_new = { 
         'source': filename, 
         'image':  image_binary
     }
-    image_new = insert_db_record(app.config["MONGO_IMAGES"], image_new)
-    return image_new['_id']
+    record_new = insert_db_record(app.config["MONGO_IMAGES"], record_new)
+    return record_new['_id']
+
+
+def update_db_image(filename, image_binary, record_new):
+    record_new['source'] = filename
+    record_new['image']  = image_binary
+    return record_new
 
 
 def init_db_mongo(file_name, clear_content=False):
@@ -690,9 +696,6 @@ def save_record_to_db(request, collection_name, record_old={}):
     record_new = {f:request.form.get(f) for f in fields 
                     if request.form.get(f,None) is not None and \
                        request.form.get(f) != record_old.get(f,None)}
-    if not record_new:
-        flash(f"Did not {'update' if record_old else 'add'} record", "info")
-        return {}
     
     images_old = []
     for field in coll_fieldcatalog['fields']:
@@ -730,8 +733,8 @@ def save_record_to_db(request, collection_name, record_old={}):
         elif field_input_type=='checkbox':
             record_new[field_name] = True if record_new.get(field_name, 'off')=='on' else False
 
-        # store image
-        elif field_input_type=='imageid':
+        # store image and save new Image ID
+        elif field_input_type=='imageid' or field_input_type=='image':
             # following instructions from https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
             image = request.files[field_name]
             if image:
@@ -739,9 +742,17 @@ def save_record_to_db(request, collection_name, record_old={}):
                 extension = filename_source.rsplit('.', 1)[1] if '.' in filename_source else ''
                 if extension in app.config["UPLOAD_EXTENSIONS"]:
                     # store image
-                    record_new[field_name] = insert_db_image(filename_source, Binary(image.read()))
-                    if record_old.get(field_name, False):
-                        images_old.append(record_old[field_name])
+                    if field_input_type=='imageid':
+                        image_id_new = insert_db_image(filename_source, Binary(image.read()))
+                        record_new[field_name] = image_id_new
+                        if record_old.get(field_name, False):
+                            images_old.append(record_old[field_name])
+                    else:
+                        record_new = update_db_image(filename_source, Binary(image.read()), record_new)
+
+    if not record_new:
+        flash(f"Did not {'update' if record_old else 'add'} record", "info")
+        return {}
 
     if record_old:
         try:
