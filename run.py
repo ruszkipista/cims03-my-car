@@ -575,6 +575,8 @@ def index():
     loggedin_user = get_loggedin_user()
     loggedin_user_id = get_db_user_id(loggedin_user)
     cars = get_db_cars_for_user(loggedin_user_id)
+    if not cars and not get_db_user_is_admin():    
+        flash(f"You have no car assigned, ask the administrator for one!", 'info')
     return render_template(
         "index.html", 
         page_title="Home", 
@@ -635,7 +637,7 @@ def logout():
     if loggedin_user_id:
         logout_db_user()
         flash("You have been logged out", "info")       
-    return redirect(url_for("index"))
+    return redirect(url_for("login"))
 
 
 @app.route("/profile", methods=['GET','POST'])

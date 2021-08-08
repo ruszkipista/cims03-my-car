@@ -91,7 +91,7 @@
             </div>
 
             <!-- IMAGEID type -->
-            {% elif field['input_type']=='image' %}
+            {% elif field['input_type']=='imageid' or field['input_type']=='image' %}
             <div class="form-outline">
               <label for="{{ field['name'] }}" class="form-label ms-3">Select an image:</label>
               <input type="file" name="{{ field['name'] }}" id="{{ field['name'] }}">
@@ -120,7 +120,7 @@
   </div>
 
   <!-- search -->
-  {% if not update %}
+  {% if False %}
   <div class="row m-0 p-0 my-3">
       <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
         <div class="row ps-3">

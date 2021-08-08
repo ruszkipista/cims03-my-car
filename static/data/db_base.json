@@ -57,24 +57,6 @@
     }
   ],
 
-  "countries": [
-    {"entity_name": "country",
-     "description": "Countries",
-     "admin":      true,
-     "buffered":   true,
-     "fields":[
-        {"name": "country_id",       "heading": "Code",         "input_type": "text"},
-        {"name": "description",      "heading": "Country Name", "input_type": "text"},
-        {"name": "currency_id",      "heading": "Currency",     "input_type": "select", "values":"currencies"},
-        {"name": "distance_unit_id", "heading": "Distance Unit","input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["DIST"]}},
-        {"name": "fuel_unit_id",     "heading": "Fuel Unit",    "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["VOL"]}}
-     ],
-     "select_field": "country_id"
-    },
-    {"country_id":"IE",  "description":"Republic Of Ireland", "currency_id":"EUR", "distance_unit_id":"km", "fuel_unit_id":"L"}
-  ],
-
-
   "measure_types":[
     {"entity_name": "measure type",
      "description": "Measure Types",
@@ -163,6 +145,23 @@
     {"uom_id_from":"year",   "uom_id_to":"month",  "rate":  12},
     {"uom_id_from":"year",   "uom_id_to":"day",    "rate": 365.25},
     {"uom_id_from":"month",  "uom_id_to":"day",    "rate":  30.4166}
+  ],
+
+  "countries": [
+    {"entity_name": "country",
+     "description": "Countries",
+     "admin":      true,
+     "buffered":   true,
+     "fields":[
+        {"name": "country_id",       "heading": "Code",         "input_type": "text"},
+        {"name": "description",      "heading": "Country Name", "input_type": "text"},
+        {"name": "currency_id",      "heading": "Currency",     "input_type": "select", "values":"currencies"},
+        {"name": "distance_unit_id", "heading": "Distance Unit","input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["DIST"]}},
+        {"name": "fuel_unit_id",     "heading": "Fuel Unit",    "input_type": "select", "values":"unit_of_measures", "filter":{"measure_type_id":["VOL"]}}
+     ],
+     "select_field": "country_id"
+    },
+    {"country_id":"IE",  "description":"Republic Of Ireland", "currency_id":"EUR", "distance_unit_id":"km", "fuel_unit_id":"L"}
   ],
 
   "expenditure_types": [
