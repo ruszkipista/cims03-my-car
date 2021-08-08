@@ -119,25 +119,25 @@
     </div>
   </div>
 
-    <!-- search -->
-    {% if not update %}
-    <div class="row m-0 p-0 my-3">
-        <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
-          <div class="row ps-3">
-            <div class="form-outline col-6">
-              <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control">
-              <label for="query" class="form-label">Search {{ coll_fieldcat['description'] }}</label>
-            </div>
-            <div class="col-6">
-              <button type="submit" class="btn bg-primary text-shadow text-light">
-                <i class="fas fa-search"></i> Search
-              </button>
-              <a href="{{ url_for('maintain', collection_name=collection_name) }}" class="btn bg-danger text-shadow ms-3 text-light">Reset</a>
-            </div>
+  <!-- search -->
+  {% if not update %}
+  <div class="row m-0 p-0 my-3">
+      <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
+        <div class="row ps-3">
+          <div class="form-outline col-6">
+            <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control">
+            <label for="query" class="form-label">Search {{ coll_fieldcat['description'] }}</label>
           </div>
-        </form>
-    </div>
-    {% endif %}
+          <div class="col-6">
+            <button type="submit" class="btn bg-primary text-shadow text-light">
+              <i class="fas fa-search"></i> Search
+            </button>
+            <a href="{{ url_for('maintain', collection_name=collection_name) }}" class="btn bg-danger text-shadow ms-3 text-light">Reset</a>
+          </div>
+        </div>
+      </form>
+  </div>
+  {% endif %}
 
   {% if records %}
   <div class="row m-0 p-0">

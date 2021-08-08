@@ -17,10 +17,10 @@
   ],
 
   "countries": [
-    {"country_id":"NI",  "description":"Northern Ireland",    "currency_id":"GBP"},
-    {"country_id":"UK",  "description":"United Kingdom",      "currency_id":"GBP"},
-    {"country_id":"HU",  "description":"Hungary",             "currency_id":"HUF"},
-    {"country_id":"USA", "description":"US America",          "currency_id":"USD"}
+    {"country_id":"NI",  "description":"Northern Ireland", "currency_id":"GBP", "fuel_unit_id":"L","distance_unit_id":"km"},
+    {"country_id":"UK",  "description":"United Kingdom",   "currency_id":"GBP", "fuel_unit_id":"L","distance_unit_id":"mi"},
+    {"country_id":"HU",  "description":"Hungary",          "currency_id":"HUF", "fuel_unit_id":"L","distance_unit_id":"km"},
+    {"country_id":"USA", "description":"US America",       "currency_id":"USD", "fuel_unit_id":"gallimp","distance_unit_id":"mi"}
   ],
 
   "cars": [
@@ -28,36 +28,27 @@
       "description":          "Mazda3",
       "reg_country_id":       "IE",
       "plate_number":         "08WD678",
-      "distance_unit_id":     "km",
       "odometer_unit_id":     "km",
       "fuel_material_id":     "petrol95",
-      "fuel_unit_id":         "L",
       "fuel_economy_unit_id": "L/100km",
-      "currency_id":          "EUR",
       "car_image_id":         "mazda3.png"
     },
     { "car_id":               "yaris",
       "description":          "Yaris Sol",
       "reg_country_id":       "IE",
       "plate_number":         "01OY3040",
-      "distance_unit_id":     "km",
       "odometer_unit_id":     "mi",
       "fuel_material_id":     "petrol95",
-      "fuel_unit_id":         "L",
       "fuel_economy_unit_id": "L/100km",
-      "currency_id":          "EUR",
       "car_image_id":         "yaris.png"
     },
     { "car_id":               "PT",
       "description":          "PT Cruiser",
       "reg_country_id":       "HU",
       "plate_number":         "KGB567",
-      "distance_unit_id":     "km",
       "odometer_unit_id":     "km",
       "fuel_material_id":     "petrol95",
-      "fuel_unit_id":         "L",
       "fuel_economy_unit_id": "L/100km",
-      "currency_id":          "HUF",
       "car_image_id":         "ptcruiser.png"
     }    
   ],

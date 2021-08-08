@@ -4,5 +4,53 @@
 {% endblock %}
 
 {% block body %}
-Content for the Home page
+{% set coll_fieldcat = fieldcatalog[collection_name] %}
+{% if records %}
+<div class="row m-0 p-0">
+  <div class="card col-12 my-3">
+    <table class="table">
+      <tr>
+        {% for field in coll_fieldcat['fields'] %}
+        <th>{{ field['heading'] }}</th>
+        {% endfor %}
+      </tr>
+
+      {% for record in records %}
+      <tr>
+        {% for field in coll_fieldcat['fields'] %}
+        {% set field_input_type = field['input_type'] %}
+        <td>
+          <!-- TEXT or NUMBER type -->
+          {% if field_input_type=='text' or field_input_type=='number' %}
+            {{ record[field['name']] }}
+
+          <!-- SELECT type -->
+          {% elif field_input_type=='select' %}
+            {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
+              {% set item = buffer[field['values']][record[field['name']]] %}
+              {{ item[fieldcatalog[field['values']]['select_field']] }}
+            {% endif %}
+
+          <!-- LOOKUP type -->
+          {% elif field_input_type=='lookup' %}
+            {% if record[field['name']] %}
+            {{ record[field['name']]|get_entity_select_field(field['values']) }}
+            {% endif %}
+          
+          <!-- IMAGEID type -->
+          {% elif field_input_type=='imageid' %}
+            {% if record[field['name']] %}
+            <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
+            {% endif %}
+
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %}
+</div>
 {% endblock %}

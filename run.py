@@ -47,6 +47,7 @@ app.config["MONGO_INIT"] = os.environ.get("MONGO_INIT",   "False").lower() in {'
 app.config["MONGO_IMAGES"]            = 'images'
 app.config["MONGO_USERS"]             = 'users'
 app.config["MONGO_CARS"]              = 'cars'
+app.config["MONGO_USERS_CARS"]        = 'users_cars'
 app.config["MONGO_FIELDCATALOG"]      = 'fieldcatalog'
 app.config["MONGO_CURRENCIES"]        = 'currencies'
 app.config["MONGO_COUNTRIES"]         = 'countries'
@@ -210,6 +211,17 @@ def set_db_user_password(user_id, password_new):
 
 def get_db_image_by_id(image_id):
     return get_db_record_by_id(app.config["MONGO_IMAGES"], image_id)
+
+
+def get_db_cars_for_user(loggedin_user_id):
+    cars = []
+    if loggedin_user_id:
+        coll_users_cars = get_db_collection(app.config["MONGO_USERS_CARS"])
+        car_records = list(coll_users_cars.find({"user_id":loggedin_user_id}))
+        car_ids = [rec['car_id'] for rec in car_records]
+        coll_cars = get_db_collection(app.config["MONGO_CARS"])
+        cars = list(coll_cars.find({"_id": {"$in":car_ids}}))
+    return cars
 
 
 def get_db_all_records(collection_name):
@@ -464,10 +476,10 @@ def init_db_currency_conversions(collection_name, records):
 
 
 def init_db_countries(collection_name, records):
-    field_names = ['currency_id']
+    field_names = ['currency_id', 'distance_unit_id', 'fuel_unit_id']
     field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
-        # convert Currency ID to _id
+        # convert Currency ID, Distance Unit, Fuel Unit to _id
         for field, type, lookup in field_type_lookup_triples:
             translate_db_external_to_internal(field, type, lookup, record)
     return records
@@ -513,12 +525,12 @@ def init_db_materials(collection_name, records):
     return records
 
 def init_db_cars(collection_name, records):
-    field_names = ['reg_country_id','distance_unit_id', 'odometer_unit_id', 'fuel_material_id',
-                   'fuel_unit_id', 'fuel_economy_unit_id', 'currency_id', 'car_image_id']
+    field_names = ['reg_country_id', 'odometer_unit_id', 'fuel_material_id',
+                   'fuel_economy_unit_id', 'car_image_id']
     field_type_lookup_triples = get_db_field_type_lookup_triples(collection_name, field_names)
     for record in records:
-        # convert Registration Country, Distance Unit, Odometer Unit, Fuel Material ID,
-        # Fuel Unit, Fuel Economy Unit, Currency ID, Car Image FileName to _id
+        # convert Registration Country, Odometer Unit, Fuel Material ID,
+        # Fuel Economy Unit, Car Image FileName to _id
         for field, type, lookup in field_type_lookup_triples:
             translate_db_external_to_internal(field, type, lookup, record)
     return records
@@ -561,7 +573,14 @@ def init_db_transactions(collection_name, records):
 def index():
     # is logged in user valid?
     loggedin_user = get_loggedin_user()
-    return render_template("index.html", page_title="Home")
+    loggedin_user_id = get_db_user_id(loggedin_user)
+    cars = get_db_cars_for_user(loggedin_user_id)
+    return render_template(
+        "index.html", 
+        page_title="Home", 
+        collection_name=app.config["MONGO_CARS"],
+        records=cars
+    )
 
 
 @app.route("/register", methods=['GET','POST'])
@@ -606,11 +625,7 @@ def login():
     # put the user_id into session cookie
     login_db_user(user_old)
     flash(f"Welcome, {username_entered}", "success")
-    # different landing page for Administrator and Normal users
-    if get_db_user_is_admin():
-        return redirect(url_for("index"))
-    else:
-        return redirect(url_for("maintain", collection_name=app.config["MONGO_CARS"]))
+    return redirect(url_for("index"))
 
 
 @app.route("/logout")
