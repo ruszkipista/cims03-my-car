@@ -5,119 +5,138 @@
 
 {% block body %}
 {% set coll_fieldcat = fieldcatalog[collection_name] %}
-<div class="content">
-  {% if last_record %}{% set update=True %}{% else %}{% set update=False %}{% endif %} 
-  <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mt-3" id="accordion0">
-    <div class="row accordion-item m-0 p-0">
-        <!-- Insert/Update header -->
-        <h2 class="accordion-header" id="accordion0-header0">
-          <button type="button" class="accordion-button bg-warning {% if not update %}collapsed{% endif %}"
-            data-mdb-toggle="collapse" data-mdb-target="#accordion0-collapse0"
-            aria-expanded={% if update %}"true"{% else %}"false"{% endif %} aria-controls="accordion0-collapse0">
-            {% if update %}
-            <i class="fas fa-edit fa-lg text-primary"></i>Update {{ coll_fieldcat['entity_name'] }}
-            {% else %}
-            <i class="fas fa-plus-square fa-lg text-primary"></i>New {{ coll_fieldcat['entity_name'] }}
-            {% endif %}
+{% if last_record %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
+{% if coll_fieldcat['filter'] %}
+<div class="row m-0 p-0 my-3">
+  {% for field in coll_fieldcat['fields'] %}
+  {% if field['name'] in coll_fieldcat['filter'] %}
+  <div class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mb-1">
+    <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+    <select name="{{ field['name'] }}" id="{{ field['name'] }}">
+      <option value=""></option>
+      {% for _id in buffer[field['values']] %}
+      <option value="{{ _id }}">
+        {{- buffer[field['values']][_id][fieldcatalog[field['values']]['select_field']] -}}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mt-3" id="accordion0">
+  <div class="row accordion-item m-0 p-0">
+      <!-- Insert/Update header -->
+      <h2 class="accordion-header" id="accordion0-header0">
+        <button type="button" class="accordion-button bg-warning {% if not update %}collapsed{% endif %}"
+          data-mdb-toggle="collapse" data-mdb-target="#accordion0-collapse0"
+          aria-expanded={% if update %}"true"{% else %}"false"{% endif %} aria-controls="accordion0-collapse0">
+          {% if update %}
+          <i class="fas fa-edit fa-lg text-primary"></i>Update {{ coll_fieldcat['entity_name'] }}
+          {% else %}
+          <i class="fas fa-plus-square fa-lg text-primary"></i>New {{ coll_fieldcat['entity_name'] }}
+          {% endif %}
+        </button>
+      </h2>
+
+      <!-- Insert/Update collapsing part -->
+      <div id="accordion0-collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}" 
+          aria-labelledby="accordion0-header0" data-mdb-parent="#accordion0">
+        <form class="accordion-body bg-light" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
+          <h2 class="text-center">Maintain {{ coll_fieldcat['description'] }}</h2>
+          <!-- input fields -->
+          <div class="row m-0 p-0">
+
+          <!-- TEXT type -->
+          {% for field in coll_fieldcat['fields'] %}
+          {% if field['input_type']=='text' %}
+          <div class="form-outline col-12 col-lg-6 mb-3">
+            <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+                  name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
+            <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+          </div>
+
+          <!-- NUMBER type -->
+          {% elif field['input_type']=='number' %}
+          <div class="form-outline col-12 col-lg-6">
+            <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+                  name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
+            <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+          </div>
+          
+          <!-- DATE type -->
+          {% elif field['input_type']=='date' %}
+          <div class="form-outline col-12 col-lg-6">
+            <!-- learnt to remove the date template if not in focus https://stackoverflow.com/a/28686510/8634389 -->
+            <input type="{% if last_record[field['name']] %}date{% else %}text{% endif %}" 
+                  class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+                  onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'"
+                  name="{{ field['name'] }}" value="{{ last_record[field['name']]|datetime_to_str('%Y-%m-%d') }}"">
+            <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+          </div>
+
+          <!-- SELECT type -->
+          {% elif field['input_type']=='select' %}
+          <div class="col-12 col-lg-6 mb-3">
+            <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+            <select name="{{ field['name'] }}" id="{{ field['name'] }}">
+              <option value=""></option>
+              {% for _id in buffer[field['values']] %}
+              <option value="{{ _id }}" {% if _id==last_record[field['name']] %}selected{% endif %}>
+                {{- buffer[field['values']][_id][fieldcatalog[field['values']]['select_field']] -}}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- CHECKBOX type -->
+          {% elif field['input_type']=='checkbox' %}
+          <div class="col-lg-6 mb-3 px-5 pt-2">
+            <div class="form-check form-switch">
+              <label for="{{ field['name'] }}" class="form-check-label">{{ field['heading'] }}</label>
+              <input type="checkbox" class="form-check-input" name="{{ field['name'] }}" id="{{ field['name'] }}"
+                      {% if last_record[field['name']] %}checked{% endif %}>
+            </div>
+          </div>
+
+          <!-- PASSWORD type -->
+          {% elif field['input_type']=='password' %}
+          <div class="form-outline col-12 col-lg-6 mb-3">
+            <input type="password" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+                  name="{{ field['name'] }}">
+            <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+          </div>
+
+          <!-- IMAGEID type -->
+          {% elif field['input_type']=='imageid' or field['input_type']=='image' %}
+          <div class="form-outline">
+            <label for="{{ field['name'] }}" class="form-label ms-3">Select an image:</label>
+            <input type="file" name="{{ field['name'] }}" id="{{ field['name'] }}">
+          </div>
+          
+          <!-- LOOKUP type -->
+          {% elif field['input_type']=='lookup' %}
+          <div class="form-outline col-12 col-lg-6 mb-3">
+            <input type="text" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
+                  name="{{ field['name'] }}" value="{{ last_record[field['name']]|get_entity_select_field(field['values']) }}">
+            <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
+          </div>            
+
+          {% endif %}
+          {% endfor %}
+          </div>
+          <!-- submit button -->
+          <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
+            <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
+            <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
           </button>
-        </h2>
-
-        <!-- Insert/Update collapsing part -->
-        <div id="accordion0-collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}" 
-            aria-labelledby="accordion0-header0" data-mdb-parent="#accordion0">
-          <form class="accordion-body bg-light" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
-            <h2 class="text-center">Maintain {{ coll_fieldcat['description'] }}</h2>
-            <!-- input fields -->
-            <div class="row m-0 p-0">
-
-            <!-- TEXT type -->
-            {% for field in coll_fieldcat['fields'] %}
-            {% if field['input_type']=='text' %}
-            <div class="form-outline col-12 col-lg-6 mb-3">
-              <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
-                    name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
-              <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
-            </div>
-
-            <!-- NUMBER type -->
-            {% elif field['input_type']=='number' %}
-            <div class="form-outline col-12 col-lg-6">
-              <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
-                    name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
-              <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
-            </div>
-            
-            <!-- DATE type -->
-            {% elif field['input_type']=='date' %}
-            <div class="form-outline col-12 col-lg-6">
-              <!-- learnt to remove the date template if not in focus https://stackoverflow.com/a/28686510/8634389 -->
-              <input type="{% if last_record[field['name']] %}date{% else %}text{% endif %}" 
-                    class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
-                    onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'"
-                    name="{{ field['name'] }}" value="{{ last_record[field['name']]|datetime_to_str('%Y-%m-%d') }}"">
-              <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
-            </div>
-
-            <!-- SELECT type -->
-            {% elif field['input_type']=='select' %}
-            <div class="col-12 col-lg-6 mb-3">
-              <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
-              <select name="{{ field['name'] }}" id="{{ field['name'] }}">
-                <option value=""></option>
-                {% for _id in buffer[field['values']] %}
-                <option value="{{ _id }}" {% if _id==last_record[field['name']] %}selected{% endif %}>
-                  {{- buffer[field['values']][_id][fieldcatalog[field['values']]['select_field']] -}}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- CHECKBOX type -->
-            {% elif field['input_type']=='checkbox' %}
-            <div class="col-lg-6 mb-3 px-5 pt-2">
-              <div class="form-check form-switch">
-                <label for="{{ field['name'] }}" class="form-check-label">{{ field['heading'] }}</label>
-                <input type="checkbox" class="form-check-input" name="{{ field['name'] }}" id="{{ field['name'] }}"
-                        {% if last_record[field['name']] %}checked{% endif %}>
-              </div>
-            </div>
-
-            <!-- PASSWORD type -->
-            {% elif field['input_type']=='password' %}
-            <div class="form-outline col-12 col-lg-6 mb-3">
-              <input type="password" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
-                    name="{{ field['name'] }}">
-              <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
-            </div>
-
-            <!-- IMAGEID type -->
-            {% elif field['input_type']=='imageid' or field['input_type']=='image' %}
-            <div class="form-outline">
-              <label for="{{ field['name'] }}" class="form-label ms-3">Select an image:</label>
-              <input type="file" name="{{ field['name'] }}" id="{{ field['name'] }}">
-            </div>
-            
-            <!-- LOOKUP type -->
-            {% elif field['input_type']=='lookup' %}
-            <div class="form-outline col-12 col-lg-6 mb-3">
-              <input type="text" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
-                    name="{{ field['name'] }}" value="{{ last_record[field['name']]|get_entity_select_field(field['values']) }}">
-              <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
-            </div>            
-
-            {% endif %}
-            {% endfor %}
-            </div>
-            <!-- submit button -->
-            <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
-              <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
-              <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
-            </button>
-          </form>
-        </div>
+        </form>
       </div>
     </div>
   </div>
+
 
   <!-- search -->
   {% if False %}

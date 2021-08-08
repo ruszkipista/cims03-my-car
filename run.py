@@ -214,23 +214,36 @@ def get_db_image_by_id(image_id):
 
 
 def get_db_cars_for_user(loggedin_user_id):
-    cars = []
+    car_records = []
     if loggedin_user_id:
-        coll_users_cars = get_db_collection(app.config["MONGO_USERS_CARS"])
-        car_records = list(coll_users_cars.find({"user_id":loggedin_user_id}))
-        car_ids = [rec['car_id'] for rec in car_records]
+        car_ids = get_db_car_ids_for_user(loggedin_user_id)
         coll_cars = get_db_collection(app.config["MONGO_CARS"])
-        cars = list(coll_cars.find({"_id": {"$in":car_ids}}))
-    return cars
+        car_records = list(coll_cars.find({"_id": {"$in":car_ids}}))
+    return car_records
+
+
+def get_db_car_ids_for_user(loggedin_user_id):
+    coll_users_cars = get_db_collection(app.config["MONGO_USERS_CARS"])
+    user_car_records = coll_users_cars.find({"user_id":loggedin_user_id})
+    car_ids = [rec['car_id'] for rec in user_car_records]
+    return car_ids
 
 
 def get_db_all_records(collection_name):
     coll = get_db_collection(collection_name)
-    fieldcatalog = get_db_fieldcatalog(collection_name)
-    sorting = fieldcatalog.get('sort', None)
+    coll_fieldcatalog = get_db_fieldcatalog(collection_name)
+    filter_field_names = coll_fieldcatalog.get('filter', None)
+    if filter_field_names and 'car_id' in filter_field_names:
+        loggedin_user = get_loggedin_user()
+        loggedin_user_id = get_db_user_id(loggedin_user)
+        car_ids = get_db_car_ids_for_user(loggedin_user_id)
+        coll_records = coll.find({'car_id':{"$in":car_ids}})
+    else:
+        coll_records = coll.find()
+    sorting = coll_fieldcatalog.get('sort', None)
     if sorting:
-        return coll.find().sort(list(sorting.items()))
-    return list(coll.find())
+        coll_records = coll_records.sort(list(sorting.items()))
+    return list(coll_records)
 
 
 def get_db_records(collection_name):
@@ -701,10 +714,12 @@ def maintain(collection_name):
     records = get_db_all_records(collection_name)
     if not records:
         flash("There are no records. Create one below!", 'info')
-    return render_template("maintain.html",
+    return render_template(
+        "maintain.html",
         collection_name=collection_name,
         records=records, 
-        last_record=record)
+        last_record=record
+    )
     
 
 def save_record_to_db(request, collection_name, record_old={}):
@@ -814,10 +829,12 @@ def update_record(collection_name, record_id):
         if not record:
             return redirect(url_for('maintain', collection_name=collection_name))
 
-    return render_template("maintain.html",
+    return render_template(
+        "maintain.html",
         collection_name=collection_name,
-        records=get_db_all_records(collection_name), 
-        last_record=record)
+        records=[],
+        last_record=record
+    )
 
 
 @app.route("/delete/<collection_name>/<record_id>", methods=['POST'])
@@ -858,10 +875,12 @@ def search(collection_name):
             flash("No results found", "warning")
         else:
             flash("There are no records.", 'info')
-    return render_template("maintain.html",
+    return render_template(
+        "maintain.html",
         collection_name=collection_name,
         records=records, 
-        last_record={})
+        last_record={}
+    )
 
 
 @app.route("/serve/image/<image_id>")
