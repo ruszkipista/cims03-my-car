@@ -83,9 +83,11 @@
             <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
             <select name="{{ field['name'] }}" id="{{ field['name'] }}">
               <option value=""></option>
-              {% for _id in buffer[field['values']] %}
+              {% set lookup_recs = buffer[field['values']]|filter_records(field) %}
+              {% set select_field = fieldcatalog[field['values']]['select_field'] %}
+              {% for _id in lookup_recs %}
               <option value="{{ _id }}" {% if _id==last_record[field['name']] %}selected{% endif %}>
-                {{- buffer[field['values']][_id][fieldcatalog[field['values']]['select_field']] -}}
+                {{- lookup_recs[_id][select_field] -}}
               </option>
               {% endfor %}
             </select>

@@ -920,6 +920,31 @@ def get_db_buffered_collections():
     return [ coll for coll,fcat in coll_fieldcatalogs.items() if fcat.get('buffered', None)]
 
 
+@app.template_filter('filter_records')
+def _jinja2_filter_filter_records(records:dict, field_details:dict):
+    filter = field_details.get('filter', None)
+    recs_copy = records.copy()
+    if filter:
+        for filter_field_name, filter_values in filter.items():
+            lookup1_fieldcat = get_db_fieldcatalog(field_details['values'])
+            lookup1_fields = lookup1_fieldcat['fields']
+            field_def = next((f for f in lookup1_fields if f['name']==filter_field_name), '')
+            lookup2_table_name = field_def.get('values', None)
+            lookup2_fieldcat = get_db_fieldcatalog(lookup2_table_name)
+            select_field = lookup2_fieldcat['select_field']
+            lookup2_records = get_db_records(lookup2_table_name)
+            lookup2 = {rec[select_field]:key for key,rec in lookup2_records.items()}
+            for i in range(len(filter_values)):
+                filter_values[i] = lookup2[filter_values[i]]
+
+        for _id in records:
+            for filter_field_name, filter_values in filter.items():
+                field_value = records[_id].get(filter_field_name, None)
+                if not field_value or field_value not in filter_values:
+                    del recs_copy[_id]
+    return recs_copy
+
+
 @app.template_filter('get_entity_select_field')
 def _jinja2_filter_get_entity_select_field(entity_id, collection_name):
     fieldcatalog = get_db_fieldcatalog(collection_name)
