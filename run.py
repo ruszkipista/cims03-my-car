@@ -188,14 +188,17 @@ def get_db_user_is_admin(user=None):
 
 
 def login_db_user(user):
-    session['user_id'] = str(get_db_user_id(user))
+    loggedin_user_id = get_db_user_id(user)
+    session['user_id'] = str(loggedin_user_id)
     session['user_is_admin'] = get_db_user_is_admin(user)
+    car_ids = get_db_car_ids_for_loggedin_user()
+    session['car_id'] = [ str(id) for id in car_ids]
 
 
 def logout_db_user():
-    if session.get('user_id', None):
-        session.pop('user_id')
-        session.pop('user_is_admin')
+        session.pop('user_id', None)
+        session.pop('user_is_admin', None)
+        session.pop('car_id', None)
 
 
 def set_db_user_password(user_id, password_new):
@@ -213,30 +216,29 @@ def get_db_image_by_id(image_id):
     return get_db_record_by_id(app.config["MONGO_IMAGES"], image_id)
 
 
-def get_db_cars_for_user(loggedin_user_id):
-    car_records = []
-    if loggedin_user_id:
-        car_ids = get_db_car_ids_for_user(loggedin_user_id)
-        coll_cars = get_db_collection(app.config["MONGO_CARS"])
-        car_records = list(coll_cars.find({"_id": {"$in":car_ids}}))
-    return car_records
+def get_db_cars_for_user():
+    car_ids = get_db_car_ids_for_loggedin_user()
+    cars = get_db_all_records(app.config["MONGO_CARS"])
+    cars_filtered = [ car for car in cars if car['_id'] in car_ids]
+    return cars_filtered
 
 
-def get_db_car_ids_for_user(loggedin_user_id):
-    coll_users_cars = get_db_collection(app.config["MONGO_USERS_CARS"])
-    user_car_records = coll_users_cars.find({"user_id":loggedin_user_id})
-    car_ids = [rec['car_id'] for rec in user_car_records]
-    return car_ids
+def get_db_car_ids_for_loggedin_user():
+    if get_db_user_is_admin():
+        cars = get_db_all_records(app.config["MONGO_CARS"])
+        return [rec['_id'] for rec in cars]
+    else:
+        loggedin_user_id = get_db_user_id()
+        users_cars = get_db_all_records(app.config["MONGO_USERS_CARS"])
+        return [rec['car_id'] for rec in users_cars if rec['user_id']==loggedin_user_id]
 
 
 def get_db_all_records(collection_name):
     coll = get_db_collection(collection_name)
     coll_fieldcatalog = get_db_fieldcatalog(collection_name)
-    filter_field_names = coll_fieldcatalog.get('filter', None)
-    if filter_field_names and 'car_id' in filter_field_names:
-        loggedin_user = get_loggedin_user()
-        loggedin_user_id = get_db_user_id(loggedin_user)
-        car_ids = get_db_car_ids_for_user(loggedin_user_id)
+    filter_field_names = coll_fieldcatalog.get('filter', [])
+    if 'car_id' in filter_field_names:
+        car_ids = get_db_car_ids_for_loggedin_user()
         coll_records = coll.find({'car_id':{"$in":car_ids}})
     else:
         coll_records = coll.find()
@@ -586,12 +588,15 @@ def init_db_transactions(collection_name, records):
 def index():
     # is logged in user valid?
     loggedin_user = get_loggedin_user()
-    loggedin_user_id = get_db_user_id(loggedin_user)
-    cars = get_db_cars_for_user(loggedin_user_id)
-    if not cars and not get_db_user_is_admin():    
-        flash(f"You have no car assigned, ask the administrator for one!", 'info')
+    if loggedin_user:
+        cars = get_db_cars_for_user()
+        if not cars:    
+            flash(f"You have no car assigned, ask the administrator for one!", 'info')
+    else:
+        # render page without list of assigned cars
+        cars = None
     return render_template(
-        "index.html", 
+        "index.html",
         page_title="Home", 
         collection_name=app.config["MONGO_CARS"],
         records=cars
@@ -637,7 +642,7 @@ def login():
         flash(f"Incorrect Username and/or Password", 'danger')
         return redirect(url_for("login"))
 
-    # put the user_id into session cookie
+    # put the User ID / Car IDs into session cookie
     login_db_user(user_old)
     flash(f"Welcome, {username_entered}", "success")
     return redirect(url_for("index"))
@@ -928,6 +933,10 @@ def _jinja2_filter_get_entity_select_field(entity_id, collection_name):
         pass
     return ""
 
+
+@app.template_filter('ObjectId')
+def _jinja2_filter_objectid(id:str):
+    return ObjectId(id)
 
 @app.template_filter('unix_time_ago')
 def _jinja2_filter_time_ago(unix_timestamp:int):

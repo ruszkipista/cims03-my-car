@@ -12,11 +12,11 @@
   {% if field['name'] in coll_fieldcat['filter'] %}
   <div class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mb-1">
     <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
-    <select name="{{ field['name'] }}" id="{{ field['name'] }}">
+    <select name="{{ field['name'] }}-filter" id="{{ field['name'] }}-filter">
       <option value=""></option>
-      {% for _id in buffer[field['values']] %}
+      {% for _id in session[field['name']] %}
       <option value="{{ _id }}">
-        {{- buffer[field['values']][_id][fieldcatalog[field['values']]['select_field']] -}}
+        {{- buffer[field['values']][_id|ObjectId][fieldcatalog[field['values']]['select_field']] -}}
       </option>
       {% endfor %}
     </select>
