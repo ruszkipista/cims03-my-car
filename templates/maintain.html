@@ -8,11 +8,12 @@
 {% set filter_postfix = "filter" %}
 {% if last_record %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
 {% if coll_fieldcat['filter'] %}
+<!-- FILTER -->
 <div class="row m-0 p-0 my-3">
   {% for field in coll_fieldcat['fields'] %}
   {% if field['name'] in coll_fieldcat['filter'] %}
   <div class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mb-1">
-    <label for="{{ field['name'] }}" class="form-label">Filter rows with {{ field['heading'] }}</label>
+    <label for="{{ field['name'] }}" class="form-label">Filter rows of {{ field['heading'] }}</label>
     <select name="{{ field['name'] }}_{{ filter_postfix }}" 
               id="{{ field['name'] }}_{{ filter_postfix }}"
               data-{{ filter_postfix }}
@@ -30,31 +31,31 @@
 </div>
 {% endif %}
 
+<!-- FORM -->
 <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mt-3" id="accordion0">
   <div class="row accordion-item m-0 p-0">
-      <!-- Insert/Update header -->
-      <h2 class="accordion-header" id="accordion0-header0">
-        <button type="button" class="accordion-button bg-warning {% if not update %}collapsed{% endif %}"
-          data-mdb-toggle="collapse" data-mdb-target="#accordion0-collapse0"
-          aria-expanded={% if update %}"true"{% else %}"false"{% endif %} aria-controls="accordion0-collapse0">
-          {% if update %}
-          <i class="fas fa-edit fa-lg text-primary"></i>Update {{ coll_fieldcat['entity_name'] }}
-          {% else %}
-          <i class="fas fa-plus-square fa-lg text-primary"></i>New {{ coll_fieldcat['entity_name'] }}
-          {% endif %}
-        </button>
-      </h2>
+    <!-- Insert/Update header -->
+    <h2 class="accordion-header" id="accordion0-header0">
+      <button type="button" class="accordion-button bg-warning {% if not update %}collapsed{% endif %}"
+        data-mdb-toggle="collapse" data-mdb-target="#accordion0-collapse0"
+        aria-expanded={% if update %}"true"{% else %}"false"{% endif %} aria-controls="accordion0-collapse0">
+        {% if update %}
+        <i class="fas fa-edit fa-lg text-primary"></i>Update {{ coll_fieldcat['entity_name'] }}
+        {% else %}
+        <i class="fas fa-plus-square fa-lg text-primary"></i>New {{ coll_fieldcat['entity_name'] }}
+        {% endif %}
+      </button>
+    </h2>
 
-      <!-- Insert/Update collapsing part -->
-      <div id="accordion0-collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}" 
-          aria-labelledby="accordion0-header0" data-mdb-parent="#accordion0">
-        <form class="accordion-body bg-light" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
-          <h2 class="text-center">Maintain {{ coll_fieldcat['description'] }}</h2>
-          <!-- input fields -->
-          <div class="row m-0 p-0">
-
-            {% for field in coll_fieldcat['fields'] %}
-            {% if field['input_type']=='text' %}
+    <!-- Insert/Update collapsing part -->
+    <div id="accordion0-collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}" 
+         aria-labelledby="accordion0-header0" data-mdb-parent="#accordion0">
+      <form class="accordion-body bg-light" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
+        <h2 class="text-center">Maintain {{ coll_fieldcat['description'] }}</h2>
+        <!-- input fields -->
+        <div class="row m-0 p-0">
+          {% for field in coll_fieldcat['fields'] %}
+          {% if field['input_type']=='text' %}
           <!-- TEXT type -->
           <div class="form-outline col-12 col-lg-6 mb-3">
             <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
@@ -132,127 +133,107 @@
 
           {% endif %}
           {% endfor %}
-          </div>
-          <!-- submit button -->
-          <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
-            <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
-            <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
-          </button>
-        </form>
-      </div>
+        </div>
+        <!-- submit button -->
+        <button type="submit" class="btn btn-primary offset-1 col-10 shadow-2-strong my-3">
+          <i class="fas {% if update==True %}fa-edit{% else %}fa-plus-square{% endif %} fa-2x ms-3"></i>
+          <span class="lead">{% if update==True %}Update record{% else %}Add record{% endif %}</span>
+        </button>
+      </form>
     </div>
   </div>
+</div>
 
+<!-- TABLE -->
+{% if records %}
+<div class="row m-0 p-0">
+  <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
+    <table class="table">
+      <tr>
+        {% for field in coll_fieldcat['fields'] %}
+        <th>{{ field['heading'] }}</th>
+        {% endfor %}
+        <th class="text-center">Actions</th>
+      </tr>
 
-  <!-- search -->
-  {% if False %}
-  <div class="row m-0 p-0 my-3">
-      <form action="{{ url_for('search') }}" method="POST" class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6">
-        <div class="row ps-3">
-          <div class="form-outline col-6">
-            <input type="text" name="query" id="query" minlength="3" value="{{ query }}" class="form-control">
-            <label for="query" class="form-label">Search {{ coll_fieldcat['description'] }}</label>
-          </div>
-          <div class="col-6">
-            <button type="submit" class="btn bg-primary text-shadow text-light">
-              <i class="fas fa-search"></i> Search
-            </button>
-            <a href="{{ url_for('maintain', collection_name=collection_name) }}" class="btn bg-danger text-shadow ms-3 text-light">Reset</a>
-          </div>
-        </div>
-      </form>
-  </div>
-  {% endif %}
+      {% for record in records %}
+      <tr data-{{ filter_postfix }} {{ coll_fieldcat | create_data_attributes(record,filter_postfix) }}>
+        {% for field in coll_fieldcat['fields'] %}
+        {% set field_input_type = field['input_type'] %}
+        {% if field_input_type=='changedby' %}{% set field_input_type = 'lookup' %}{% endif %}
+        <td>
+          <!-- ICON -->
+          {% if field['name']=='icon' %}
+            <i class="{{ record['icon'] }} fa-2x"></i>
+          {% endif %}
 
-  {% if records %}
-  <div class="row m-0 p-0">
-    <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
-      <table class="table">
-        <tr>
-          {% for field in coll_fieldcat['fields'] %}
-          <th>{{ field['heading'] }}</th>
-          {% endfor %}
-          <th class="text-center">Actions</th>
-        </tr>
+          <!-- TEXT or NUMBER type -->
+          {% if field_input_type=='text' or field_input_type=='number' %}
+            {{ record[field['name']] }}
 
-        {% for record in records %}
-        <tr data-{{ filter_postfix }} {{ coll_fieldcat | create_data_attributes(record,filter_postfix) }}>
-          {% for field in coll_fieldcat['fields'] %}
-          {% set field_input_type = field['input_type'] %}
-          {% if field_input_type=='changedby' %}{% set field_input_type = 'lookup' %}{% endif %}
-          <td>
-            <!-- ICON -->
-            {% if field['name']=='icon' %}
-              <i class="{{ record['icon'] }} fa-2x"></i>
+          <!-- DATE type -->
+          {% elif field_input_type=='date' %}
+            {{ record[field['name']]|datetime_to_str('%d/%m/%Y') }}
+
+          <!-- SELECT type -->
+          {% elif field_input_type=='select' %}
+            {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
+              {% set item = buffer[field['values']][record[field['name']]] %}
+              {{ item[fieldcatalog[field['values']]['select_field']] }}
             {% endif %}
 
-            <!-- TEXT or NUMBER type -->
-            {% if field_input_type=='text' or field_input_type=='number' %}
-              {{ record[field['name']] }}
-
-            <!-- DATE type -->
-            {% elif field_input_type=='date' %}
-              {{ record[field['name']]|datetime_to_str('%d/%m/%Y') }}
-
-            <!-- SELECT type -->
-            {% elif field_input_type=='select' %}
-              {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
-                {% set item = buffer[field['values']][record[field['name']]] %}
-                {{ item[fieldcatalog[field['values']]['select_field']] }}
-              {% endif %}
-
-            <!-- CHECKBOX type -->
-            {% elif field_input_type=='checkbox' %}
+          {% elif field_input_type=='checkbox' %}
             {% if record[field['name']] %}&nbsp;
+            <!-- CHECKBOX type -->
             <i class="far fa-check-square" data-mdb-toggle="tooltip" data-mdb-placement="right" title="{{ field['heading'] }}"></i>
             {% endif %}
 
+          {% elif field_input_type=='lookup' %}
+            {% if record[field['name']] %}
             <!-- LOOKUP type -->
-            {% elif field_input_type=='lookup' %}
-              {% if record[field['name']] %}
-              {{ record[field['name']]|get_entity_select_field(field['values']) }}
-              {% endif %}
-
-            <!-- PASSWORD type -->
-            {% elif field_input_type=='password' %}
-            *********
-            
-            <!-- UNIX TIMESTAMP type as ...Ago -->
-            {% elif field_input_type=='timestamp_insert' or field_input_type=='timestamp_update' %}
-              {% if record[field['name']] %}
-              {{ record[field['name']]|unix_time_ago }}
-              {% endif %}
-
-            <!-- IMAGEID type -->
-            {% elif field_input_type=='imageid' %}
-              {% if record[field['name']] %}
-              <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
-              {% endif %}
-
-            <!-- IMAGE type -->
-            {% elif field_input_type=='image' %}
-              {% if record[field['name']] %}
-              <img class="img-fluid" src="{{ url_for('serve_image', image_id=record['_id']) }}" alt="{{ field['heading'] }}">
-              {% endif %}
-
+            {{ record[field['name']]|get_entity_select_field(field['values']) }}
             {% endif %}
-          </td>
-          {% endfor %}
-          <td class="text-center">
-              <a href="{{ url_for('update_record', collection_name=collection_name, record_id=record['_id']) }}">
-                <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
-              </a>
-              <a href="{{ url_for('delete_record', collection_name=collection_name, record_id=record['_id']) }}" 
-                 data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
-                <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Delete"></i>
-              </a>
-          </td>
-        </tr>
+
+          {% elif field_input_type=='password' %}
+            <!-- PASSWORD type -->
+            *********
+          
+          {% elif field_input_type=='timestamp_insert' or field_input_type=='timestamp_update' %}
+            {% if record[field['name']] %}
+            <!-- UNIX TIMESTAMP type as ...Ago -->
+            {{ record[field['name']]|unix_time_ago }}
+            {% endif %}
+
+          {% elif field_input_type=='imageid' %}
+            {% if record[field['name']] %}
+            <!-- IMAGEID type -->
+            <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
+            {% endif %}
+
+          {% elif field_input_type=='image' %}
+            {% if record[field['name']] %}
+            <!-- IMAGE type -->
+            <img class="img-fluid" src="{{ url_for('serve_image', image_id=record['_id']) }}" alt="{{ field['heading'] }}">
+            {% endif %}
+
+          {% endif %}
+        </td>
         {% endfor %}
-      </table>
-    </div>
+        <td class="text-center">
+            <a href="{{ url_for('update_record', collection_name=collection_name, record_id=record['_id']) }}">
+              <i class="fas fa-edit fa-lg ms-1" data-mdb-toggle="tooltip" data-mdb-placement="left" title="Edit"></i>
+            </a>
+            <a href="{{ url_for('delete_record', collection_name=collection_name, record_id=record['_id']) }}" 
+                data-mdb-toggle="modal" data-mdb-target="#modal-confirm">
+              <i class="fas fa-trash-alt fa-lg" data-mdb-toggle="tooltip" data-mdb-placement="right" title="Delete"></i>
+            </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
   </div>
-  {% endif %}
+</div>
+{% endif %}
 </div>
 
 <!-- Modal -->

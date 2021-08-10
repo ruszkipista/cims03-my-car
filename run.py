@@ -124,10 +124,6 @@ def get_form_profile_field_password_new(request):
     return request.form.get('password_new', None)
 
 
-def get_form_search_field_query(request):
-    return request.form.get("query")
-
-
 # MongoDB
 #=========
 def get_db_collection(collection):
@@ -276,11 +272,6 @@ def get_db_select_field_lookup(collection_name):
             else:
                 records = g._lookups[collection_name] = {}
     return records
-
-
-def get_db_filtered_records(collection_name, query):
-    coll = get_db_collection(collection_name)
-    return list(coll.find({"$text": {"$search": query}}))
 
 
 def get_db_entity_name(collection_name):
@@ -862,32 +853,6 @@ def delete_record(collection_name, record_id):
     return redirect(url_for('maintain', collection_name=collection_name))
 
 
-@app.route("/search", methods=["GET", "POST"])
-def search(collection_name):
-    # validate logged in user
-    loggedin_user = get_loggedin_user()
-    if not loggedin_user:
-        return redirect(url_for("login"))
-     # is collection maintanable by admin only and user is not logged in as admin?
-    if get_db_is_admin_maintainable(collection_name) and not get_db_user_is_admin():
-        return redirect(url_for("index"))
-
-    query = get_form_search_field_query(request)
-    records = get_db_filtered_records(collection_name, query)
-    if not records:
-        records = get_db_all_records(collection_name)
-        if records:
-            flash("No results found", "warning")
-        else:
-            flash("There are no records.", 'info')
-    return render_template(
-        "maintain.html",
-        collection_name=collection_name,
-        records=records, 
-        last_record={}
-    )
-
-
 @app.route("/serve/image/<image_id>")
 def serve_image(image_id):
     # validate logged in user
@@ -948,9 +913,11 @@ def _jinja2_filter_filter_records(records:dict, field_details:dict):
 @app.template_filter('create_data_attributes')
 def _jinja2_filter_create_data_attributes(coll_fieldcat:dict, record:dict, filter_postfix:str):
     attributes = ""
-    for field in coll_fieldcat['fields']:
-        if field['name'] in coll_fieldcat['filter']:
-            attributes += "data-" + field['name'] + "_" + filter_postfix + "=" + str(record[field['name']])
+    if coll_fieldcat.get('filter', None):
+        for field in coll_fieldcat['fields']:
+            if field['name'] in coll_fieldcat['filter']:
+                attributes += "data-" + field['name'] + "_" + filter_postfix \
+                            + "=" + str(record[field['name']])
     return attributes
 
 
