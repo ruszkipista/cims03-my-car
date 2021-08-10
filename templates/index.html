@@ -20,27 +20,28 @@
         {% for field in coll_fieldcat['fields'] %}
         {% set field_input_type = field['input_type'] %}
         <td>
-          <!-- TEXT or NUMBER type -->
           {% if field_input_type=='text' or field_input_type=='number' %}
+          <!-- TEXT or NUMBER type -->
             {{ record[field['name']] }}
 
-          <!-- SELECT type -->
           {% elif field_input_type=='select' %}
             {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
+            <!-- SELECT type -->
               {% set item = buffer[field['values']][record[field['name']]] %}
               {{ item[fieldcatalog[field['values']]['select_field']] }}
             {% endif %}
 
-          <!-- LOOKUP type -->
           {% elif field_input_type=='lookup' %}
             {% if record[field['name']] %}
+          <!-- LOOKUP type -->
             {{ record[field['name']]|get_entity_select_field(field['values']) }}
             {% endif %}
           
-          <!-- IMAGEID type -->
           {% elif field_input_type=='imageid' %}
             {% if record[field['name']] %}
-            <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
+          <!-- IMAGEID type -->
+            <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" 
+                  style="max-width: 150px;" alt="{{ field['heading'] }}">
             {% endif %}
 
           {% endif %}
