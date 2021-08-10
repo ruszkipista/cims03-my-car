@@ -945,6 +945,15 @@ def _jinja2_filter_filter_records(records:dict, field_details:dict):
     return recs_copy
 
 
+@app.template_filter('create_data_attributes')
+def _jinja2_filter_create_data_attributes(coll_fieldcat:dict, record:dict, filter_postfix:str):
+    attributes = ""
+    for field in coll_fieldcat['fields']:
+        if field['name'] in coll_fieldcat['filter']:
+            attributes += "data-" + field['name'] + "_" + filter_postfix + "=" + str(record[field['name']])
+    return attributes
+
+
 @app.template_filter('get_entity_select_field')
 def _jinja2_filter_get_entity_select_field(entity_id, collection_name):
     fieldcatalog = get_db_fieldcatalog(collection_name)

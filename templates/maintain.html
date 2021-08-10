@@ -5,14 +5,18 @@
 
 {% block body %}
 {% set coll_fieldcat = fieldcatalog[collection_name] %}
+{% set filter_postfix = "filter" %}
 {% if last_record %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
 {% if coll_fieldcat['filter'] %}
 <div class="row m-0 p-0 my-3">
   {% for field in coll_fieldcat['fields'] %}
   {% if field['name'] in coll_fieldcat['filter'] %}
   <div class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mb-1">
-    <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
-    <select name="{{ field['name'] }}-filter" id="{{ field['name'] }}-filter">
+    <label for="{{ field['name'] }}" class="form-label">Filter rows with {{ field['heading'] }}</label>
+    <select name="{{ field['name'] }}_{{ filter_postfix }}" 
+              id="{{ field['name'] }}_{{ filter_postfix }}"
+              data-{{ filter_postfix }}
+              onchange=selectTableRows(event)>
       <option value=""></option>
       {% for _id in session[field['name']] %}
       <option value="{{ _id }}">
@@ -49,25 +53,25 @@
           <!-- input fields -->
           <div class="row m-0 p-0">
 
+            {% for field in coll_fieldcat['fields'] %}
+            {% if field['input_type']=='text' %}
           <!-- TEXT type -->
-          {% for field in coll_fieldcat['fields'] %}
-          {% if field['input_type']=='text' %}
           <div class="form-outline col-12 col-lg-6 mb-3">
             <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
                   name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
             <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
           </div>
 
-          <!-- NUMBER type -->
           {% elif field['input_type']=='number' %}
+          <!-- NUMBER type -->
           <div class="form-outline col-12 col-lg-6">
             <input type="{{ field['input_type'] }}" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
                   name="{{ field['name'] }}" value="{{ last_record[field['name']] }}">
             <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
           </div>
           
-          <!-- DATE type -->
           {% elif field['input_type']=='date' %}
+          <!-- DATE type -->
           <div class="form-outline col-12 col-lg-6">
             <!-- learnt to remove the date template if not in focus https://stackoverflow.com/a/28686510/8634389 -->
             <input type="{% if last_record[field['name']] %}date{% else %}text{% endif %}" 
@@ -77,8 +81,8 @@
             <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
           </div>
 
-          <!-- SELECT type -->
           {% elif field['input_type']=='select' %}
+          <!-- SELECT type -->
           <div class="col-12 col-lg-6 mb-3">
             <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
             <select name="{{ field['name'] }}" id="{{ field['name'] }}">
@@ -93,8 +97,8 @@
             </select>
           </div>
 
-          <!-- CHECKBOX type -->
           {% elif field['input_type']=='checkbox' %}
+          <!-- CHECKBOX type -->
           <div class="col-lg-6 mb-3 px-5 pt-2">
             <div class="form-check form-switch">
               <label for="{{ field['name'] }}" class="form-check-label">{{ field['heading'] }}</label>
@@ -103,23 +107,23 @@
             </div>
           </div>
 
-          <!-- PASSWORD type -->
           {% elif field['input_type']=='password' %}
+          <!-- PASSWORD type -->
           <div class="form-outline col-12 col-lg-6 mb-3">
             <input type="password" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
                   name="{{ field['name'] }}">
             <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
           </div>
 
-          <!-- IMAGEID type -->
           {% elif field['input_type']=='imageid' or field['input_type']=='image' %}
+          <!-- IMAGEID type -->
           <div class="form-outline">
             <label for="{{ field['name'] }}" class="form-label ms-3">Select an image:</label>
             <input type="file" name="{{ field['name'] }}" id="{{ field['name'] }}">
           </div>
           
-          <!-- LOOKUP type -->
           {% elif field['input_type']=='lookup' %}
+          <!-- LOOKUP type -->
           <div class="form-outline col-12 col-lg-6 mb-3">
             <input type="text" class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
                   name="{{ field['name'] }}" value="{{ last_record[field['name']]|get_entity_select_field(field['values']) }}">
@@ -172,7 +176,7 @@
         </tr>
 
         {% for record in records %}
-        <tr>
+        <tr data-{{ filter_postfix }} {{ coll_fieldcat | create_data_attributes(record,filter_postfix) }}>
           {% for field in coll_fieldcat['fields'] %}
           {% set field_input_type = field['input_type'] %}
           {% if field_input_type=='changedby' %}{% set field_input_type = 'lookup' %}{% endif %}

@@ -21,3 +21,19 @@ function connectModal() {
         });
     });
 }
+
+function selectTableRows(event){
+    const select = event.currentTarget;
+    
+    const selectFilters = document.querySelectorAll('select[data-filter]');
+    const trFilters = document.querySelectorAll('tr[data-filter]');
+    trFilters.forEach(tr=>{
+        let is_selected = true;
+        selectFilters.forEach(e=>{
+            let selectedOption = e.options[e.selectedIndex].value
+            let rowValue = tr.dataset[e.id]
+            is_selected &&= selectedOption=="" || rowValue == selectedOption; 
+        })
+        tr.style.display = (is_selected) ? "" : "none";
+    })
+}
