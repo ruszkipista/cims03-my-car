@@ -31,7 +31,7 @@
       "odometer_unit_id":     "km",
       "fuel_material_id":     "petrol95",
       "fuel_economy_unit_id": "L/100km",
-      "car_image_id":         "mazda3.png"
+      "car_image_id":         "mazda3.jpg"
     },
     { "car_id":               "yaris",
       "description":          "Yaris Sol",
@@ -40,16 +40,16 @@
       "odometer_unit_id":     "mi",
       "fuel_material_id":     "petrol95",
       "fuel_economy_unit_id": "L/100km",
-      "car_image_id":         "yaris.png"
+      "car_image_id":         "yaris.jpg"
     },
     { "car_id":               "PT",
       "description":          "PT Cruiser",
       "reg_country_id":       "HU",
       "plate_number":         "KGB567",
-      "odometer_unit_id":     "km",
+      "odometer_unit_id":     "mi",
       "fuel_material_id":     "petrol95",
       "fuel_economy_unit_id": "L/100km",
-      "car_image_id":         "ptcruiser.png"
+      "car_image_id":         "ptcruiser.jpg"
     }    
   ],
 

@@ -162,57 +162,57 @@
         {% set field_input_type = field['input_type'] %}
         {% if field_input_type=='changedby' %}{% set field_input_type = 'lookup' %}{% endif %}
         <td>
-          <!-- ICON -->
           {% if field['name']=='icon' %}
+          <!-- ICON -->
             <i class="{{ record['icon'] }} fa-2x"></i>
           {% endif %}
 
-          <!-- TEXT or NUMBER type -->
           {% if field_input_type=='text' or field_input_type=='number' %}
+          <!-- TEXT or NUMBER type -->
             {{ record[field['name']] }}
 
-          <!-- DATE type -->
           {% elif field_input_type=='date' %}
+          <!-- DATE type -->
             {{ record[field['name']]|datetime_to_str('%d/%m/%Y') }}
 
-          <!-- SELECT type -->
           {% elif field_input_type=='select' %}
             {% if record[field['name']] and buffer[field['values']][record[field['name']]] %}
+          <!-- SELECT type -->
               {% set item = buffer[field['values']][record[field['name']]] %}
               {{ item[fieldcatalog[field['values']]['select_field']] }}
             {% endif %}
 
           {% elif field_input_type=='checkbox' %}
             {% if record[field['name']] %}&nbsp;
-            <!-- CHECKBOX type -->
+          <!-- CHECKBOX type -->
             <i class="far fa-check-square" data-mdb-toggle="tooltip" data-mdb-placement="right" title="{{ field['heading'] }}"></i>
             {% endif %}
 
           {% elif field_input_type=='lookup' %}
             {% if record[field['name']] %}
-            <!-- LOOKUP type -->
+          <!-- LOOKUP type -->
             {{ record[field['name']]|get_entity_select_field(field['values']) }}
             {% endif %}
 
           {% elif field_input_type=='password' %}
-            <!-- PASSWORD type -->
+          <!-- PASSWORD type -->
             *********
           
           {% elif field_input_type=='timestamp_insert' or field_input_type=='timestamp_update' %}
             {% if record[field['name']] %}
-            <!-- UNIX TIMESTAMP type as ...Ago -->
+          <!-- UNIX TIMESTAMP type as ...Ago -->
             {{ record[field['name']]|unix_time_ago }}
             {% endif %}
 
           {% elif field_input_type=='imageid' %}
             {% if record[field['name']] %}
-            <!-- IMAGEID type -->
-            <img class="img-fluid" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
+          <!-- IMAGEID type -->
+            <img class="img-fluid m-0" src="{{ url_for('serve_image', image_id=record[field['name']]) }}" alt="{{ field['heading'] }}">
             {% endif %}
 
           {% elif field_input_type=='image' %}
             {% if record[field['name']] %}
-            <!-- IMAGE type -->
+          <!-- IMAGE type -->
             <img class="img-fluid" src="{{ url_for('serve_image', image_id=record['_id']) }}" alt="{{ field['heading'] }}">
             {% endif %}
 
