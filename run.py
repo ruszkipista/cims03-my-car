@@ -699,6 +699,9 @@ def maintain(collection_name):
     # is collection maintanable by admin only and user is not logged in as admin?
     if get_db_is_admin_maintainable(collection_name) and not get_db_user_is_admin():
         return redirect(url_for("index"))
+    cars = get_db_cars_for_user()
+    if not cars:    
+        return redirect(url_for("index"))
 
     # create an empty record
     record = {}
