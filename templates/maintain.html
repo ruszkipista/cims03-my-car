@@ -7,8 +7,8 @@
 {% set coll_fieldcat = fieldcatalog[collection_name] %}
 {% set filter_postfix = "filter" %}
 {% if last_record %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
-<div class="col-12 text-center mt-3">
-  <h3>Maintain {{ coll_fieldcat['description'] }}</h3>
+<div class="col-12 text-center mt-3">  
+  <h3>Maintain {% if update %} {{ coll_fieldcat['entity_name'] }} {% else %} {{ coll_fieldcat['description'] }} {% endif %}</h3>
 </div>
 
 <!-- FORM -->
@@ -31,7 +31,6 @@
     <div id="accordion0-collapse0" class="accordion-collapse collapse {% if update %}show{% endif %}" 
          aria-labelledby="accordion0-header0" data-mdb-parent="#accordion0">
       <form class="accordion-body bg-light" action="{{ request.path }}" method="POST" enctype="multipart/form-data">
-        <h2 class="text-center">Maintain {{ coll_fieldcat['description'] }}</h2>
         <!-- input fields -->
         <div class="row m-0 p-0">
           {% for field in coll_fieldcat['fields'] %}

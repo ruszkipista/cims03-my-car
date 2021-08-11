@@ -149,9 +149,9 @@ def maintain(collection_name):
     record = {}
     if request.method == 'POST':
         result = formdb.save_record_to_db(request, collection_name, record)
-        record = result.record
-        (flash(*m) for m in result.messages)
-        if not record:
+        for m in result.messages:
+            flash(*m)
+        if not result.record:
             return redirect(url_for('maintain', collection_name=collection_name))
 
     records = formdb.get_db_all_records(collection_name)
@@ -183,10 +183,11 @@ def update_record(collection_name, record_id):
 
     if request.method == 'POST':
         result = formdb.save_record_to_db(request, collection_name, record)
-        record = result.record
-        (flash(*m) for m in result.messages)
+        print(*result.messages[0])
+        for m in result.messages:
+            flash(*m)
         # if record is empty, then the update was successful
-        if not record:
+        if not result.record:
             return redirect(url_for('maintain', collection_name=collection_name))
 
     return render_template(
