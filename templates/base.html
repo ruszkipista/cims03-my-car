@@ -20,7 +20,8 @@
 
 <body>
   <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-2-strong">
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-2-strong
+                {% if session['user_is_admin'] %} bg-secondary {% else %} bg-primary {% endif %} ">
       <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('index') }}">My Car</a>
         <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarToggler"
@@ -34,14 +35,14 @@
                 href="{{ url_for('index') }}">Home</a>
             </li>
             {% if session['user_id'] %}
-            {% for coll_fieldcat in fieldcatalog.values() %}
-            {% if coll_fieldcat['admin']==session['user_is_admin'] %}
+              {% for coll_fieldcat in fieldcatalog.values() %}
+              {% if not coll_fieldcat['admin'] %}
             <li class="nav-item">
               <a class="nav-link {% if url_for('maintain', collection_name=coll_fieldcat['collection_name'])==request.path %}active{% endif %}"
                 href="{{ url_for('maintain', collection_name=coll_fieldcat['collection_name']) }}">{{ coll_fieldcat['description'] }}</a>
             </li>
-            {% endif %}
-            {% endfor %}
+              {% endif %}
+              {% endfor %}
             <li class="nav-item">
               <a class="nav-link {% if url_for('profile')==request.path %}active{% endif %}"
                 href="{{ url_for('profile') }}">Profile</a>

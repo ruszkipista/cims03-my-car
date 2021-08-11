@@ -4,8 +4,23 @@
 {% endblock %}
 
 {% block body %}
+
+{% if session['user_id'] and session['user_is_admin'] %}
+<div class="text-center mt-3">
+{% for coll_fieldcat in fieldcatalog.values() %}
+{% if coll_fieldcat['admin'] %}
+  <a href="{{ url_for('maintain', collection_name=coll_fieldcat['collection_name']) }}">
+    <button type="button" class="btn btn-secondary m-2">{{ coll_fieldcat['description'] }}</button>
+  </a>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
 {% set coll_fieldcat = fieldcatalog[collection_name] %}
 {% if records %}
+<h2 class="text-center mt-3">Cars assigned to you</h2>
+<!-- list of assigned cars -->
 <div class="row m-0 p-0">
   <div class="card col-12 my-3">
     <table class="table">

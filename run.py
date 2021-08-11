@@ -4,33 +4,29 @@ from io import BytesIO
 import formdb
 
 # envWS.py should exist only in Development
-if os.path.exists("envDB.py"):
+if os.path.exists("envWS.py"):
     import envWS
 
 app = Flask(__name__)
 
 # take app configuration from OS environment variables
-app.secret_key               = os.environ.get("FLASK_SECRET_KEY")            # => Heroku Congig Vars
-app.config["FLASK_IP"]       = os.environ.get("FLASK_IP",      "0.0.0.0")
+app.secret_key               = os.environ.get("FLASK_SECRET_KEY")            # => Heroku Config Vars
+app.config["FLASK_IP"]       = os.environ.get("FLASK_IP",   "0.0.0.0")
 # the source 'PORT' name is mandated by Heroku app deployment
 app.config["FLASK_PORT"]     = int(os.environ.get("PORT"))
-app.config["FLASK_DEBUG"]    = os.environ.get("FLASK_DEBUG",   "False").lower() in {'1','true','t','yes','y'}
-app.config["UPLOAD_EXTENSIONS"] = set(['png', 'jpg', 'jpeg', 'gif'])
-app.config["OS_DATA_PATH"] = os.environ.get("OS_DATA_PATH","./static/data/")
+app.config["FLASK_DEBUG"]    = os.environ.get("FLASK_DEBUG", "False").lower() in {'1','true','t','yes','y'}
 
 # App routes
 #==============
 @app.route("/")  # trigger point through webserver: "/"= root directory
 def index():
+    cars = None
     # is logged in user valid?
     loggedin_user = get_loggedin_user()
     if loggedin_user:
         cars = formdb.get_db_cars_for_user()
         if not cars:    
             flash(f"You have no car assigned, ask the administrator for one!", 'info')
-    else:
-        # render page without list of assigned cars
-        cars = None
     return render_template(
         "index.html",
         page_title="Home", 
@@ -74,7 +70,8 @@ def login():
         password_stored = formdb.get_db_user_password(user_old)
     # check if username does not exist in db
     # or stored and entered passwords differ
-    if not user_old or not formdb.check_password_hash(password_stored, password_entered):
+    if not user_old \
+    or not formdb.is_password_hash_correct(password_stored, password_entered):
         flash(f"Incorrect Username and/or Password", 'danger')
         return redirect(url_for("login"))
 
@@ -106,12 +103,12 @@ def profile():
     # request.method == POST
     password_old = formdb.get_form_profile_field_password_old(request)
     password_stored = formdb.get_db_user_password(loggedin_user)
-    if not formdb.check_password_hash(password_stored, password_old):
+    if not formdb.is_password_hash_correct(password_stored, password_old):
         flash("Wrong old password", 'danger')
         return redirect(url_for("profile"))
 
     password_new = formdb.get_form_profile_field_password_new(request)
-    if formdb.check_password_hash(password_stored, password_new):
+    if formdb.is_password_hash_correct(password_stored, password_new):
         flash("Old and New passwords are the same, not changed!", "warning")
         return redirect(url_for("profile"))
 
@@ -142,7 +139,8 @@ def maintain(collection_name):
     if not loggedin_user:
         return redirect(url_for("login"))
     # is collection maintanable by admin only and user is not logged in as admin?
-    if formdb.get_db_is_admin_maintainable(collection_name) and not formdb.get_db_user_is_admin():
+    if formdb.get_db_is_admin_maintainable(collection_name) \
+    and not formdb.get_db_user_is_admin():
         return redirect(url_for("index"))
     cars = formdb.get_db_cars_for_user()
     if not cars:    
@@ -175,7 +173,8 @@ def update_record(collection_name, record_id):
     if not loggedin_user:
         return redirect(url_for("login"))
     # is collection maintanable by admin only and user is not logged in as admin?
-    if formdb.get_db_is_admin_maintainable(collection_name) and not formdb.get_db_user_is_admin():
+    if formdb.get_db_is_admin_maintainable(collection_name) \
+    and not formdb.get_db_user_is_admin():
         return redirect(url_for("index"))
     
     record = formdb.get_db_record_by_id(collection_name, record_id)
@@ -206,7 +205,8 @@ def delete_record(collection_name, record_id):
     if not loggedin_user:
         return redirect(url_for("login"))
     # is collection maintanable by admin only and user is not logged in as admin?
-    if formdb.get_db_is_admin_maintainable(collection_name) and not formdb.get_db_user_is_admin():
+    if formdb.get_db_is_admin_maintainable(collection_name) \
+    and not formdb.get_db_user_is_admin():
         return redirect(url_for("index"))
 
     record = formdb.get_db_record_by_id(collection_name, record_id)
@@ -243,7 +243,8 @@ def _jinja2_filter_datetime_to_str(dt, format):
 def context_variables():
     return dict(
         fieldcatalog = formdb.get_db_fieldcatalog(),
-        buffer       = {coll:formdb.get_db_records(coll) for coll in formdb.get_db_buffered_collections() }
+        buffer       = {coll:formdb.get_db_records(coll) 
+                        for coll in formdb.get_db_buffered_collections() }
     )
 
 
@@ -265,8 +266,9 @@ def _jinja2_filter_get_entity_select_field(entity_id, collection_name):
 @app.template_filter('ObjectId')
 def _jinja2_filter_objectid(id:str):
     field_name = "id"
-    result = formdb.translate_db_external_to_internal(field_name,"ObjectId",None, {field_name:id})
-    return result[field_name]
+    record = {field_name:id}
+    formdb.translate_db_external_to_internal(field_name,"ObjectId",None, record)
+    return record[field_name]
 
 
 @app.template_filter('unix_time_ago')

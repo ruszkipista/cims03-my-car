@@ -20,6 +20,7 @@ if os.path.exists("envDB.py"):
 dbConfig = {}
 
 dbConfig["OS_DATA_PATH"] = os.environ.get("OS_DATA_PATH","./static/data/")
+dbConfig["UPLOAD_EXTENSIONS"] = set(['png', 'jpg', 'jpeg', 'gif'])
 
 dbConfig["MONGO_CLUSTER"] = os.environ.get("MONGO_CLUSTER")
 dbConfig["MONGO_DB_NAME"] = os.environ.get("MONGO_DB_NAME")
@@ -94,6 +95,10 @@ def translate_unix_timestamp_to_time_ago_text(unix_timestamp:int):
             else:
                 return f"{floor(seconds / format[2])} {format[1]} {token}"
     return time
+
+
+def is_password_hash_correct(pwhash,password:str):
+    return check_password_hash(pwhash,password)
 
 
 def get_utc_timestamp():
@@ -388,7 +393,7 @@ def translate_db_external_to_internal(source_field_name, input_type, lookup_coll
     internal_value = None
 
     if input_type == "ObjectId":
-        internal_value = ObjectId(id)
+        internal_value = ObjectId(external_value)
 
     elif input_type == "changedby":
         internal_value = get_db_user_id()
