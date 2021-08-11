@@ -29,7 +29,6 @@ def index():
             flash(f"You have no car assigned, ask the administrator for one!", 'info')
     return render_template(
         "index.html",
-        page_title="Home", 
         collection_name=formdb.get_db_coll_name_cars(),
         records=cars
     )

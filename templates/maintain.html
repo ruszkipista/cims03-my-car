@@ -7,29 +7,9 @@
 {% set coll_fieldcat = fieldcatalog[collection_name] %}
 {% set filter_postfix = "filter" %}
 {% if last_record %}{% set update=True %}{% else %}{% set update=False %}{% endif %}
-{% if coll_fieldcat['filter'] %}
-<!-- FILTER -->
-<div class="row m-0 p-0 my-3">
-  {% for field in coll_fieldcat['fields'] %}
-  {% if field['name'] in coll_fieldcat['filter'] %}
-  <div class="col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mb-1">
-    <label for="{{ field['name'] }}" class="form-label">Filter rows of {{ field['heading'] }}</label>
-    <select name="{{ field['name'] }}_{{ filter_postfix }}" 
-              id="{{ field['name'] }}_{{ filter_postfix }}"
-              data-{{ filter_postfix }}
-              onchange=selectTableRows(event)>
-      <option value=""></option>
-      {% for _id in session[field['name']] %}
-      <option value="{{ _id }}">
-        {{- buffer[field['values']][_id|ObjectId][fieldcatalog[field['values']]['select_field']] -}}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
-  {% endif %}
-  {% endfor %}
+<div class="col-12 text-center mt-3">
+  <h3>Maintain {{ coll_fieldcat['description'] }}</h3>
 </div>
-{% endif %}
 
 <!-- FORM -->
 <div class="accordion col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 mt-3" id="accordion0">
@@ -146,8 +126,33 @@
 
 <!-- TABLE -->
 {% if records %}
+
+{% if coll_fieldcat['filter'] %}
+<!-- FILTER -->
+<div class="row m-0 p-0 my-3">
+  {% for field in coll_fieldcat['fields'] %}
+  {% if field['name'] in coll_fieldcat['filter'] %}
+  <div class="col-12">
+    <label for="{{ field['name'] }}" class="form-label">Filter rows of {{ field['heading'] }}</label>
+    <select name="{{ field['name'] }}_{{ filter_postfix }}" 
+              id="{{ field['name'] }}_{{ filter_postfix }}"
+              data-{{ filter_postfix }}
+              onchange=selectTableRows(event)>
+      <option value=""></option>
+      {% for _id in session[field['name']] %}
+      <option value="{{ _id }}">
+        {{- buffer[field['values']][_id|ObjectId][fieldcatalog[field['values']]['select_field']] -}}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
 <div class="row m-0 p-0">
-  <div class="card col-12 offset-md-2 col-md-8 offset-lg-3 col-lg-6 my-3">
+  <div class="card col-12 my-3">
     <table class="table">
       <tr>
         {% for field in coll_fieldcat['fields'] %}

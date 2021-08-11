@@ -7,7 +7,7 @@
 <div class="row m-0 p-0">
     <div class="card col-12 offset-md-2 col-md-8 offset-lg-4 col-lg-4 mt-3">
         <form class="card-body row g-3 align-items-center" method="POST" action="{{ request.path }}">
-            <h3 class="card-title text-center">{% if register %}Register{% else %}Log In{% endif %}</h3>
+            <h3 class="card-title text-center">{% if register %}Register User{% else %}Log In{% endif %}</h3>
             <div class="row">
                 <div class="col-1 col-lg-2 text-end mt-3">
                     <i class="fas {% if register %}fa-user-plus{% else %}fa-user-cog{% endif %} fa-2x text-primary"></i>
