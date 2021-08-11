@@ -891,22 +891,31 @@ def _jinja2_filter_filter_records(records:dict, field_details:dict):
     recs_copy = records.copy()
     if filter:
         for filter_field_name, filter_values in filter.items():
-            lookup1_fieldcat = get_db_fieldcatalog(field_details['values'])
-            lookup1_fields = lookup1_fieldcat['fields']
-            field_def = next((f for f in lookup1_fields if f['name']==filter_field_name), '')
-            lookup2_table_name = field_def.get('values', None)
-            lookup2_fieldcat = get_db_fieldcatalog(lookup2_table_name)
-            select_field = lookup2_fieldcat['select_field']
-            lookup2_records = get_db_records(lookup2_table_name)
-            lookup2 = {rec[select_field]:key for key,rec in lookup2_records.items()}
-            for i in range(len(filter_values)):
-                filter_values[i] = lookup2[filter_values[i]]
-
-        for _id in records:
-            for filter_field_name, filter_values in filter.items():
-                field_value = records[_id].get(filter_field_name, None)
-                if not field_value or field_value not in filter_values:
-                    del recs_copy[_id]
+            if filter_values=='SESSION':
+                # in SESSION filter values are _id's, stored in string form
+                id_strings = session.get(filter_field_name, [])
+                # replace string form of _id's with ObjectID form
+                filter[filter_field_name] = [ObjectId(id) for id in id_strings]
+                for _id in records:
+                    for filter_field_name, filter_values in filter.items():
+                        if _id not in filter_values:
+                            del recs_copy[_id]
+            else:
+                lookup1_fieldcat = get_db_fieldcatalog(field_details['values'])
+                lookup1_fields = lookup1_fieldcat['fields']
+                field_def = next((f for f in lookup1_fields if f['name']==filter_field_name), '')
+                lookup2_table_name = field_def.get('values', None)
+                lookup2_fieldcat = get_db_fieldcatalog(lookup2_table_name)
+                select_field = lookup2_fieldcat['select_field']
+                lookup2_records = get_db_records(lookup2_table_name)
+                lookup2 = {rec[select_field]:key for key,rec in lookup2_records.items()}
+                for i in range(len(filter_values)):
+                    filter_values[i] = lookup2[filter_values[i]]
+                for _id in records:
+                    for filter_field_name, filter_values in filter.items():
+                        field_value = records[_id].get(filter_field_name, None)
+                        if not field_value or field_value not in filter_values:
+                            del recs_copy[_id]
     return recs_copy
 
 

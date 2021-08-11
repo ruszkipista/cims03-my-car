@@ -290,7 +290,7 @@
       "description": "Transactions",
       "admin":       false,
       "fields":[
-         {"name": "car_id",           "heading": "Car",           "input_type": "select", "values": "cars"},
+         {"name": "car_id",           "heading": "Car",           "input_type": "select", "values": "cars", "filter":{"car_id":"SESSION"}},
          {"name": "transaction_date", "heading": "Date",          "input_type": "date"},
          {"name": "partner_id",       "heading": "Partner",       "input_type": "select", "values": "partners"},
          {"name": "description",      "heading": "Description",   "input_type": "text"},
