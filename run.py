@@ -284,6 +284,9 @@ def close_db_connection(exception):
 # Run the App
 #=================
 if __name__ == "__main__":
+    with app.app_context():
+        formdb.init_db()
+
     app.run(
         host  = app.config["FLASK_IP"],
         port  = app.config["FLASK_PORT"],

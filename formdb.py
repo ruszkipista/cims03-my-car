@@ -733,7 +733,8 @@ def filter_db_records(records:dict, field_details:dict):
     return recs_copy
 
 
-if __name__ != "__main__":
+def init_db():
     if dbConfig["MONGO_INIT"]:
         init_db_mongo(os.path.join(dbConfig["OS_DATA_PATH"], dbConfig["MONGO_BASE"]), True)
         init_db_mongo(os.path.join(dbConfig["OS_DATA_PATH"], dbConfig["MONGO_DEMO"]), False)
+        
