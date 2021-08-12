@@ -288,6 +288,11 @@ def close_db_connection(exception):
     formdb.close_db_connection(exception)
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return redirect(url_for("index"))
+
+
 # Run the App
 # =================
 if __name__ == "__main__":

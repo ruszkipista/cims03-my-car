@@ -53,7 +53,8 @@
         {"name": "currency_id_to",   "heading": "Target Currency", "input_type": "select", "values":"currencies"},
         {"name": "from_date",        "heading": "From Date",       "input_type": "date"},
         {"name": "rate",             "heading": "Rate",            "input_type": "number", "attributes": "step=any min=0"}
-      ]
+     ],
+     "sort": {"currency_id_from":1, "currency_id_to":1, "from_date":1}
     }
   ],
 
