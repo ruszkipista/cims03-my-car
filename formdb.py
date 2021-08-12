@@ -379,6 +379,11 @@ def update_db_record(collection_name, record_old, record_new):
 def delete_db_record(collection_name, record):
     coll = get_db_collection(collection_name)
     coll.delete_one({"_id": record["_id"]})
+    coll_fieldcatalog = get_db_fieldcatalog(collection_name)
+    for field in coll_fieldcatalog["fields"]:
+        if field["input_type"]=="imageid":
+            coll = get_db_collection(dbConfig["MONGO_IMAGES"])
+            coll.delete_one({"_id": record[field["name"]]})
 
 
 def get_db_is_admin_maintainable(collection_name):
