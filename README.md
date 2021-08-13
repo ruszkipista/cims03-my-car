@@ -115,10 +115,74 @@ No additional bugs were discovered during the final testing.
 Conclusion: The website performs on desktop and tablet as intended.
 
 ## 7. Deployment
+ 
+### Deployment in development environment
+
+#### 0. Python and Git
+Make sure, that [Python](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads) are installed on your computer
+
+### 1. Set up the MongoDB-Atlas hosted database
+
+Make a free account on [MongoDB](https://www.mongodb.com/) an recreate the database
+
+#### 2. Clone the project's GitHub repository
+
+1. Locate the repository here https://github.com/ruszkipista/cims03-my-car
+2. Click the 'Code' dropdown above the file list
+3. Copy the URL for the repository (https://github.com/ruszkipista/cims03-my-car.git)
+4. Open a terminal on your computer
+5. Change the current working directory where the cloned folder will be located
+6. Clone the repo onto your machine with the following terminal command
+'''
+git clone https://github.com/ruszkipista/cims03-my-car.git
+'''
+
+#### 3. Create local files for environment variables
+Change working directory to the cloned folder and start your code editor or IDE
+```
+cd cims03-my-car
+code .
+```
+Create file `envWS.py` with the following content into the root of the project folder
+```
+import os
+os.environ.setdefault("FLASK_SECRET_KEY", "<secret key>")
+os.environ.setdefault("FLASK_IP",         "127.0.0.1")
+os.environ.setdefault("PORT",             "5500")
+os.environ.setdefault("FLASK_DEBUG",      "True")
+```
+Create file `envDB.py` into the root of the project folder with the following content:
+```
+import os
+os.environ.setdefault("MONGO_CLUSTER",    "<cluster name>")
+os.environ.setdefault("MONGO_DB_NAME",    "my_car")
+os.environ.setdefault("MONGO_DB_USER",    "<username>")
+os.environ.setdefault("MONGO_DB_PASS",    "<password>")
+os.environ.setdefault("MONGO_INIT",       "True")
+```
+The MONGO_INIT=True parameter trigger the initialization of the database every time you start the application. To prevent that, set it to `False` to persist your changes in the DB.
+  
+#### 3. Set up the Python environment
+In your development environment, upgrade pip if needed
+```
+pip install --upgrade pip
+```
+Install `virtualenv`:
+```
+pip install virtualenv
+```
+Open a terminal in the project root directory and run:
+```
+virtualenv env
+.\env\Scripts\activate
+pip install -r requirements.txt
+```
+Start the web server:
+```
+python app.py
+```
+
 ### Deployment to Heroku
-
-
-### Deployment to a different hosting solution
 
 ## 8. Credits
 
@@ -130,25 +194,3 @@ I thank [Nishant Kumar](https://github.com/nishant8BITS) for mentoring me during
 ### Media
 Used 4 car images from google search, edited and resized them
 
-### How To Run the application
-1. Install `virtualenv`:
-```
-$ pip install virtualenv
-```
-2. Open a terminal in the project root directory and run:
-```
-$ virtualenv env
-```
-3. Then run the command:
-```
-$ .\env\Scripts\activate
-```
-4. Then install the dependencies:
-```
-$ (env) pip install -r requirements.txt
-```
-5. Finally start the web server:
-```
-$ (env) python app.py
-```
-You can initialize the MongoDB collection by setting environment variable `MONGO_INIT` to `True`
