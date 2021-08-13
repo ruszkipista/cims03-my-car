@@ -123,7 +123,17 @@ Make sure, that [Python](https://www.python.org/downloads/) and [Git](https://gi
 
 ### 7.1 Set up the MongoDB-Atlas hosted database
 
-Make a free account on [MongoDB](https://www.mongodb.com/) an recreate the database
+* Sign up for a free account on [MongoDB](https://www.mongodb.com/)
+* create a new organisation and a new project
+* inside the project at Database Deployments, create a new cluster
+  * choose Shared / free tier cloud privider and region / M0 tier / choose cluster name
+* inside the newly created cluster create a database, e.g. `my_car`
+* in Deployment Security / Database Access, create a user with password authentication, select role `readWriteAnyDatabase`
+
+Note down the following details:
+- cluster name
+- database name
+- database user and password
 
 #### 7.2 Clone the project's GitHub repository
 
@@ -157,8 +167,8 @@ Create file `envDB.py` into the root of the project folder with the following co
 ```
 import os
 os.environ.setdefault("MONGO_CLUSTER",    "<cluster name>")
-os.environ.setdefault("MONGO_DB_NAME",    "my_car")
-os.environ.setdefault("MONGO_DB_USER",    "<username>")
+os.environ.setdefault("MONGO_DB_NAME",    "database namer")
+os.environ.setdefault("MONGO_DB_USER",    "<user name>")
 os.environ.setdefault("MONGO_DB_PASS",    "<password>")
 os.environ.setdefault("MONGO_INIT",       "True")
 ```
