@@ -1,5 +1,7 @@
 # [My Car Administration](https://my-car-ruszkipista.herokuapp.com/)
-A Flask and MongoDB-Atlas based CRUD application, styled with Material Design Bootstrap. Inspired by the "Task Manager" code along mini project in the Code Institute curriculum and my [MyCar](https://github.com/ruszkipista/MyCar) android app written for an assignment earlier. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
+Track the cost and fuel consumption of the fleet of cars in the family! While recording transactions is straightforward for all family members, there are administrative aspects of the database, which need steady hands. Hence I wrote this CRUD web application to maintain the My Car app's database. (The My Car app itself is a separate development endeavour though). Inspired by my own car cost tracking spreadsheet and the "Task Manager" code along mini project in the Code Institute curriculum.
+
+Written in Python using Flask and MongoDB-Atlas, styled with Material Design Bootstrap. This project is my third, backend focused milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
 
 ![the webpage on different devices](./static/doc/responsive-am-i.png "the webpage on different size devices")
 
@@ -133,7 +135,7 @@ Make sure, that [Python](https://www.python.org/downloads/) and [Git](https://gi
 Note down the following details:
 - cluster name
 - database name
-- database user and password
+- database user name and password
 
 #### 7.2 Clone the project's GitHub repository
 
@@ -167,7 +169,7 @@ Create file `envDB.py` into the root of the project folder with the following co
 ```
 import os
 os.environ.setdefault("MONGO_CLUSTER",    "<cluster name>")
-os.environ.setdefault("MONGO_DB_NAME",    "database namer")
+os.environ.setdefault("MONGO_DB_NAME",    "<database name>")
 os.environ.setdefault("MONGO_DB_USER",    "<user name>")
 os.environ.setdefault("MONGO_DB_PASS",    "<password>")
 os.environ.setdefault("MONGO_INIT",       "True")
@@ -197,7 +199,7 @@ python app.py
 ```
 
 ### Deployment on Heroku
-[Heroku](https://www.heroku.com/) is a PaS cloud service, you can deploy this project on it for free.
+[Heroku](https://www.heroku.com/) is a PaaS cloud service, you can deploy this project for free on it.
 
 #### 7.6 Prequisites:
 - you forked or copied this project into your repository on GitHub.
@@ -211,7 +213,7 @@ Follow these steps to deploy the app from GitHub to Heroku:
 - In Heroku, Create New App, give it a platform-unique name, choose region, click on `Create App` button
 - On the app/Deployment page select GitHub as Deployment method, underneath click on `Connect GitHub` button
 - In the GitHub authorization popup window login into GitHub with yout GitHub usename and click on `Authorize Heroku` button
-- Type in repo name and click 'search'. It lists your repos, choose the one and then click on 'connect' next to it.
+- Type in your repo name and click `search`. It lists your repos. Choose the one and click on `connect` next to it.
 - either enable automatic deployment on every push to the chosen branch or stick to manual deployment
 - go to app/Settings page, click on `Reveal Config Vars` and enter the following variables and their values from the `envWS.py` and `envDB` files:
   * FLASK_SECRET_KEY
@@ -227,10 +229,15 @@ Furthermore, if you youse the same MongoDB database as in development, the init 
 ## 8. Credits
 
 ### Acknowledgements
-My inspiration for this project came from ...
+My inspiration for this project came from my own booking where I keep car related transaction data in a google sheet.
+
+The technical solution started out from the [Task Manager](https://github.com/ruszkipista/ci12-task-master) code along mini project taught in the Code Institute curriculum.
 
 I thank [Nishant Kumar](https://github.com/nishant8BITS) for mentoring me during the project. He suggested to study [Clean Code](http://cleancoder.com/) by Uncle Bob and split up the monolith code into small functions. Despite much of my efforts, Uncle Bob still would not approve the current state of the code, there is still much to learn ...
 
 ### Media
-Used 4 car images from google search, edited and resized them
+Used 3 car images from the following places:
+- Chrysler PT Cruiser https://www.nadaguides.com/Cars/2004/Chrysler/PT-Cruiser
+- Toyota Yaris https://idd-katalogus.medija.hu/original/0010644.jpg
+- Mazda 3 https://www.autoblog.com/buy/2008-Mazda-Mazda3-s_Sport__4dr_Hatchback/
 
