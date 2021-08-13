@@ -1,7 +1,7 @@
 # [My Car Administration](https://my-car-ruszkipista.herokuapp.com/)
-A Flask and MongoDB-Atlas based CRUD application, styled with Material Design Bootstrap. Inspired by the "Task Manager" code along mini project by the same name in the Code Institute curriculum. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
+A Flask and MongoDB-Atlas based CRUD application, styled with Material Design Bootstrap. Inspired by the "Task Manager" code along mini project in the Code Institute curriculum and my [MyCar](https://github.com/ruszkipista/MyCar) android app written for an assignment earlier. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
 
-![the webpage on different devices](./assets/doc/responsive-am-i.png "the webpage on different size devices")
+![the webpage on different devices](./static/doc/responsive-am-i.png "the webpage on different size devices")
 
 ## Contents
 - [1. UX design](#1-ux-design "1. UX design")
@@ -138,7 +138,7 @@ git clone https://github.com/ruszkipista/cims03-my-car.git
 '''
 
 #### 3. Create local files for environment variables
-Change working directory to the cloned folder and start your code editor or IDE
+Change working directory to the cloned folder and start your code editor
 ```
 cd cims03-my-car
 code .
@@ -163,7 +163,7 @@ os.environ.setdefault("MONGO_INIT",       "True")
 The MONGO_INIT=True parameter trigger the initialization of the database every time you start the application. To prevent that, set it to `False` to persist your changes in the DB.
   
 #### 3. Set up the Python environment
-In your development environment, upgrade pip if needed
+In your development environment, upgrade `pip` if needed
 ```
 pip install --upgrade pip
 ```
@@ -177,7 +177,7 @@ virtualenv env
 .\env\Scripts\activate
 pip install -r requirements.txt
 ```
-Start the web server:
+#### 4. Start the web server:
 ```
 python app.py
 ```
