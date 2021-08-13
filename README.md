@@ -118,14 +118,14 @@ Conclusion: The website performs on desktop and tablet as intended.
  
 ### Deployment in development environment
 
-#### 0. Python and Git
+#### 7.0 Python and Git
 Make sure, that [Python](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads) are installed on your computer
 
-### 1. Set up the MongoDB-Atlas hosted database
+### 7.1 Set up the MongoDB-Atlas hosted database
 
 Make a free account on [MongoDB](https://www.mongodb.com/) an recreate the database
 
-#### 2. Clone the project's GitHub repository
+#### 7.2 Clone the project's GitHub repository
 
 1. Locate the repository here https://github.com/ruszkipista/cims03-my-car
 2. Click the 'Code' dropdown above the file list
@@ -137,7 +137,7 @@ Make a free account on [MongoDB](https://www.mongodb.com/) an recreate the datab
 git clone https://github.com/ruszkipista/cims03-my-car.git
 '''
 
-#### 3. Create local files for environment variables
+#### 7.3 Create local files for environment variables
 Change working directory to the cloned folder and start your code editor
 ```
 cd cims03-my-car
@@ -151,6 +151,8 @@ os.environ.setdefault("FLASK_IP",         "127.0.0.1")
 os.environ.setdefault("PORT",             "5500")
 os.environ.setdefault("FLASK_DEBUG",      "True")
 ```
+The `<secret key>` can be any random charater string from your keyboard.
+
 Create file `envDB.py` into the root of the project folder with the following content:
 ```
 import os
@@ -160,9 +162,11 @@ os.environ.setdefault("MONGO_DB_USER",    "<username>")
 os.environ.setdefault("MONGO_DB_PASS",    "<password>")
 os.environ.setdefault("MONGO_INIT",       "True")
 ```
-The MONGO_INIT=True parameter trigger the initialization of the database every time you start the application. To prevent that, set it to `False` to persist your changes in the DB.
+Take `<cluster name>`, `<username>`, `<password>` from the MongoDB creation item at 7.1
+
+The `MONGO_INIT=True` parameter triggers the initialization of the database content, every time the application is started. To prevent that, set it to `False` so your changes in the DB are preserved between sessions. If you make a change in the DB structure, the DB content needs to be initialized or you need to do the fieldcatalog and collection changes manually on the DB.
   
-#### 3. Set up the Python environment
+#### 7.4 Set up the Python environment
 In your development environment, upgrade `pip` if needed
 ```
 pip install --upgrade pip
@@ -173,16 +177,42 @@ pip install virtualenv
 ```
 Open a terminal in the project root directory and run:
 ```
-virtualenv env
-.\env\Scripts\activate
+virtualenv venv
+.\venv\Scripts\activate
 pip install -r requirements.txt
 ```
-#### 4. Start the web server:
+#### 7.5 Start the web server:
 ```
 python app.py
 ```
 
-### Deployment to Heroku
+### Deployment on Heroku
+[Heroku](https://www.heroku.com/) is a PaS cloud service, you can deploy this project on it for free.
+
+#### 7.6 Prequisites:
+- you forked or copied this project into your repository on GitHub.
+- Heroku requires theese files to deploy successfully, they are both in the root folder of the project:
+- `requirements.txt`
+- `Procfile`
+- you already have a Heroku account, or you need to register one.
+
+#### 7.7 Create a Heroku App
+Follow these steps to deploy the app from GitHub to Heroku:
+- In Heroku, Create New App, give it a platform-unique name, choose region, click on `Create App` button
+- On the app/Deployment page select GitHub as Deployment method, underneath click on `Connect GitHub` button
+- In the GitHub authorization popup window login into GitHub with yout GitHub usename and click on `Authorize Heroku` button
+- Type in repo name and click 'search'. It lists your repos, choose the one and then click on 'connect' next to it.
+- either enable automatic deployment on every push to the chosen branch or stick to manual deployment
+- go to app/Settings page, click on `Reveal Config Vars` and enter the following variables and their values from the `envWS.py` and `envDB` files:
+  * FLASK_SECRET_KEY
+  * MONGO_CLUSTER
+  * MONGO_DB_NAME
+  * MONGO_DB_PASS
+  * MONGO_DB_USER
+  * MONGO_INIT
+
+The `MONGO_INIT=True` parameter triggers the initialization of the database content, be mindful when you allow this to happen.
+Furthermore, if you youse the same MongoDB database as in development, the init can ruin your data on Heroku an vica versa.
 
 ## 8. Credits
 
