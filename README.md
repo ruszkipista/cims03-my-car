@@ -78,11 +78,12 @@ The images, tiles and icons
 
 
 ## 3. Features Left to Implement
-* on the "Home" page instead of listing the car records from "Cars" collection, list cars with the following calculated statistics:
+* develop a "view" fieldcatalog functionality to enable calculated columns on the generated tables, e.g. fuel consumption column
+* on the "Home" page instead of listing the car records from the "Cars" collection, list cars with the following calculated statistics:
   * picture of car
-  * car's current book value
-  * daily cost
-  * 100km cost: <decimal number> <currency>
+  * car's current book value: based on initial purchase price, planned length of keep, capital expense type of transactions recorded
+  * daily cost: value based on planned amortization and operational expense type transactions
+  * 100km cost: value based yearly cost and planned yearly distance run
   * last fuelling date
   * dues in the next 30 days (insurance, tax, car testing, etc.)
 * on the "Maintain Unit Conversions" page, when an option is chosen on "Source Unit" field, restrict the options of Target Unit to the same Unit type as the "Source Unit" has. E.g. selection "L" in one field would restrict the other field to VOL type units only.
@@ -91,7 +92,8 @@ The images, tiles and icons
   * when creating a new transaction and buying fuel type material, fill the Odometer field with the last known value
   * after selecting an option on the "Car" field, fill the "Currency" field from the "Car"->"Country"->"Currency" derivation
   * after selecting a "Goods/Service" material, derive the "Unit" field from the "Material"'s record
-* develop a "view" fieldcatalog functionality to enable calculated columns on the generated tables, e.g. fuel consumption column
+* allow uploading an image for every transaction and store them
+* from an uploaded fuel purchase receipt extract partner/quantity/price data with machine learning character recognition (and possibly with help of receipt templates)
 
 ## 4. Technologies and Tools Used
 
@@ -120,15 +122,15 @@ The images, tiles and icons
 * on the `maintain.html` page there is one modal pop-up embedded for record deletion confirmation. The suggestion I received was to have as many modals as many rows are generated on the page. I successfully generalized the modal with a javascript function, so one modal is enough.
 * separated the web server (Flask) code part from the form-database codes
 ### Known issues
-* "Unit Conversions" table is sorted by "_id" fieldis and not the referred Unit Name. This does group values, but not alphabetically as one would expect.
-* form and database related codes are co-dependent, because I did not generate 2 sets of field names (one set for the forms, one set for DB) and translation between them
+* "Unit Conversions" table is sorted by `*_id` foreign key fields and not the referred foreign value Unit Name. Although this still groups values together, but not alphabetically as one would expect.
+* input form and database related codes are co-dependent, because there is only one set of field names which are used by both code parts
 
 ## 6. Testing
 
 First step in testing was the validation of HTML, CSS and JS code with [Markup Validation Service](https://validator.w3.org/), [CSS Validation Service](https://jigsaw.w3.org/css-validator/), [JS Hint](https://jshint.com/) respectively. 
-The whole testing was conducted manually on Windows 10 desktop device running Chrome browser on a 1920x1080 resolution screen and on an Android tablet. Not tested on mobile phone, because the limited sceen estate does not allow game play in a way as intended.
+The whole testing was conducted manually on Windows 10 desktop device running Chrome browser on a 1920x1080 resolution screen and on an Android tablet. Not tested on mobile phone, because the limited sceen estate does not allow wide tables handling comfortably.
 
-See the whole <a href="https://ruszkipista.github.io/cims03-my-car/assets/doc/ci-ms3-test-log.html" target="_blank">test log</a> in a webpage.
+See the whole <a href="https://ruszkipista.github.io/cims03-my-car/static/doc/my-car-test-suite.html" target="_blank">test suite</a> in a webpage.
 
 No additional bugs were discovered during the final testing.
 
@@ -258,4 +260,3 @@ Used 3 car images from the following places:
 - Chrysler PT Cruiser https://www.nadaguides.com/Cars/2004/Chrysler/PT-Cruiser
 - Toyota Yaris https://idd-katalogus.medija.hu/original/0010644.jpg
 - Mazda 3 https://www.autoblog.com/buy/2008-Mazda-Mazda3-s_Sport__4dr_Hatchback/
-
