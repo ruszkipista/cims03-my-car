@@ -130,7 +130,7 @@ The images, tiles and icons
 First step in testing was the validation of HTML, CSS and JS code with [Markup Validation Service](https://validator.w3.org/), [CSS Validation Service](https://jigsaw.w3.org/css-validator/), [JS Hint](https://jshint.com/) respectively. 
 The whole testing was conducted manually on Windows 10 desktop device running Chrome browser on a 1920x1080 resolution screen and on an Android tablet. Not tested on mobile phone, because the limited sceen estate does not allow wide tables handling comfortably.
 
-See the whole <a href="https://ruszkipista.github.io/cims03-my-car/static/doc/my-car-test-suite.html" target="_blank">test suite</a> in a webpage.
+See the whole <a href="https://github.com/ruszkipista/cims03-my-car/blob/main/static/doc/my-car-test-suite.html" target="_blank">test suite</a> in a webpage.
 
 No additional bugs were discovered during the final testing.
 
