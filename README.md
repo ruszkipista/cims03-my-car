@@ -16,7 +16,7 @@ Written in Python using Flask and MongoDB-Atlas, styled with Material Design Boo
 - [2. Program design](#2-program-design "2. Program design")
 - [3. Features Left to Implement](#3-features-left-to-implement "3. Features Left to Implement")
 - [4. Technologies and Tools Used](#4-technologies-and-tools-used "4. Technologies and Tools Used")
-- [5. Issues solved during development](#5-issues-solved-during-development "5. Issues solved during development")
+- [5. Issues](#5-issues "5. Solved and Known issues")
 - [6. Testing](#6-testing "6. Testing")
 - [7. Deployment](#7-deployment "7. Deployment")
 - [8. Credits](#8-credits "8 Credits")
@@ -78,7 +78,20 @@ The images, tiles and icons
 
 
 ## 3. Features Left to Implement
-* ...
+* on the "Home" page instead of listing the car records from "Cars" collection, list cars with the following calculated statistics:
+  * picture of car
+  * car's current book value
+  * daily cost
+  * 100km cost: <decimal number> <currency>
+  * last fuelling date
+  * dues in the next 30 days (insurance, tax, car testing, etc.)
+* on the "Maintain Unit Conversions" page, when an option is chosen on "Source Unit" field, restrict the options of Target Unit to the same Unit type as the "Source Unit" has. E.g. selection "L" in one field would restrict the other field to VOL type units only.
+* on the "Maintain Transactions" page
+  * when creating a new transaction, fill the Date field with current date
+  * when creating a new transaction and buying fuel type material, fill the Odometer field with the last known value
+  * after selecting an option on the "Car" field, fill the "Currency" field from the "Car"->"Country"->"Currency" derivation
+  * after selecting a "Goods/Service" material, derive the "Unit" field from the "Material"'s record
+* develop a "view" fieldcatalog functionality to enable calculated columns on the generated tables, e.g. fuel consumption column
 
 ## 4. Technologies and Tools Used
 
@@ -102,8 +115,13 @@ The images, tiles and icons
 - Searched the internet to find content, documentation and solution for issues using [Google](https://www.google.com)'s search service.
 - connected to the internet using [Vodafone](https://n.vodafone.ie/shop/broadband.html)'s broadband service.
 
-## 5. Issues solved during development
-...
+## 5. Issues
+### Issues solved during development
+* on the `maintain.html` page there is one modal pop-up embedded for record deletion confirmation. The suggestion I received was to have as many modals as many rows are generated on the page. I successfully generalized the modal with a javascript function, so one modal is enough.
+* separated the web server (Flask) code part from the form-database codes
+### Known issues
+* "Unit Conversions" table is sorted by "_id" fieldis and not the referred Unit Name. This does group values, but not alphabetically as one would expect.
+* form and database related codes are co-dependent, because I did not generate 2 sets of field names (one set for the forms, one set for DB) and translation between them
 
 ## 6. Testing
 
@@ -229,7 +247,7 @@ Furthermore, if you youse the same MongoDB database as in development, the init 
 ## 8. Credits
 
 ### Acknowledgements
-My inspiration for this project came from my own booking where I keep car related transaction data in a google sheet.
+My inspiration for this project came from my own booking where I keep car related transaction data in a google spreadsheet.
 
 The technical solution started out from the [Task Manager](https://github.com/ruszkipista/ci12-task-master) code along mini project taught in the Code Institute curriculum.
 
