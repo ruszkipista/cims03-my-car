@@ -52,9 +52,9 @@ The structure of the website to be built consist of a ...
 ### 1.5 Skeleton plane
 
 <details>
-  <summary>Features and Wireframe of ... page</summary>
+  <summary>Features and Wireframes of Home page</summary>
 
-<h3>... page with Navbar and responsive Body of text and images and Input fields</h3>
+<h3>Home page - User Not Logged In</h3>
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
@@ -62,10 +62,29 @@ The structure of the website to be built consist of a ...
 |Header|...|
 
 <br>
-<img width="100%" src="./assets/doc/ci-ms3-wireframe-home.png" alt="Wireframe-Home page" title="Home page">
+<img width="100%" src="./docs/my-car-wireframe-home1.png" alt="Wireframe-Home page 1" title="Home page - User not logged in">
+
+<h3>Home page - Admin User Logged In</h3>
+
+|Section|Feature / Content description|
+|--------------|-----------------------------|
+|Navbar|...|
+|Header|...|
+
+<br>
+<img width="100%" src="./docs/my-car-wireframe-home2.png" alt="Wireframe-Home page 2" title="Home page - Admin User Logged In">
+
+<h3>Home page - Normal User Logged In</h3>
+
+|Section|Feature / Content description|
+|--------------|-----------------------------|
+|Navbar|...|
+|Header|...|
+
+<br>
+<img width="100%" src="./docs/my-car-wireframe-home3.png" alt="Wireframe-Home page 3" title="Home page - Normal User Logged In">
+
 </details>
-
-
 
 
 ### 1.6 Surface plane
