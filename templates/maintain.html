@@ -57,7 +57,7 @@
             <input type="{% if last_record[field['name']] %}date{% else %}text{% endif %}" 
                   class="form-control" id="{{ field['name'] }}" {{ field['attributes'] }}
                   onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'"
-                  name="{{ field['name'] }}" value="{{ last_record[field['name']]|datetime_to_str('%Y-%m-%d') }}"">
+                  name="{{ field['name'] }}" value="{{ last_record[field['name']]|datetime_to_str('%Y-%m-%d') }}">
             <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
           </div>
 
@@ -66,7 +66,7 @@
           <div class="col-12 col-lg-6 mb-3">
             <label for="{{ field['name'] }}" class="form-label">{{ field['heading'] }}</label>
             <select name="{{ field['name'] }}" id="{{ field['name'] }}">
-              <option value=""></option>
+              <option value="">&nbsp;</option>
               {% set lookup_recs = buffer[field['values']]|filter_records(field) %}
               {% set select_field = fieldcatalog[field['values']]['select_field'] %}
               {% for _id in lookup_recs %}
@@ -137,7 +137,7 @@
               id="{{ field['name'] }}_{{ filter_postfix }}"
               data-{{ filter_postfix }}
               onchange=selectTableRows(event)>
-      <option value=""></option>
+      <option value="">&nbsp;</option>
       {% for _id in session[field['name']] %}
       <option value="{{ _id }}">
         {{- buffer[field['values']][_id|ObjectId][fieldcatalog[field['values']]['select_field']] -}}

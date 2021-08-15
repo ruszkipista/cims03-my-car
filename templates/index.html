@@ -9,8 +9,8 @@
 <div class="text-center mt-3">
 {% for coll_fieldcat in fieldcatalog.values() %}
 {% if coll_fieldcat['admin'] %}
-  <a href="{{ url_for('maintain', collection_name=coll_fieldcat['collection_name']) }}">
-    <button type="button" class="btn btn-secondary m-2">{{ coll_fieldcat['description'] }}</button>
+  <a href="{{ url_for('maintain', collection_name=coll_fieldcat['collection_name']) }}" class="btn btn-secondary m-2">
+    {{ coll_fieldcat['description'] }}
   </a>
   {% endif %}
   {% endfor %}
