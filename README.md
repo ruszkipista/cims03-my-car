@@ -97,25 +97,18 @@ The images, tiles and icons
 
 ## 4. Technologies and Tools Used
 
-- The project's product (the website) was written in HTML, CSS and JavaScript, utilising [Bootstrap 5.0 Beta](https://getbootstrap.com/docs/5.0/) framework (which itself uses CSS and JavaScript). Bootstrap is used for its responsive utilities. 
-- Manipulated images with program [Paint.NET](https://www.getpaint.net/). Mainly used for cropping, resizing, background removal and format conversion.
-- downloaded [youtube](https://www.youtube.com/) videos with [youtube-dl](https://youtube-dl.org/)
-- extracted and cut sound clips with [Audacity](https://www.audacityteam.org/)
+- The project's product (the website) was written in HTML, CSS, JavaScript, Python, Jinja, utilising [Flask](https://flask.palletsprojects.com/) and [MDBootstrap](https://mdbootstrap.com/) frameworks. 
+- Manipulated images with program [Paint.NET](https://www.getpaint.net/). Mainly used for cropping and resizing.
 - Created wireframes with program from [balsamiq](https://balsamiq.com/wireframes/)
-- Written study notes on [Google Docs](https://docs.google.com/)
-- Disassembled a PDF file with [Adobe Acrobat PRO](https://acrobat.adobe.com/ie/en/acrobat.html)
-- Edited the code with [Visual Studio Code](https://code.visualstudio.com/), the page preview was provided via [Live Server](https://github.com/ritwickdey/vscode-live-server) VS Code extension.
+- Edited the code with [Visual Studio Code](https://code.visualstudio.com/).
 - Managed code versions with [Git](https://git-scm.com/downloads)
-- Stored the code and project deliverables cloud service [Github](https://github.com/) repository with versions.
-- Deployed the website on [GitHub Pages](https://pages.github.com/)
+- Stored the code versions and project deliverables on [Github](https://github.com/) cloud service.
+- Deployed the website on [Heroku](https://heroku.com/) cloud service.
 - The development machine run [Windows 10](https://www.microsoft.com/en-us/software-download/windows10) operating system.
 - The website was tested on desktop on [Chrome](https://www.google.com/intl/en_ie/chrome/) and [Firefox](https://www.mozilla.org/en-US/firefox/) web browsers, also on a [Asus Google Nexus 7 (2013)](https://www.gsmarena.com/asus_google_nexus_7_(2013)-5600.php) tablet running [Android OS](https://www.android.com/) and mobile [Chrome](https://play.google.com/store/apps/details?id=com.android.chrome&hl=en) browser.
 - Generated favicon with [Favicon & App Icon Generator](https://www.favicon-generator.org/)
 - Generated one image (on top of this Readme) of how the website looks on different size devices with [Am I Responsive](http://ami.responsivedesign.is/)
-- Chose font using [Google Fonts](https://fonts.google.com/)
-- Run CSS code through [Autoprefixer CSS online](https://autoprefixer.github.io/) to supplement suggested vendor prefixes
 - Searched the internet to find content, documentation and solution for issues using [Google](https://www.google.com)'s search service.
-- connected to the internet using [Vodafone](https://n.vodafone.ie/shop/broadband.html)'s broadband service.
 
 ## 5. Issues
 ### Issues solved during development
