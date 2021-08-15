@@ -52,14 +52,18 @@ The structure of the website to be built consist of a ...
 ### 1.5 Skeleton plane
 
 <details>
-  <summary>Features and Wireframes of Home page</summary>
+  <summary>Home page - Features and Wireframes</summary>
 
 <h3>Home page - User Not Logged In</h3>
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
-|Navbar|...|
-|Header|...|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Log In" - link to Log In page|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+|Header|Title: "My Car Administration"|
+|Main|a centered sizeable car icon|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-home1.png" alt="Wireframe-Home page 1" title="Home page - User not logged in">
@@ -68,8 +72,16 @@ The structure of the website to be built consist of a ...
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
-|Navbar|...|
-|Header|...|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Partners" - link to Maintain Partners page|
+|Navbar|Link "Transactions" - link to Maintain Transactions page|
+|Navbar|Link "Profile" - link to Profile page|
+|Navbar|Link "Log Out" - link to Log Out from the application|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+|Header|Buttons listed horizontally: USERS, IMAGES, CURRENCIES, CURRENCY RATES, MEASURE TYPES, UNIT OF MEASURES, UNIT CONVERSIONS, COUNTRIES, EXPENDITURE TYPES, MATERIAL TYPES, MATERIALS, CARS, RELATIONSHIP TYPES, USERS-CARS - all links to the corresponding Maintain &lt;collection&gt; page|
+|Header|Title: "Cars assigned to you" - hidden if no car is assigned to user|
+|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images - hidden if no car is assigned to user|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-home2.png" alt="Wireframe-Home page 2" title="Home page - Admin User Logged In">
@@ -78,8 +90,15 @@ The structure of the website to be built consist of a ...
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
-|Navbar|...|
-|Header|...|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Partners" - link to Maintain Partners page|
+|Navbar|Link "Transactions" - link to Maintain Transactions page|
+|Navbar|Link "Profile" - link to Profile page|
+|Navbar|Link "Log Out" - link to Log Out from the application|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+|Header|Title: "Cars assigned to you" - hidden if no car is assigned to user|
+|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images - hidden if no car is assigned to user|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-home3.png" alt="Wireframe-Home page 3" title="Home page - Normal User Logged In">
