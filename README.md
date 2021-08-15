@@ -107,6 +107,7 @@ The images, tiles and icons
 - The development machine run [Windows 10](https://www.microsoft.com/en-us/software-download/windows10) operating system.
 - The website was tested on desktop on [Chrome](https://www.google.com/intl/en_ie/chrome/) and [Firefox](https://www.mozilla.org/en-US/firefox/) web browsers, also on a [Asus Google Nexus 7 (2013)](https://www.gsmarena.com/asus_google_nexus_7_(2013)-5600.php) tablet running [Android OS](https://www.android.com/) and mobile [Chrome](https://play.google.com/store/apps/details?id=com.android.chrome&hl=en) browser.
 - Generated favicon with [Favicon & App Icon Generator](https://www.favicon-generator.org/)
+- Generated tables for this readme with [Tables Generator](https://www.tablesgenerator.com/) web service
 - Generated one image (on top of this Readme) of how the website looks on different size devices with [Am I Responsive](http://ami.responsivedesign.is/)
 - Searched the internet to find content, documentation and solution for issues using [Google](https://www.google.com)'s search service.
 
@@ -119,11 +120,62 @@ The images, tiles and icons
 * input form and database related codes are co-dependent, because there is only one set of field names which are used by both code parts
 
 ## 6. Testing
-
 First step in testing was the validation of HTML, CSS and JS code with [Markup Validation Service](https://validator.w3.org/), [CSS Validation Service](https://jigsaw.w3.org/css-validator/), [JS Hint](https://jshint.com/) respectively. 
-The whole testing was conducted manually on Windows 10 desktop device running Chrome browser on a 1920x1080 resolution screen and on an Android tablet. Not tested on mobile phone, because the limited sceen estate does not allow wide tables handling comfortably.
+The whole testing was conducted manually on Windows 10 desktop device running Chrome browser on a 1920x1080 resolution screen and on an Android tablet. Not tested on mobile phone, because the limited screen estate does not allow wide tables handling comfortably.
 
 See the whole <a href="https://ruszkipista.github.io/cims03-my-car/my-car-test-suite.html" target="_blank">test suite</a> in a webpage.
+| Testing the My Car Administration web application                                | Result |
+|----------------------------------------------------------------------------------|--------|
+| Check landing page (Home) without logged in user                                 | pass |
+| Check Home page without logged in user on wide page                              | pass |
+| **Users collection**                                                             |      |
+| Try to Login with a non existing username:                                       | pass |
+| Register a new (not already existing) user:                                      | pass |
+| As logged in normal user Log Out                                                 | pass |
+| Try to register a user with existing username:                                   | pass |
+| Log in as normal user without car assigned                                       | pass |
+| Try to log In as normal user with wrong password:                                | pass |
+| Log In as administrator:                                                         | pass |
+| Logged in as administrator, check records in Users collection                    | pass |
+| Logged in as administrator, promote a normal user to administrator               | pass |
+| Log in as an administrator user and demote itself to a normal user               | pass |
+| Log in as normal user and change own password                                    | pass |
+| As normal user with changed password try to log in with old password             | pass |
+| As normal user with changed password try to log in with new password             | pass |
+| As administrator reset a normal user’s password                                  | pass |
+| Log in as normal user whose password were changed by administrator               | pass |
+| Try to maintain Users using the /maintain/users address                          | pass |
+| As administrator delete a normal user                                            | pass |
+| Try to log in with deleted normal user                                           | pass |
+| As administrator create a new normal user                                        | pass |
+| As administrator try to create a user with existing username                     | pass |
+| **Relationship Types, Cars, Users-Cars, Images, Partners, Transactions collections** |  |
+| As administrator check Relationship Types                                        | pass |
+| As administrator assign first car to a normal user                               | pass |
+| Log in as normal user with a car (just) assigned                                 | pass |
+| As normal user record first transaction on newly assigned car                    | pass |
+| As administrator assign a second car to a normal user                            | pass |
+| As normal user record a new partner                                              | pass |
+| As normal user check transactions                                                | pass |
+| As normal user record a new transaction on second car                            | pass |
+| As administrator delete a car record                                             | pass |
+| As administrator replace an image in Images                                      | pass |
+| As administrator remove user-car relationship                                    | pass |
+| **Currencies, Currency rates collections**                                       |      |
+| As administrator add a new currency                                              | pass |
+| As administrator record currency rates                                           | pass |
+| **Measure Types, Unit of Measures, Unit Conversions collections**                |      |
+| As administrator add a new measure type                                          | pass |
+| As administrator add a new unit of measure                                       | pass |
+| As administrator modify a unit of measure                                        | pass |
+| As administrator add a new unit conversion                                       | pass |
+| **Countries and Expenditure Types collections                                    | pass |
+| As administrator change a Country setting                                        | pass |
+| As administrator check Expenditure Types settings                                | pass |
+| **Material Types and Materials collectiona**                                     |      |
+| As administrator check Material Types settings                                   | pass |
+| As administrator add a new material                                              | pass |
+| As administrator modify a material                                               | pass |
 
 No additional bugs were discovered during the final testing.
 
