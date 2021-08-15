@@ -107,9 +107,11 @@ The structure of the website to be built consist of a ...
 
 
 ### 1.6 Surface plane
-Chose font [Roboto](https://fonts.google.com/specimen/Roboto) for the headers.
-
-The images, tiles and icons 
+Chose default settings of MDBootstrap:
+- font family `Roboto`
+- class `bg-secondary` (purple) for administrator user's navbar background color
+- class `bg-primary` (blue) for normal user's navbar background color
+- class `bg-warning` (orange) for the accordion header background color
 
 ## 2. Program design
 

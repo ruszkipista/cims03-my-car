@@ -244,7 +244,7 @@
 
   "relationship_types": [
     { "entity_name": "relationship type",
-      "description": "Relationship Type",
+      "description": "Relationship Types",
       "admin":       true,
       "buffered":    true,
       "fields":[
