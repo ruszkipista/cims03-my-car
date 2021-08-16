@@ -10,7 +10,7 @@ A live demo can be found - [here](https://my-car-ruszkipista.herokuapp.com/)
 The Project Repository can be found - [here](https://github.com/ruszkipista/cims03-my-car)
 
 ## Contents
-- [0. Data design](#0-data-design "0. Data design")
+- [0. Data structures design](#0-data-design "0. Data structures design")
 - [1. UX design](#1-ux-design "1. UX design")
   - [1.1 Strategy Plane](#11-strategy-plane "1.1 Strategy Plane")
   - [1.2 Scope plane](#12-scope-plane "1.2 Scope plane")
@@ -26,7 +26,7 @@ The Project Repository can be found - [here](https://github.com/ruszkipista/cims
 - [7. Deployment](#7-deployment "7. Deployment")
 - [8. Credits](#8-credits "8 Credits")
 
-## 0. Data design
+## 0. Data structures design
 Let's introduce briefly the data structures of the My Car application. It is necessary to learn some features to understand the reason behind arrangements in the data.
 
 The main entity is the Car. We want collect financial transactions occurring around cars in order to answer such questions
@@ -51,10 +51,11 @@ In the Car entity we need a couple of identifiers:
 - a picture for visuals
 - a name and description
 - a plate number for official records
-- in what country was the car registered in - this can pull in the default currency into the transaction
+- in what country was the car registered in - this can determine the reporting currency, in which currency the car's statistics are aggregated
+
 For keeping track of the distance run and calculate fuel consumption:
 - unit of the odometer, is it km or miles?
-- what fuel material do we need: petrol or gasoline? or perhaps electricity? - this can pull in the unit of measure in the transaction
+- what fuel material do we need: petrol or gasoline? or perhaps electricity? - this can pull in the fuel material into the transaction
 - what unit do we want to see the fuel consumption in: L/100km or miles/gallon?
 
 ### 0.3 Country
@@ -77,14 +78,15 @@ If we take the car out of the registration country, we might need to pay in a di
 - source currency
 - target currency
 - exchange rate: unit source currency value expressed in target currency value, e.g. 1 EUR => 0.89080 GBP on 01/01/2018
+
 For simplicity, we allow the conversion calculation in both directions, e.g the GBP->EUR rate will serve for the EUR->GBP conversion as well. Furthermore, any rate is valid from the validity date until a newer rate is not recorded. This way we do not need rate for every day, but we could have.
 
 ### 0.6 Image
 This is a collection only concerned about images. It stores them in the DB as opposed to a possible file system storage. This puts a limit on possible file sizes of 5MB. If an entity has an image associated, this collection provides a unique ID for that entity so the image will not be stored in the entity itself.
-- Images also stores the original file name the image had at upload time
+- Images also stores the original file name the image was uploaded with
 
 ### 0.7 User-Car
-On car can be driven by several persons. To distinguish which user can record transaction to which car, we need a Users-Cars relationship collection. We record
+A car can be driven by several persons. To distinguish which user can record transactions to which car, we need a User-Car relationship record. In that we store
 - the user
 - the car
 - the relationship the user has with a car
@@ -94,8 +96,77 @@ The relationship of a user with a car is described with a Relationship Type, uti
 - relationship name
 - relationship description
 
+### 0.9 Partner
+A Parter identifies a business or government entity who we paid for goods or service. It has
+- name
+- description
+- country - this pulls in the default currency into the transaction recording
+- address - this clarifies, exactly in which Tesco store we bought the windscreen wiper
 
+### 0.10 Material
+This is the thing we buy or pay for during a transaction. We keep it simple, oly have 3 fields:
+- material name
+- description
+- material type
 
+### 0.11 Expenditure Type
+The Expenditure Types has 2 entries so far
+|Expenditure Name|Description|
+|:--------------:|:----------|
+|OP|operational expense|
+|CAP|capital expense|
+
+### 0.12 Material Type
+The Material Type gives two attribute to materials:
+- measure type: how do we measure the quantity, e.g. by volume or distance?
+- in what part of the expense calculation we will aggregate the value paid for this type of material: capital or operating expense
+
+Also we need
+- material type name
+- material type description
+
+### 0.13 Measure Type
+These are the entries in the Measure Types collection:
+
+|Measure Type Name|Description|
+|:---------------:|:----------|
+|CNT|count|
+|VOL|volume|
+|MASS|mass|
+|DIST|distance|
+|AREA|area|
+|FECO|fuel economy|
+|CURR|currency|
+|TIME|time|
+
+### 0.14 Unit of Measure
+A unit of measurement is a definite magnitude of a quantity (from [wikipedia](https://en.wikipedia.org/wiki/Unit_of_measurement))
+We use in quantifying the purchase, the distance took, the fuel consumption, etc. For us it is
+- a name,
+- a description,
+- and a measure type
+
+For example 2 records from the collection:
+|Name|Description|Measure Type|
+|:---------------:|:----------|
+|km|Kilo Metre|DIST|
+|L|Litre|VOL|
+
+### 0.15 Unit Conversion
+When we have two Unit of Measures of the same type, we want to know how many of unit A equals of unit B. This collection stores some prominent conversion rates, like km <-> miles
+- source unit of measure
+- target unit of measure
+- conversion factor
+
+### 0.16 Users
+We see earlier, that if we want users to restrict access to cars, we set up User-Car relationships. The User part from that is identified here:
+- user name - for identification in the app
+- password - secret key for authentication
+- does the user have administrative privileges
+- who created or later modified this user record
+- when was the last change on this user record
+
+### 0.18 Database initialization concept
 
 
 ## 1. User Experience design
