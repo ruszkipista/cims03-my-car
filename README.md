@@ -79,7 +79,7 @@ If we take the car out of the registration country, we might need to pay in a di
 - target currency
 - exchange rate: unit source currency value expressed in target currency value, e.g. 1 EUR => 0.89080 GBP on 01/01/2018
 
-For simplicity, we allow the conversion calculation in both directions, e.g the GBP->EUR rate will serve for the EUR->GBP conversion as well. Furthermore, any rate is valid from the validity date until a newer rate is not recorded. This way we do not need rate for every day, but we could have.
+For simplicity, we allow the conversion calculation in both directions, e.g the GBP->EUR rate will serve for the EUR->GBP conversion as well. Furthermore, any rate is valid from the validity date until a newer rate is recorded. This way we do not need rate for every day, but we could have.
 
 ### 0.6 Image
 This is a collection only concerned about images. It stores them in the DB as opposed to a possible file system storage. This puts a limit on possible file sizes of 5MB. If an entity has an image associated, this collection provides a unique ID for that entity so the image will not be stored in the entity itself.
@@ -107,7 +107,7 @@ A Parter identifies a business or government entity who we paid for goods or ser
 This is the thing we buy or pay for during a transaction. We keep it simple, oly have 3 fields:
 - material name
 - description
-- material type
+- material type - allows grouping of materials of the same tzpe
 
 ### 0.11 Expenditure Type
 The Expenditure Types has 2 entries so far
@@ -126,7 +126,7 @@ Also we need
 - material type description
 
 ### 0.13 Measure Type
-These are the entries in the Measure Types collection:
+Measure Type determines the approcah how we measure someting. These are the entries in the Measure Types collection:
 
 |Measure Type Name|Description|
 |:---------------:|:----------|
@@ -146,19 +146,20 @@ We use in quantifying the purchase, the distance took, the fuel consumption, etc
 - a description,
 - and a measure type
 
-For example 2 records from the collection:
+For example here are 2 records from the collection:
+
 |Name|Description|Measure Type|
 |:---------------:|:----------|
 |km|Kilo Metre|DIST|
 |L|Litre|VOL|
 
 ### 0.15 Unit Conversion
-When we have two Unit of Measures of the same type, we want to know how many of unit A equals of unit B. This collection stores some prominent conversion rates, like km <-> miles
+When we have two Unit of Measures of the same type, we want to know how many of unit A equals of unit B. This collection stores some prominent conversion rates, like `km` <-> `miles`
 - source unit of measure
 - target unit of measure
 - conversion factor
 
-### 0.16 Users
+### 0.16 User
 We see earlier, that if we want users to restrict access to cars, we set up User-Car relationships. The User part from that is identified here:
 - user name - for identification in the app
 - password - secret key for authentication
@@ -166,8 +167,52 @@ We see earlier, that if we want users to restrict access to cars, we set up User
 - who created or later modified this user record
 - when was the last change on this user record
 
-### 0.18 Database initialization concept
+### 0.17 Fieldcatalog
+Every entity is described by metadata and these are stored in the Fieldcatalog collection. The following example describes the User
+```JSON
+{   "entity_name": "user",
+    "description": "Users",
+    "admin": true,
+    "buffered": true,
+    "fields": [{
+        "name": "username",
+        "heading": "User Name",
+        "input_type": "text",
+        "unique": true
+    }, {
+        "name": "password",
+        "heading": "Password",
+        "input_type": "password",
+        "attributes": "autocomplete=new-password"
+    }, {
+        "name": "user_is_admin",
+        "heading": "Administrator?",
+        "input_type": "checkbox"
+    }, {
+        "name": "date_time_insert",
+        "heading": "Registered",
+        "input_type": "timestamp_insert"
+    }, {
+        "name": "changed_by",
+        "heading": "Changed By",
+        "input_type": "changedby",
+        "values": "users"
+    }, {
+        "name": "date_time_update",
+        "heading": "Updated",
+        "input_type": "timestamp_update"
+    }],
+    "select_field": "username",
+    "collection_name": "users"
+}
+```
 
+### 0.18 Note on foreign keys
+The data is stored in a Mongo database where the unit of storage is called *document*. Every document has a unique identifier, in the DB it has the `_id` name. The docuemnts are stored in *collections*. In our data structure we equate an entity representative with a document. E.g. one Car is stored as a document. Many representatives of the same entity are stored in the Cars collection.
+
+Some entity refers to an other entity among its attributes. E.g. one User-Car relationship refers to one User, one Car and one Relationship Type. We store the references by their `_id`
+So instead of having a ("user_id":`user1`, "car_id":`yaris`, "relationship_id":`owner`) we store ("user_id": `611986fa17a24010b762fd6c`, "car_id": `611986fe17a24010b762fd7c`, "relationship_id": `611986f917a24010b762fd69`)
+where 611986fa17a24010b762fd6c refers to the `_id` of `user1` in Users, `611986fe17a24010b762fd7c` refers to the `_id` of `yaris` in Cars and `611986f917a24010b762fd69` refers to the `_id` of `owner` in Relationship Types
 
 ## 1. User Experience design
 ### 1.1 Strategy Plane
@@ -188,11 +233,28 @@ Stakeholders of the website:
 ### 1.2 Scope plane
 It has been decided to create a web application to serve and fulfill the goals and needs of the users.
 
-The following table lists the planned features:
+This is the list of planned features:
 
-|F#||Feature|
-|--|-------|
-|F1|...|
+- users are identified by user name, it must be unique in the Users collection
+- users are authenticated by entered username/password against stored values at log in
+- a username and a password can be 5-15 characters long
+- users can log out
+- new normal user can be registered, an administrative user can not be registered
+- a normal user can be promoted to an administrator user
+- an administrator can be demoted to a normal user
+- a normal user can change its own password
+- an adminitrator user can change any user's password in the Users collection
+- a normal user can create, modify or delete any record in Partners collection
+- a normal user can create, modify or delete records in Transactions if the Transaction's car associated with the User in the Users-Cars collection
+- an administrative user can create, modify or delete any record in any collection
+- every webpage has a sticky navigation bar on the top of the page
+- every page has a flash messages section which is only revealed if the previous operation generated one or more messages
+- the Home page without logged in user shows no information from the data base
+- the Home page with logged in user shows links in the navbar to the maintence of Partners and Transactions collections
+- the Home page with logged in user shows a list of Cars and their data
+- the Home page with logged in *administrative* user also provides links for the maintenace of all collections
+- the Maintenace page of any collection has a uniform way of listing existing records, creating a new record, modifying an existing record or deleting an existing record
+- in an input field, which is a foreign key, a value is presented which the foreign key refers to (not the foreign key value itself)
 
 ### 1.3 User Stories
 * As a ... I want to ..., so I can ...
