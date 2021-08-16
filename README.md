@@ -5,6 +5,10 @@ Written in Python using Flask and MongoDB-Atlas, styled with Material Design Boo
 
 ![the webpage on different devices](./docs/responsive-am-i.png "the webpage on different size devices")
 
+A live demo can be found - [here](https://my-car-ruszkipista.herokuapp.com/)
+
+The Project Repository can be found - [here](https://github.com/ruszkipista/cims03-my-car)
+
 ## Contents
 - [1. UX design](#1-ux-design "1. UX design")
   - [1.1 Strategy Plane](#11-strategy-plane "1.1 Strategy Plane")
@@ -45,9 +49,14 @@ The following table lists the planned features, each feature referenced with ori
 * As a ... I want to ..., so I can ...
 
 ### 1.4 Structure plane
-The structure of the website to be built consist of a ... 
+The structure of the website to be built consist of these pages:
+- Home page in 3 variants: no user not logged in / normal user logged in /  admin user logged in
+- Profile page
+- RegLog page in 2 variants: Log In / Register User
+- Maintain &lt;collection&gt; page in 16 variants, where collection can be: Transactions / Partners / Users / Images / Currencies / Currency Rates / Measure Types / Unit of Measures / Unit Conversions / Countries / Expenditure Types / Material Types / Materials / Cars / Relationship Types / Users-Cars
+- Update &lt;entity&gt; page in 16 variants, where entity can be: Transaction / Partner / User / Image / Currency / Currency Rate / Measure Type / Unit of Measure / Unit Conversion / Country / Expenditure Type / Material Type / Material / Car / Relationship Type / Users-Car
 
-<p style="text-align: center;"><img src="./assets/doc/ci-ms3-site-structure.jpg" alt="Website structure" title="pages with navigation links"><p>
+<p style="text-align: center;"><img src="./docs/my-car-website-structure.png" alt="Website structure" title="pages with navigation links"><p>
 
 ### 1.5 Skeleton plane
 
@@ -117,6 +126,7 @@ The structure of the website to be built consist of a ...
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
+|Path|`/maintain/<collection>`|
 |Navbar|Link "My Car" - link to Home page|
 |Navbar|Link "Home" - link to Home page|
 |Navbar|Link "Partners" - link to Maintain Partners page|
@@ -131,10 +141,11 @@ The structure of the website to be built consist of a ...
 <br>
 <img width="100%" src="./docs/my-car-wireframe-maintain1.png" alt="Wireframe-Maintain page 1" title="Maintain page - Overview &lt;collection&gt; records">
 
-<h3>Home page - Add new &lt;entity&gt;</h3>
+<h3>Maintain page - Add new &lt;entity&gt;</h3>
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
+|Path|`/maintain/<collection>`|
 |Navbar|Link "My Car" - link to Home page|
 |Navbar|Link "Home" - link to Home page|
 |Navbar|Link "Partners" - link to Maintain Partners page|
@@ -154,6 +165,7 @@ The structure of the website to be built consist of a ...
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
+|Path|`/update/<collection>/<record_id>`|
 |Navbar|Link "My Car" - link to Home page|
 |Navbar|Link "Home" - link to Home page|
 |Navbar|Link "Partners" - link to Maintain Partners page|
@@ -163,7 +175,7 @@ The structure of the website to be built consist of a ...
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
 |Header|Title: "Maintain &lt;entity&gt;"|
 |Main|Open Accordion item header: Title: "Update &lt;entity&gt;" - header linked to the opening up of the accordion item|
-|Main|Open Accordion item body: Contains empy input fields, one for each field in an entity. The fields can have the following types: Text, Number, Date, Select (drop-down), Checkbox, Password, Image, Timestamp (hidden), ChangedBy (hidden). All fields are filled from the record previously selected for update|
+|Main|Open Accordion item body: Contains empy input fields, one for each field of the entity. The fields can have the following types: Text, Number, Date, Select (drop-down), Checkbox, Password, Image, Timestamp (hidden), ChangedBy (hidden). All fields are filled from the record previously selected for update|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-maintain3.png" alt="Wireframe-Maintain page 3" title="Maintain page - Update an <entity>">
@@ -192,6 +204,8 @@ Chose default settings of MDBootstrap:
   * dues in the next 30 days (insurance, tax, car inspection, etc.)
 * on the "Maintain Unit Conversions" page, when an option is chosen on "Source Unit" field, restrict the options of Target Unit to the same Unit type as the "Source Unit" has. E.g. selection "L" in one field would restrict the other field to VOL type units only.
 * on the "Maintain Transactions" page
+  * store the car filter value in the session cookie
+  * add transaction date filter to the header, store this filter value in the session cookie
   * when creating a new transaction, fill the Date field with current date
   * when creating a new transaction and buying fuel type material, fill the Odometer field with the last known value
   * after selecting an option on the "Car" field, fill the "Currency" field from the "Car"->"Country"->"Currency" derivation
