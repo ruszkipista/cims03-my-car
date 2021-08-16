@@ -1,7 +1,7 @@
 # [My Car Administration](https://my-car-ruszkipista.herokuapp.com/)
 Track the cost and fuel consumption of the fleet of cars in the family! While recording transactions is straightforward for all family members, there are administrative aspects of the database, which need steady hands. Hence I wrote this CRUD web application to maintain the My Car app's database. (The My Car app itself is a separate development endeavour though). Inspired by my own car cost tracking spreadsheet and the "Task Manager" code along mini project in the Code Institute curriculum.
 
-Written in Python using Flask and MongoDB-Atlas, styled with Material Design Bootstrap. This project is my third, backend focused milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
+The Project's aim is to demonstrate backend focused development skills coupled with CRUD operations on Non-SQL database. Written in Python using Flask and MongoDB-Atlas, styled with Material Design Bootstrap. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
 
 ![the webpage on different devices](./docs/responsive-am-i.png "the webpage on different size devices")
 
@@ -10,6 +10,7 @@ A live demo can be found - [here](https://my-car-ruszkipista.herokuapp.com/)
 The Project Repository can be found - [here](https://github.com/ruszkipista/cims03-my-car)
 
 ## Contents
+- [0. Data design](#0-data-design "0. Data design")
 - [1. UX design](#1-ux-design "1. UX design")
   - [1.1 Strategy Plane](#11-strategy-plane "1.1 Strategy Plane")
   - [1.2 Scope plane](#12-scope-plane "1.2 Scope plane")
@@ -25,25 +26,102 @@ The Project Repository can be found - [here](https://github.com/ruszkipista/cims
 - [7. Deployment](#7-deployment "7. Deployment")
 - [8. Credits](#8-credits "8 Credits")
 
-## 1. UX design
+## 0. Data design
+Let's introduce briefly the data structures of the My Car application. It is necessary to learn some features to understand the reason behind arrangements in the data.
+
+The main entity is the Car. We want collect financial transactions occurring around cars in order to answer such questions
+- what is the fuel economy looks like, how much fuel it consumes on a set distance or how much distance it can take on a set amout of fuel?
+- how much do we spend on the car to run daily, monthly, yearly?
+- how much does it cost to run 100 km?
+- how much is the book value of the car today?
+
+### 0.1 Transaction
+So in order to calculate all of that, we need to record the following things about a Transaction:
+- which car it relates to,
+- when did it happen
+- who was the business partner on the other end of the transaction
+- description to record details which does not conform to any other transaction details
+- what material/service was involved - to be able to separate operating and capital expenses
+- how much quantity and what unit  - for various reasons
+- what was the price in what currency? - for expense calculation
+- to keep track the run distances between refuellins, we need the status of the odometer when it happened
+
+### 0.2 Car
+In the Car entity we need a couple of identifiers:
+- a picture for visuals
+- a name and description
+- a plate number for official records
+- in what country was the car registered in - this can pull in the default currency into the transaction
+For keeping track of the distance run and calculate fuel consumption:
+- unit of the odometer, is it km or miles?
+- what fuel material do we need: petrol or gasoline? or perhaps electricity? - this can pull in the unit of measure in the transaction
+- what unit do we want to see the fuel consumption in: L/100km or miles/gallon?
+
+### 0.3 Country
+To be able to record registration country, we need the Country entity, in which we store
+- country's standard sign. e.g. IE, HU
+- description
+- official currency for payment - this can go into the transaction as default value
+- official distance keeping unit on roads, e.g. km for IE, miles for NI
+- in what unit the liquid fuel sold, liter or gallon?
+
+### 0.4 Currency
+To be able to record fiscal values in different countries, we need to set up Currencies:
+- 3 characters ISO designation,
+- description
+- 1 or 2 character short sign in local abbreviation or characters
+
+### 0.5 Currency Conversions
+If we take the car out of the registration country, we might need to pay in a different currency. To be able to aggregate fiscal values in the registration country's currency, we need to convert currency values, hence the Currency Conversions collection which consist of
+- validity date of the conversion rate
+- source currency
+- target currency
+- exchange rate: unit source currency value expressed in target currency value, e.g. 1 EUR => 0.89080 GBP on 01/01/2018
+For simplicity, we allow the conversion calculation in both directions, e.g the GBP->EUR rate will serve for the EUR->GBP conversion as well. Furthermore, any rate is valid from the validity date until a newer rate is not recorded. This way we do not need rate for every day, but we could have.
+
+### 0.6 Image
+This is a collection only concerned about images. It stores them in the DB as opposed to a possible file system storage. This puts a limit on possible file sizes of 5MB. If an entity has an image associated, this collection provides a unique ID for that entity so the image will not be stored in the entity itself.
+- Images also stores the original file name the image had at upload time
+
+### 0.7 User-Car
+On car can be driven by several persons. To distinguish which user can record transaction to which car, we need a Users-Cars relationship collection. We record
+- the user
+- the car
+- the relationship the user has with a car
+
+### 0.8 Relationship Type
+The relationship of a user with a car is described with a Relationship Type, utilized in Users-Cars collection. It is a simple lookup table with
+- relationship name
+- relationship description
+
+
+
+
+
+## 1. User Experience design
 ### 1.1 Strategy Plane
 Stakeholders of the website:
-- xxx
+- members of a family with a pool of cars or small enterprise - normal users
+- chosen persons to perform certain database operations for the benefit of the others - admin users
 
 #### 1.1.1 Goals and Objectives of Stakeholders (users)
-|G#|User|Goals, Needs, Objectives|
-|--|----|------------------------|
-|G1|xxx|yyy|
-
+|User|Goals, Needs, Objectives|
+|----|------------------------|
+|all|allow maintaining the My Car application's database on a computer screen|
+|normal|allow to maintain the Partners and Transactions collections, but nothing else|
+|admin|allow to perform every operation what and how a normal user can do|
+|admin|allow to maintain every data in the database|
+|normal|normal user can only record transactions for cars assigned to them|
+|all|only authorized user may modify data in the database|
 
 ### 1.2 Scope plane
-It has been decided to create a...
+It has been decided to create a web application to serve and fulfill the goals and needs of the users.
 
-The following table lists the planned features, each feature referenced with original goal(s):
+The following table lists the planned features:
 
-|F#|Goal|Feature|
-|--|----|-------|
-|F1|G1|...|
+|F#||Feature|
+|--|-------|
+|F1|...|
 
 ### 1.3 User Stories
 * As a ... I want to ..., so I can ...
@@ -150,7 +228,7 @@ The following navigation links are left off from the diagram below:
 |Header|Title: "Register User"|
 |Main|Input field - "Username" - empty, minimum 5, maximum 15 characters long|
 |Main|Input field - "Password" - empty, minimum 5, maximum 15 characters long|
-|Main|Button - "LOG IN" - link to logging in the given user|
+|Main|Button - "REGISTER" - link to logging in the given user|
 |Main|Text: "Already Registered?", Link: "Log In" - link to Log In page|
 
 <br>
