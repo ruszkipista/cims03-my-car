@@ -56,6 +56,10 @@ The structure of the website to be built consist of these pages:
 - Maintain &lt;collection&gt; page in 16 variants, where collection can be: Transactions / Partners / Users / Images / Currencies / Currency Rates / Measure Types / Unit of Measures / Unit Conversions / Countries / Expenditure Types / Material Types / Materials / Cars / Relationship Types / Users-Cars
 - Update &lt;entity&gt; page in 16 variants, where entity can be: Transaction / Partner / User / Image / Currency / Currency Rate / Measure Type / Unit of Measure / Unit Conversion / Country / Expenditure Type / Material Type / Material / Car / Relationship Type / Users-Car
 
+The following navigation links are left off from the diagram below:
+- Home: awailable on all pages
+- Log Out, Partners, Transactions: once logged in, every page contains these links in the navbar
+
 <p style="text-align: center;"><img src="./docs/my-car-website-structure.png" alt="Website structure" title="pages with navigation links"><p>
 
 ### 1.5 Skeleton plane
@@ -81,6 +85,7 @@ The structure of the website to be built consist of these pages:
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
+|Path|`/`|
 |Navbar|Link "My Car" - link to Home page|
 |Navbar|Link "Home" - link to Home page|
 |Navbar|Link "Partners" - link to Maintain Partners page|
@@ -99,6 +104,7 @@ The structure of the website to be built consist of these pages:
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
+|Path|`/`|
 |Navbar|Link "My Car" - link to Home page|
 |Navbar|Link "Home" - link to Home page|
 |Navbar|Link "Partners" - link to Maintain Partners page|
@@ -115,7 +121,31 @@ The structure of the website to be built consist of these pages:
 </details>
 
 
+<details>
+  <summary>Profile page - Features and Wireframes</summary>
 
+<h3>Profile page</h3>
+
+|Section|Feature / Content description|
+|--------------|-----------------------------|
+|Path|`/profile`|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Partners" - link to Maintain Partners page|
+|Navbar|Link "Transactions" - link to Maintain Transactions page|
+|Navbar|Link "Profile" - link to Profile page|
+|Navbar|Link "Log Out" - link to Log Out from the application|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+|Header|Title: "Profile of &lt;username&gt;"|
+|Header|Title2: "Change Password"|
+|Main|Input field - "Old Password" - empty|
+|Main|Input field - "New Password" - empty|
+|Main|Button - CHANGE PASSWORD - link to changing the password of the logged in user|
+
+<br>
+<img width="100%" src="./docs/my-car-wireframe-profile.png" alt="Wireframe-Profile page 1" title="Profile page">
+
+</details>
 
 
 
