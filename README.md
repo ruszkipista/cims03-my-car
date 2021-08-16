@@ -106,6 +106,66 @@ The structure of the website to be built consist of a ...
 </details>
 
 
+
+
+
+
+<details>
+  <summary>Maintain page - Features and Wireframes</summary>
+
+<h3>Maintain page - </h3>
+
+|Section|Feature / Content description|
+|--------------|-----------------------------|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Partners" - link to Maintain Partners page|
+|Navbar|Link "Transactions" - link to Maintain Transactions page|
+|Navbar|Link "Profile" - link to Profile page|
+|Navbar|Link "Log Out" - link to Log Out from the application|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+
+
+<br>
+<img width="100%" src="./docs/my-car-wireframe-maintain1.png" alt="Wireframe-Maintain page 1" title="Maintain page - ">
+
+<h3>Home page - </h3>
+
+|Section|Feature / Content description|
+|--------------|-----------------------------|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Partners" - link to Maintain Partners page|
+|Navbar|Link "Transactions" - link to Maintain Transactions page|
+|Navbar|Link "Profile" - link to Profile page|
+|Navbar|Link "Log Out" - link to Log Out from the application|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+|Header|Buttons listed horizontally: USERS, IMAGES, CURRENCIES, CURRENCY RATES, MEASURE TYPES, UNIT OF MEASURES, UNIT CONVERSIONS, COUNTRIES, EXPENDITURE TYPES, MATERIAL TYPES, MATERIALS, CARS, RELATIONSHIP TYPES, USERS-CARS - all links to the corresponding Maintain &lt;collection&gt; page|
+|Header|Title: "Cars assigned to you" - hidden if no car is assigned to user|
+|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images - hidden if no car is assigned to user|
+
+<br>
+<img width="100%" src="./docs/my-car-wireframe-maintain1.png" alt="Wireframe-Maintain page 1" title="Maintain page - ">
+
+<h3>Maintain page - </h3>
+
+|Section|Feature / Content description|
+|--------------|-----------------------------|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Partners" - link to Maintain Partners page|
+|Navbar|Link "Transactions" - link to Maintain Transactions page|
+|Navbar|Link "Profile" - link to Profile page|
+|Navbar|Link "Log Out" - link to Log Out from the application|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+|Header|Title: |
+|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images - hidden if no car is assigned to user|
+
+<br>
+<img width="100%" src="./docs/my-car-wireframe-maintain1.png" alt="Wireframe-Maintain page 1" title="Maintain page - ">
+
+</details>
+
 ### 1.6 Surface plane
 Chose default settings of MDBootstrap:
 - font family `Roboto`
@@ -125,7 +185,7 @@ Chose default settings of MDBootstrap:
   * daily cost: value based on planned amortization and operational expense type transactions
   * 100km cost: value based yearly cost and planned yearly distance run
   * last fuelling date
-  * dues in the next 30 days (insurance, tax, car testing, etc.)
+  * dues in the next 30 days (insurance, tax, car inspection, etc.)
 * on the "Maintain Unit Conversions" page, when an option is chosen on "Source Unit" field, restrict the options of Target Unit to the same Unit type as the "Source Unit" has. E.g. selection "L" in one field would restrict the other field to VOL type units only.
 * on the "Maintain Transactions" page
   * when creating a new transaction, fill the Date field with current date
@@ -137,7 +197,7 @@ Chose default settings of MDBootstrap:
 
 ## 4. Technologies and Tools Used
 
-- The project's product (the website) was written in HTML, CSS, JavaScript, Python, Jinja, utilising [Flask](https://flask.palletsprojects.com/) and [MDBootstrap](https://mdbootstrap.com/) frameworks. 
+- The project's product (the website) was written in HTML, CSS, JavaScript, Python, Jinja, utilising [Flask](https://flask.palletsprojects.com/) and [Material Design Bootstrap](https://mdbootstrap.com/) frameworks. 
 - Manipulated images with program [Paint.NET](https://www.getpaint.net/). Mainly used for cropping and resizing.
 - Created wireframes with program from [balsamiq](https://balsamiq.com/wireframes/)
 - Edited the code with [Visual Studio Code](https://code.visualstudio.com/).
@@ -212,7 +272,7 @@ See the whole <a href="https://ruszkipista.github.io/cims03-my-car/my-car-test-s
 | **Countries and Expenditure Types collections                                    | pass |
 | As administrator change a Country setting                                        | pass |
 | As administrator check Expenditure Types settings                                | pass |
-| **Material Types and Materials collectiona**                                     |      |
+| **Material Types and Materials collections**                                     |      |
 | As administrator check Material Types settings                                   | pass |
 | As administrator add a new material                                              | pass |
 | As administrator modify a material                                               | pass |
