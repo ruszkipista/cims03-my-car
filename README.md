@@ -80,8 +80,8 @@ The structure of the website to be built consist of a ...
 |Navbar|Link "Log Out" - link to Log Out from the application|
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
 |Header|Buttons listed horizontally: USERS, IMAGES, CURRENCIES, CURRENCY RATES, MEASURE TYPES, UNIT OF MEASURES, UNIT CONVERSIONS, COUNTRIES, EXPENDITURE TYPES, MATERIAL TYPES, MATERIALS, CARS, RELATIONSHIP TYPES, USERS-CARS - all links to the corresponding Maintain &lt;collection&gt; page|
-|Header|Title: "Cars assigned to you" - hidden if no car is assigned to user|
-|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images - hidden if no car is assigned to user|
+|Header|Title: "Cars assigned to you". Hidden if no car is assigned to user|
+|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images. Hidden if no car is assigned to user|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-home2.png" alt="Wireframe-Home page 2" title="Home page - Admin User Logged In">
@@ -97,8 +97,8 @@ The structure of the website to be built consist of a ...
 |Navbar|Link "Profile" - link to Profile page|
 |Navbar|Link "Log Out" - link to Log Out from the application|
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
-|Header|Title: "Cars assigned to you" - hidden if no car is assigned to user|
-|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images - hidden if no car is assigned to user|
+|Header|Title: "Cars assigned to you". Hidden if no car is assigned to user|
+|Main|Table: list of car records from Cars collection, only those, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images. Hidden if no car is assigned to user|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-home3.png" alt="Wireframe-Home page 3" title="Home page - Normal User Logged In">
@@ -113,7 +113,7 @@ The structure of the website to be built consist of a ...
 <details>
   <summary>Maintain page - Features and Wireframes</summary>
 
-<h3>Maintain page - </h3>
+<h3>Maintain page - Overview &lt;collection&gt; records</h3>
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
@@ -124,12 +124,14 @@ The structure of the website to be built consist of a ...
 |Navbar|Link "Profile" - link to Profile page|
 |Navbar|Link "Log Out" - link to Log Out from the application|
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
-
+|Header|Title: "Maintain &lt;collection&gt;"|
+|Main|Closed Accordion item header: Title: "New &lt;entity&gt;" - header linked to the opening up of the accordion item|
+|Main|Table: list of collection records. For each record the last column contains two icons linked to the update or delete of the record. Hidden if there are no records in the collection|
 
 <br>
-<img width="100%" src="./docs/my-car-wireframe-maintain1.png" alt="Wireframe-Maintain page 1" title="Maintain page - ">
+<img width="100%" src="./docs/my-car-wireframe-maintain1.png" alt="Wireframe-Maintain page 1" title="Maintain page - Overview &lt;collection&gt; records">
 
-<h3>Home page - </h3>
+<h3>Home page - Add new &lt;entity&gt;</h3>
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
@@ -140,14 +142,15 @@ The structure of the website to be built consist of a ...
 |Navbar|Link "Profile" - link to Profile page|
 |Navbar|Link "Log Out" - link to Log Out from the application|
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
-|Header|Buttons listed horizontally: USERS, IMAGES, CURRENCIES, CURRENCY RATES, MEASURE TYPES, UNIT OF MEASURES, UNIT CONVERSIONS, COUNTRIES, EXPENDITURE TYPES, MATERIAL TYPES, MATERIALS, CARS, RELATIONSHIP TYPES, USERS-CARS - all links to the corresponding Maintain &lt;collection&gt; page|
-|Header|Title: "Cars assigned to you" - hidden if no car is assigned to user|
-|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images - hidden if no car is assigned to user|
+|Header|Title: "Maintain &lt;collection&gt;"|
+|Main|Open Accordion item header: Title: "New &lt;entity&gt;" - header linked to the opening up of the accordion item|
+|Main|Open Accordion item body: Contains empy input fields, one for each field in an entity. The fields can have the following types: Text, Number, Date, Select (drop-down), Checkbox, Password, Image, Timestamp (hidden), ChangedBy (hidden). All field content is initial|
+|Main|Table: list of collection records. For each record the last column contains two icons linked to the update or delete of the record. Hidden if there are no records in the collection|
 
 <br>
-<img width="100%" src="./docs/my-car-wireframe-maintain1.png" alt="Wireframe-Maintain page 1" title="Maintain page - ">
+<img width="100%" src="./docs/my-car-wireframe-maintain2.png" alt="Wireframe-Maintain page 2" title="Maintain page - Add new <entity>">
 
-<h3>Maintain page - </h3>
+<h3>Maintain page - Update an &lt;entity&gt;</h3>
 
 |Section|Feature / Content description|
 |--------------|-----------------------------|
@@ -158,11 +161,12 @@ The structure of the website to be built consist of a ...
 |Navbar|Link "Profile" - link to Profile page|
 |Navbar|Link "Log Out" - link to Log Out from the application|
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
-|Header|Title: |
-|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images - hidden if no car is assigned to user|
+|Header|Title: "Maintain &lt;entity&gt;"|
+|Main|Open Accordion item header: Title: "Update &lt;entity&gt;" - header linked to the opening up of the accordion item|
+|Main|Open Accordion item body: Contains empy input fields, one for each field in an entity. The fields can have the following types: Text, Number, Date, Select (drop-down), Checkbox, Password, Image, Timestamp (hidden), ChangedBy (hidden). All fields are filled from the record previously selected for update|
 
 <br>
-<img width="100%" src="./docs/my-car-wireframe-maintain1.png" alt="Wireframe-Maintain page 1" title="Maintain page - ">
+<img width="100%" src="./docs/my-car-wireframe-maintain3.png" alt="Wireframe-Maintain page 3" title="Maintain page - Update an <entity>">
 
 </details>
 
