@@ -1,7 +1,7 @@
 # [My Car Administration](https://my-car-ruszkipista.herokuapp.com/)
 Track the cost and fuel consumption of the fleet of cars in the family! While recording transactions is straightforward for all family members, there are administrative aspects of the database, which need steady hands. Hence I wrote this CRUD web application to maintain the My Car app's database. (The My Car app itself is a separate development endeavour though). Inspired by my own car cost tracking spreadsheet and the "Task Manager" code along mini project in the Code Institute curriculum.
 
-The Project's aim is to demonstrate backend focused development skills coupled with CRUD operations on Non-SQL database. Written in Python using Flask and MongoDB-Atlas, styled with Material Design Bootstrap. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
+The Project's aim is to demonstrate backend focused development skills coupled with CRUD operations on Non-SQL database. It is written in Python using Flask and MongoDB-Atlas, styled with Material Design Bootstrap. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
 
 ![the webpage on different devices](./docs/responsive-am-i.png "the webpage on different size devices")
 
@@ -10,8 +10,8 @@ A live demo can be found - [here](https://my-car-ruszkipista.herokuapp.com/)
 The Project Repository can be found - [here](https://github.com/ruszkipista/cims03-my-car)
 
 ## Contents
-- [0. Data structures design](#0-data-design "0. Data structures design")
-- [1. UX design](#1-ux-design "1. UX design")
+- [0. Data structures design](#0-data-structures-design "0. Data structures design")
+- [1. User experience design](#1-user-experience-design "1. UX design")
   - [1.1 Strategy Plane](#11-strategy-plane "1.1 Strategy Plane")
   - [1.2 Scope plane](#12-scope-plane "1.2 Scope plane")
   - [1.3 User Stories](#13-user-stories "1.3 User Stories")
@@ -149,7 +149,7 @@ We use in quantifying the purchase, the distance took, the fuel consumption, etc
 For example here are 2 records from the collection:
 
 |Name|Description|Measure Type|
-|:---------------:|:----------|
+|:--:|:----------|:-----------|
 |km|Kilo Metre|DIST|
 |L|Litre|VOL|
 
@@ -211,7 +211,7 @@ Every entity is described by metadata and these are stored in the Fieldcatalog c
 The data is stored in a Mongo database where the unit of storage is called *document*. Every document has a unique identifier, in the DB it has the `_id` name. The docuemnts are stored in *collections*. In our data structure we equate an entity representative with a document. E.g. one Car is stored as a document. Many representatives of the same entity are stored in the Cars collection.
 
 Some entity refers to an other entity among its attributes. E.g. one User-Car relationship refers to one User, one Car and one Relationship Type. We store the references by their `_id`
-So instead of having a ("user_id":`user1`, "car_id":`yaris`, "relationship_id":`owner`) we store ("user_id": `611986fa17a24010b762fd6c`, "car_id": `611986fe17a24010b762fd7c`, "relationship_id": `611986f917a24010b762fd69`)
+So instead of having a (`user_id`:`user1`, `car_id`:`yaris`, `relationship_id`:`owner`) we store (`user_id`: `611986fa17a24010b762fd6c`, `car_id`: `611986fe17a24010b762fd7c`, `relationship_id`: `611986f917a24010b762fd69`)
 where 611986fa17a24010b762fd6c refers to the `_id` of `user1` in Users, `611986fe17a24010b762fd7c` refers to the `_id` of `yaris` in Cars and `611986f917a24010b762fd69` refers to the `_id` of `owner` in Relationship Types
 
 ## 1. User Experience design
@@ -246,6 +246,7 @@ This is the list of planned features:
 - an adminitrator user can change any user's password in the Users collection
 - a normal user can create, modify or delete any record in Partners collection
 - a normal user can create, modify or delete records in Transactions if the Transaction's car associated with the User in the Users-Cars collection
+- the list of Transactions on the Maintain Transactions page can be filtered with single car valus, but only those Cars can be selected which are associated with the User in the Users-Cars collection
 - an administrative user can create, modify or delete any record in any collection
 - every webpage has a sticky navigation bar on the top of the page
 - every page has a flash messages section which is only revealed if the previous operation generated one or more messages
@@ -254,7 +255,10 @@ This is the list of planned features:
 - the Home page with logged in user shows a list of Cars and their data
 - the Home page with logged in *administrative* user also provides links for the maintenace of all collections
 - the Maintenace page of any collection has a uniform way of listing existing records, creating a new record, modifying an existing record or deleting an existing record
+- a deletion of a record must be preceded with a request of confirmation
+- a deletion is performed in isolation regardless if the record itself is still referenced in an other record somewhere else
 - in an input field, which is a foreign key, a value is presented which the foreign key refers to (not the foreign key value itself)
+- every web API endpoint (where it makes sense) needs to be protected by checking if there is a valid user logged in
 
 ### 1.3 User Stories
 * As a ... I want to ..., so I can ...
@@ -466,7 +470,8 @@ Chose default settings of MDBootstrap:
 - class `bg-warning` (orange) for the accordion header background color
 
 ## 2. Program design
-
+The `run.py` file contains code related to Flask only, no database or form reference can appear in there.
+The `formdb.py` file is a module and contains code related to the database or webpage forms.
 
 
 ## 3. Features Left to Implement
@@ -692,7 +697,7 @@ My inspiration for this project came from my own booking where I keep car relate
 
 The technical solution started out from the [Task Manager](https://github.com/ruszkipista/ci12-task-master) code along mini project taught in the Code Institute curriculum.
 
-I thank [Nishant Kumar](https://github.com/nishant8BITS) for mentoring me during the project. He suggested to study [Clean Code](http://cleancoder.com/) by Uncle Bob and split up the monolith code into small functions. Despite much of my efforts, Uncle Bob still would not approve the current state of the code, there is still much to learn ...
+I thank [Nishant Kumar](https://github.com/nishant8BITS) for mentoring me during the project. He suggested to study [Clean Code](http://cleancoder.com/) by Uncle Bob and split up the monolith code into small functions. Despite much of my efforts, Uncle Bob still would not approve the current state of the code, there are still much to learn ...
 
 ### Media
 Used 3 car images from the following places:
