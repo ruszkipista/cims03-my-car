@@ -51,8 +51,8 @@ The following table lists the planned features, each feature referenced with ori
 ### 1.4 Structure plane
 The structure of the website to be built consist of these pages:
 - Home page in 3 variants: no user not logged in / normal user logged in /  admin user logged in
-- Profile page
 - RegLog page in 2 variants: Log In / Register User
+- Profile page
 - Maintain &lt;collection&gt; page in 16 variants, where collection can be: Transactions / Partners / Users / Images / Currencies / Currency Rates / Measure Types / Unit of Measures / Unit Conversions / Countries / Expenditure Types / Material Types / Materials / Cars / Relationship Types / Users-Cars
 - Update &lt;entity&gt; page in 16 variants, where entity can be: Transaction / Partner / User / Image / Currency / Currency Rate / Measure Type / Unit of Measure / Unit Conversion / Country / Expenditure Type / Material Type / Material / Car / Relationship Type / Users-Car
 
@@ -120,6 +120,43 @@ The following navigation links are left off from the diagram below:
 
 </details>
 
+<details>
+  <summary>Reg/Log page - Features and Wireframes</summary>
+
+<h3>Log In page</h3>
+
+|Section|Feature / Content description|
+|--------------|-----------------------------|
+|Path|`/login`|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Log In" - link to Log In page|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+|Header|Title: "Log In"|
+|Main|Input field - "Username" - empty, minimum 5, maximum 15 characters long|
+|Main|Input field - "Password" - empty, minimum 5, maximum 15 characters long|
+|Main|Button - "LOG IN" - link to logging in the given user|
+|Main|Text: "New Here?", Link: "Register Account" - link to Register User page|
+
+<h3>Register User page</h3>
+
+|Section|Feature / Content description|
+|--------------|-----------------------------|
+|Path|`/register`|
+|Navbar|Link "My Car" - link to Home page|
+|Navbar|Link "Home" - link to Home page|
+|Navbar|Link "Log In" - link to Log In page|
+|Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
+|Header|Title: "Register User"|
+|Main|Input field - "Username" - empty, minimum 5, maximum 15 characters long|
+|Main|Input field - "Password" - empty, minimum 5, maximum 15 characters long|
+|Main|Button - "LOG IN" - link to logging in the given user|
+|Main|Text: "Already Registered?", Link: "Log In" - link to Log In page|
+
+<br>
+<img width="100%" src="./docs/my-car-wireframe-reglog.png" alt="Wireframe-Register/LogIn pages" title="Register User / Log In pages">
+
+</details>
 
 <details>
   <summary>Profile page - Features and Wireframes</summary>
@@ -140,14 +177,12 @@ The following navigation links are left off from the diagram below:
 |Header|Title2: "Change Password"|
 |Main|Input field - "Old Password" - empty|
 |Main|Input field - "New Password" - empty|
-|Main|Button - CHANGE PASSWORD - link to changing the password of the logged in user|
+|Main|Button - "CHANGE PASSWORD" - link to changing the password of the logged in user|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-profile.png" alt="Wireframe-Profile page 1" title="Profile page">
 
 </details>
-
-
 
 <details>
   <summary>Maintain page - Features and Wireframes</summary>
