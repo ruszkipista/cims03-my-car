@@ -1,7 +1,7 @@
 # [My Car Administration](https://my-car-ruszkipista.herokuapp.com/)
-Track the cost and fuel consumption of the fleet of cars in the family! While recording transactions is straightforward for all family members, there are administrative aspects of the database, which need steady hands. Hence I wrote this CRUD web application to maintain the My Car app's database. (The My Car app itself is a separate development endeavour though). Inspired by my own car cost tracking spreadsheet and the "Task Manager" code along mini project in the Code Institute curriculum.
+Track the cost and fuel consumption of the fleet of cars in the family! While recording transactions is straightforward for all family members, there are administrative aspects of the database, which need steady hands. Hence I wrote this CRUD web application to maintain the My Car app's database. Inspired by my own car cost tracking spreadsheets. (the My Car app itself is a separate development endeavour). 
 
-The Project's aim is to demonstrate backend focused development skills coupled with CRUD operations on Non-SQL database. It is written in Python using Flask and MongoDB-Atlas, styled with Material Design Bootstrap. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
+My aim with this project is to demonstrate backend development skills, REST API usage and CRUD operations on Non-SQL database. It is written in Python using Flask and MongoDB-Atlas, styled with Material Design Bootstrap. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
 
 ![the webpage on different devices](./docs/responsive-am-i.png "the webpage on different size devices")
 
@@ -18,7 +18,7 @@ The Project Repository can be found - [here](https://github.com/ruszkipista/cims
   - [1.4 Structure plane](#14-structure-plane "1.4 Structure plane")
   - [1.5 Skeleton plane](#15-skeleton-plane "1.5 Skeleton plane")
   - [1.6 Surface plane](#16-surface-plane "1.6 Surface plane")
-- [2. Program design](#2-program-design "2. Program design")
+- [2. Code design](#2-code-design "2. Code design")
 - [3. Features Left to Implement](#3-features-left-to-implement "3. Features Left to Implement")
 - [4. Technologies and Tools Used](#4-technologies-and-tools-used "4. Technologies and Tools Used")
 - [5. Issues](#5-issues "5. Solved and Known issues")
@@ -51,9 +51,9 @@ In the Car entity we need a couple of identifiers:
 - a picture for visuals
 - a name and description
 - a plate number for official records
-- in what country was the car registered in - this can determine the reporting currency, in which currency the car's statistics are aggregated
 
 For keeping track of the distance run and calculate fuel consumption:
+- in what country was the car registered in - this determines the reporting currency, in which currency the car's statistics are aggregated
 - unit of the odometer, is it km or miles?
 - what fuel material do we need: petrol or gasoline? or perhaps electricity? - this can pull in the fuel material into the transaction
 - what unit do we want to see the fuel consumption in: L/100km or miles/gallon?
@@ -130,8 +130,8 @@ Measure Type determines the approcah how we measure someting. These are the entr
 
 |Measure Type Name|Description|
 |:---------------:|:----------|
-|CNT|count|
-|VOL|volume|
+|CNT |count|
+|VOL |volume|
 |MASS|mass|
 |DIST|distance|
 |AREA|area|
@@ -146,11 +146,11 @@ We use in quantifying the purchase, the distance took, the fuel consumption, etc
 - a description,
 - and a measure type
 
-For example here are 2 records from the collection:
+Here are 2 example records from the collection:
 
 |Name|Description|Measure Type|
 |:--:|:----------|:-----------|
-|km|Kilo Metre|DIST|
+|km|Kilometre|DIST|
 |L|Litre|VOL|
 
 ### 0.15 Unit Conversion
@@ -168,67 +168,49 @@ We see earlier, that if we want users to restrict access to cars, we set up User
 - when was the last change on this user record
 
 ### 0.17 Fieldcatalog
-Every entity is described by metadata and these are stored in the Fieldcatalog collection. The following example describes the User
+The data structure descriptors of every collections are stored in the Fieldcatalog collection. The following example describes the User entity.
 ```JSON
-{   "entity_name": "user",
-    "description": "Users",
-    "admin": true,
-    "buffered": true,
-    "fields": [{
-        "name": "username",
-        "heading": "User Name",
-        "input_type": "text",
-        "unique": true
-    }, {
-        "name": "password",
-        "heading": "Password",
-        "input_type": "password",
-        "attributes": "autocomplete=new-password"
-    }, {
-        "name": "user_is_admin",
-        "heading": "Administrator?",
-        "input_type": "checkbox"
-    }, {
-        "name": "date_time_insert",
-        "heading": "Registered",
-        "input_type": "timestamp_insert"
-    }, {
-        "name": "changed_by",
-        "heading": "Changed By",
-        "input_type": "changedby",
-        "values": "users"
-    }, {
-        "name": "date_time_update",
-        "heading": "Updated",
-        "input_type": "timestamp_update"
-    }],
-    "select_field": "username",
-    "collection_name": "users"
+{ "collection_name": "users",
+  "entity_name":     "user",
+  "description":     "Users",
+  "admin":           true,
+  "buffered":        true,
+  "fields": [
+    { "name": "username",         "heading": "User Name",      "input_type": "text",      "unique": true },
+    { "name": "password",         "heading": "Password",       "input_type": "password",  "attributes": "autocomplete=new-password" },
+    { "name": "user_is_admin",    "heading": "Administrator?", "input_type": "checkbox" },
+    { "name": "date_time_insert", "heading": "Registered",     "input_type": "timestamp_insert" },
+    { "name": "date_time_update", "heading": "Updated",        "input_type": "timestamp_update" },
+    { "name": "changed_by",       "heading": "Changed By",     "input_type": "changedby", "values": "users" }
+  ],
+  "select_field": "username"
 }
 ```
 
 ### 0.18 Note on foreign keys
-The data is stored in a Mongo database where the unit of storage is called *document*. Every document has a unique identifier, in the DB it has the `_id` name. The docuemnts are stored in *collections*. In our data structure we equate an entity representative with a document. E.g. one Car is stored as a document. Many representatives of the same entity are stored in the Cars collection.
+The data is stored in a Mongo database where the unit of storage is *document*. Every document has a unique identifier, in the DB it has the `_id` name. The docuemnts are stored in *collections*. In our data structure we equate an entity representative with a document. E.g. one Car is stored as a document. Many representatives of the same entity are stored in the Cars collection.
 
-Some entity refers to an other entity among its attributes. E.g. one User-Car relationship refers to one User, one Car and one Relationship Type. We store the references by their `_id`
-So instead of having a (`user_id`:`user1`, `car_id`:`yaris`, `relationship_id`:`owner`) we store (`user_id`: `611986fa17a24010b762fd6c`, `car_id`: `611986fe17a24010b762fd7c`, `relationship_id`: `611986f917a24010b762fd69`)
-where 611986fa17a24010b762fd6c refers to the `_id` of `user1` in Users, `611986fe17a24010b762fd7c` refers to the `_id` of `yaris` in Cars and `611986f917a24010b762fd69` refers to the `_id` of `owner` in Relationship Types
+If one entity refers to an other entity with an attribute, we call that attribute as foreign key. E.g. one User-Car relationship contains 3 foreign keys: User, Car and Relationship Type. We store these references to the foreign entities by their `_id`
+So instead of having a (`user_id`:`user1`, `car_id`:`yaris`, `relationship_id`:`owner`) we store (`user_id`: `611986fa17a24010b762fd6c`, `car_id`: `611986fe17a24010b762fd7c`, `relationship_id`: `611986f917a24010b762fd69`) where 611986fa17a24010b762fd6c refers to the `_id` of `user1` in Users, `611986fe17a24010b762fd7c` refers to the `_id` of `yaris` in Cars and `611986f917a24010b762fd69` refers to the `_id` of `owner` in Relationship Types.
 
 ## 1. User Experience design
 ### 1.1 Strategy Plane
 Stakeholders of the website:
-- members of a family with a pool of cars or small enterprise - normal users
-- chosen persons to perform certain database operations for the benefit of the others - admin users
+- members of a family or employee of small enterprise with a pool of cars
+- chosen persons to perform certain database entry maintenace for the benefit of other users within the group
+- developer of the My Car application
 
 #### 1.1.1 Goals and Objectives of Stakeholders (users)
 |User|Goals, Needs, Objectives|
 |----|------------------------|
-|all|allow maintaining the My Car application's database on a computer screen|
+|all|facilitate the maintanence on a computer screen of data under the My Car application|
+|all|only authorized user may modify data in the database|
 |normal|allow to maintain the Partners and Transactions collections, but nothing else|
+|normal|normal user can only record Transactions for cars assigned to them|
 |admin|allow to perform every operation what and how a normal user can do|
 |admin|allow to maintain every data in the database|
-|normal|normal user can only record transactions for cars assigned to them|
-|all|only authorized user may modify data in the database|
+|developer|users can not modify the data structures of the My Car app|
+|developer|keep the admin functionality flexible, so future enhancements in data would require minimal changes here|
 
 ### 1.2 Scope plane
 It has been decided to create a web application to serve and fulfill the goals and needs of the users.
@@ -258,7 +240,7 @@ This is the list of planned features:
 - a deletion of a record must be preceded with a request of confirmation
 - a deletion is performed in isolation regardless if the record itself is still referenced in an other record somewhere else
 - in an input field, which is a foreign key, a value is presented which the foreign key refers to (not the foreign key value itself)
-- every web API endpoint (where it makes sense) needs to be protected by checking if there is a valid user logged in
+- every REST API endpoint needs to be protected (where it makes sense) by checking if there is a valid user logged in
 
 ### 1.3 User Stories
 * As a ... I want to ..., so I can ...
@@ -469,10 +451,19 @@ Chose default settings of MDBootstrap:
 - class `bg-primary` (blue) for normal user's navbar background color
 - class `bg-warning` (orange) for the accordion header background color
 
-## 2. Program design
-The `run.py` file contains code related to Flask only, no database or form reference can appear in there.
-The `formdb.py` file is a module and contains code related to the database or webpage forms.
-
+## 2. Code design
+* utilizing the [Flask](https://flask.palletsprojects.com/) framework for handling REST API calls
+  - The `run.py` file contains code related to Flask only, no database or form reference can appear in there.
+  - The `formdb.py` file is a module and contains code related to the database and webpage forms.
+* generating webpages from HTML templates with [Jinja](https://jinja.palletsprojects.com/) templating inserts
+  - the `base.html` file contains the base HTML structure of all webpages generated in the app
+  - the `index.html` extends the `base.html` into the 3 versions of the Home page
+  - the `reglog.html` extends the `base.html` into the Login and Register User pages
+  - the `profile.html` extends the `base.html` into the Profile page
+  - the `maintain.html` extends the `base.html` into the 32 versions of the Maintain page: 16 collections * (`/maintain/<collection>` + `/update/<collection>/<record_id>`)
+* The dabase structure and content can be initialized programmatically. It is governed by environment variable `MONGO_INIT`. If it equals with `True`, then the content of every collections is deleted and initialized using 2 project files.
+  - `db_base.json` contains the entity structure descriptions (which are deposited in the Fieldcatalog) and selected basic content)
+  - `db_base.json` demo content with 3 users, 3 cars and some recorded transactions)
 
 ## 3. Features Left to Implement
 * develop a "view" fieldcatalog functionality to enable calculated columns on the generated tables, e.g. fuel consumption column
@@ -523,11 +514,15 @@ First step in testing was the validation of HTML, CSS and JS code with [Markup V
 The whole testing was conducted manually on Windows 10 desktop device running Chrome browser on a 1920x1080 resolution screen and on an Android tablet. Not tested on mobile phone, because the limited screen estate does not allow wide tables handling comfortably.
 
 See the whole <a href="https://ruszkipista.github.io/cims03-my-car/my-car-test-suite.html" target="_blank">test suite</a> in a webpage.
-| Testing the My Car Administration web application                                | Result |
-|----------------------------------------------------------------------------------|--------|
-| Check landing page (Home) without logged in user                                 | pass |
-| Check Home page without logged in user on wide page                              | pass |
-| **Users collection**                                                             |      |
+
+<details>
+  <summary>Test results</summary>
+
+| Testing the My Car Administration web application                                |Result|
+|:---------------------------------------------------------------------------------|:----:|
+| Check landing page (Home) without logged in user on narrow screen                | pass |
+| Check Home page without logged in user on wide screen                            | pass |
+| **Users collection**                                                             | ---- |
 | Try to Login with a non existing username:                                       | pass |
 | Register a new (not already existing) user:                                      | pass |
 | As logged in normal user Log Out                                                 | pass |
@@ -548,7 +543,7 @@ See the whole <a href="https://ruszkipista.github.io/cims03-my-car/my-car-test-s
 | Try to log in with deleted normal user                                           | pass |
 | As administrator create a new normal user                                        | pass |
 | As administrator try to create a user with existing username                     | pass |
-| **Relationship Types, Cars, Users-Cars, Images, Partners, Transactions collections** |  |
+|**Relationship Types, Cars, Users-Cars, Images, Partners, Transactions collections**|----|
 | As administrator check Relationship Types                                        | pass |
 | As administrator assign first car to a normal user                               | pass |
 | Log in as normal user with a car (just) assigned                                 | pass |
@@ -560,10 +555,10 @@ See the whole <a href="https://ruszkipista.github.io/cims03-my-car/my-car-test-s
 | As administrator delete a car record                                             | pass |
 | As administrator replace an image in Images                                      | pass |
 | As administrator remove user-car relationship                                    | pass |
-| **Currencies, Currency rates collections**                                       |      |
+| **Currencies, Currency rates collections**                                       | ---- |
 | As administrator add a new currency                                              | pass |
 | As administrator record currency rates                                           | pass |
-| **Measure Types, Unit of Measures, Unit Conversions collections**                |      |
+| **Measure Types, Unit of Measures, Unit Conversions collections**                | ---- |
 | As administrator add a new measure type                                          | pass |
 | As administrator add a new unit of measure                                       | pass |
 | As administrator modify a unit of measure                                        | pass |
@@ -571,14 +566,14 @@ See the whole <a href="https://ruszkipista.github.io/cims03-my-car/my-car-test-s
 | **Countries and Expenditure Types collections                                    | pass |
 | As administrator change a Country setting                                        | pass |
 | As administrator check Expenditure Types settings                                | pass |
-| **Material Types and Materials collections**                                     |      |
+| **Material Types and Materials collections**                                     | ---- |
 | As administrator check Material Types settings                                   | pass |
 | As administrator add a new material                                              | pass |
 | As administrator modify a material                                               | pass |
 
 No additional bugs were discovered during the final testing.
 
-Conclusion: The website performs on desktop and tablet as intended.
+</details>
 
 ## 7. Deployment
  
