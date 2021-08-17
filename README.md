@@ -126,7 +126,7 @@ Also we need
 - material type description
 
 ### 0.13 Measure Type
-Measure Type determines the approach how we measure something. These are the entries in the Measure Types collection:
+Measure Type determines the approach to how we measure something. These are the entries in the Measure Types collection:
 
 |Measure Type Name|Description|
 |:---------------:|:----------|
@@ -154,7 +154,7 @@ Here are 2 example records from the collection:
 |L|Litre|VOL|
 
 ### 0.15 Unit Conversion
-When we have two Unit of Measures of the same type, we want to know how many units of A equals unit of B. This collection stores some prominent conversion rates, like `km` <-> `miles`
+When we have two Unit of Measures of the same type, we want to know how many units of A equals units of B. This collection stores some prominent conversion rates, like `km` <-> `miles`
 - source unit of measure
 - target unit of measure
 - conversion factor
@@ -188,7 +188,7 @@ The data structure descriptors of every collection are stored in the Fieldcatalo
 ```
 
 ### 0.18 Note on foreign keys
-The data is stored in a Mongo database where the unit of storage is *document*. Every document has a unique identifier, in the DB it has the `_id` name. The documnents are stored in *collections*. In our data structure we equate an entity representative with a document. E.g. one Car is stored as a document. Many representatives of the same entity are stored in the Cars collection.
+The data is stored in a Mongo database where the unit of storage is *document*. Every document has a unique identifier, in the DB it has the `_id` name. The documents are stored in *collections*. In our data structure we equate an entity representative with a document. E.g. one Car is stored as a document. Many representatives of the same entity are stored in the Cars collection.
 
 If one entity refers to another entity with an attribute, we call that attribute as foreign key. E.g. one User-Car relationship contains 3 foreign keys: User, Car and Relationship Type. We store these references to the foreign entities by their `_id`
 So instead of having a (`user_id`:`user1`, `car_id`:`yaris`, `relationship_id`:`owner`) we store (`user_id`: `611986fa17a24010b762fd6c`, `car_id`: `611986fe17a24010b762fd7c`, `relationship_id`: `611986f917a24010b762fd69`) where 611986fa17a24010b762fd6c refers to the `_id` of `user1` in Users, `611986fe17a24010b762fd7c` refers to the `_id` of `yaris` in Cars and `611986f917a24010b762fd69` refers to the `_id` of `owner` in Relationship Types.
@@ -292,7 +292,7 @@ The following navigation links are left off from the diagram below:
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
 |Header|Buttons listed horizontally: USERS, IMAGES, CURRENCIES, CURRENCY RATES, MEASURE TYPES, UNIT OF MEASURES, UNIT CONVERSIONS, COUNTRIES, EXPENDITURE TYPES, MATERIAL TYPES, MATERIALS, CARS, RELATIONSHIP TYPES, USERS-CARS - all links to the corresponding Maintain &lt;collection&gt; page|
 |Header|Title: "Cars assigned to you". Hidden if no car is assigned to user|
-|Main|Table: list of car records form Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the cars images. Hidden if no car is assigned to user|
+|Main|Table: list of car records from Cars collection, which are assigned to the logged in user via a record in Users-Cars collection. The first column of the table is filled with the car images. Hidden if no car is assigned to user|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-home2.png" alt="Wireframe-Home page 2" title="Home page - Admin User Logged In">
@@ -417,7 +417,7 @@ The following navigation links are left off from the diagram below:
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
 |Header|Title: "Maintain &lt;collection&gt;"|
 |Main|Open Accordion item header: Title: "New &lt;entity&gt;" - header linked to the opening up of the accordion item|
-|Main|Open Accordion item body: Contains empy input fields, one for each field in an entity. The fields can have the following types: Text, Number, Date, Select (drop-down), Checkbox, Password, Image, Timestamp (hidden), ChangedBy (hidden). All field content is initial|
+|Main|Open Accordion item body: Contains empty input fields, one for each field in an entity. The fields can have the following types: Text, Number, Date, Select (drop-down), Checkbox, Password, Image, Timestamp (hidden), ChangedBy (hidden). All field content is initial|
 |Main|Table: list of collection records. For each record the last column contains two icons linked to the update or delete of the record. Hidden if there are no records in the collection|
 
 <br>
@@ -437,7 +437,7 @@ The following navigation links are left off from the diagram below:
 |Header|Flash Message: Contains message(s) if the previous operation issued one. Their type can be: Information (light blue), Success (green), Warning (yellow) and Error (red)"|
 |Header|Title: "Maintain &lt;entity&gt;"|
 |Main|Open Accordion item header: Title: "Update &lt;entity&gt;" - header linked to the opening up of the accordion item|
-|Main|Open Accordion item body: Contains empy input fields, one for each field of the entity. The fields can have the following types: Text, Number, Date, Select (drop-down), Checkbox, Password, Image, Timestamp (hidden), ChangedBy (hidden). All fields are filled from the record previously selected for update|
+|Main|Open Accordion item body: Contains empty input fields, one for each field of the entity. The fields can have the following types: Text, Number, Date, Select (drop-down), Checkbox, Password, Image, Timestamp (hidden), ChangedBy (hidden). All fields are filled from the record previously selected for update|
 
 <br>
 <img width="100%" src="./docs/my-car-wireframe-maintain3.png" alt="Wireframe-Maintain page 3" title="Maintain page - Update an <entity>">
@@ -507,7 +507,7 @@ Choose default settings of MDBootstrap:
 * separated the web server (Flask) code part from the form-database codes
 ### Known issues
 * "Unit Conversions" collection is sorted by `*_id` foreign key fields and not by the referred foreign value `Unit Name`. Although this still groups values together, but not alphabetically sorts as one would expect. To solve it, the sorting needs to be moved from the DB into the application.
-* input form and database related codes are co-dependent, because there is only one set of field names which are used by both code parts. An additionla logic needs to be written to discover records still referencing the record to be deleted and do a cascading deletion.
+* input form and database related codes are co-dependent, because there is only one set of field names which are used by both code parts. An additional logic needs to be written to discover records still referencing the record to be deleted and do a cascading deletion.
 
 ## 6. Testing
 First step in testing was the validation of HTML, CSS and JS code with [Markup Validation Service](https://validator.w3.org/), [CSS Validation Service](https://jigsaw.w3.org/css-validator/), [JS Hint](https://jshint.com/) respectively. 
