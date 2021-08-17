@@ -140,8 +140,10 @@ Measure Type determines the approach to how we measure something. These are the 
 |TIME|time|
 
 ### 0.14 Unit of Measure
-A unit of measurement is a definite magnitude of a quantity (from [wikipedia](https://en.wikipedia.org/wiki/Unit_of_measurement))
-We use in quantifying the purchase, the distance taken, the fuel consumption, etc. For us it is
+> A unit of measurement is a definite magnitude of a quantity 
+> -- from [wikipedia](https://en.wikipedia.org/wiki/Unit_of_measurement)
+
+We use it in quantifying the purchase, the distance taken, the fuel consumption, etc. For us it is
 - a name,
 - a description,
 - and a measure type
@@ -244,6 +246,35 @@ This is the list of planned features:
 
 ### 1.3 User Stories
 * As a ... I want to ..., so I can ...
+
+As a visitor (without logging in), 
+- I am not able to log in without registered username/password, so I can not modify the database content
+- I want to register with a username and password, so I can become a normal user
+- I am not able to register an already taken username
+- I am not able to maintain any data by entering the sub-page's URL address
+
+As a user, I want
+- the website content consumable on computer screen and mobile devices, so I can use it on any device I have access to
+- to log in with my username and valid password only, so others can not login with invalid password
+- to filter transactions with a selected car, so I can easier check their list without confusion
+- to have an image stored about all carr, so I can quickly identify their data in lists
+
+As logged in user, I want to
+- Log Out, so no one can modify the database under my username without my knowledge
+- change my own password, so I can service myself
+- create/modify/delete business partners, so I can record a transaction with new partner or correct my mistake at Partner creation
+- record Transactions for those cars only which are associated with me, so I can not maintain transactions for an unassigned car by mistake.
+
+As a logged in administrator user, I want to
+- create/modify/delete records in any of the collections, so I can serve other users' data modification needs
+- promote a normal user to administrator, so I can share the admin work with someone else.
+- demote an admin user back to normal user status, so the user can not make any more administrative mistakes.
+- create a new user, so the person can log into the application
+- I am not able to record an already taken username, so there won't be confusion at the login process
+- reset a user's forgotten password, so they can log in again
+- assign a car to a user, so the setting can follow real world changes
+- deassign a car from a user, so the setting can follow real world changes
+- replace an image in Images collection, so I can serve such user requests
 
 ### 1.4 Structure plane
 The structure of the website to be built consist of these pages:
