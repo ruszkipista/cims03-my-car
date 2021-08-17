@@ -3,7 +3,7 @@ Track the cost and fuel consumption of the fleet of cars in the family! While re
 
 My aim with this project is to demonstrate backend development skills, REST API usage and CRUD operations on Non-SQL database. It is written in Python using Flask and MongoDB-Atlas, styled with Material Design Bootstrap. This project is my third milestone in obtaining the [Full Stack Web Development](https://codeinstitute.net/full-stack-software-development-diploma/) diploma from [Code Institute](https://codeinstitute.net/)
 
-![the webpage on different devices](./docs/responsive-am-i.png "the webpage on different size devices")
+![the web page on different devices](./docs/responsive-am-i.png "the web page on different size devices")
 
 A live demo can be found - [here](https://my-car-ruszkipista.herokuapp.com/)
 
@@ -27,13 +27,13 @@ The Project Repository can be found - [here](https://github.com/ruszkipista/cims
 - [8. Credits](#8-credits "8 Credits")
 
 ## 0. Data structures design
-Let's introduce briefly the data structures of the My Car application. It is necessary to learn some features to understand the reason behind arrangements in the data.
+Let's briefly introduce the data structures of the My Car application. It is necessary to learn some features to understand the reason behind arrangements in the data.
 
 The main entity is the Car. We want collect financial transactions occurring around cars in order to answer such questions
-- what is the fuel economy looks like, how much fuel it consumes on a set distance or how much distance it can take on a set amout of fuel?
-- how much do we spend on the car to run daily, monthly, yearly?
-- how much does it cost to run 100 km?
-- how much is the book value of the car today?
+- What is the fuel economy look like, how much fuel it consumes on a set distance or how much distance it can take on a set amount of fuel?
+- How much do we spend on the car to run daily, monthly, yearly?
+- How much does it cost to run 100 km?
+- How much is the book value of the car today?
 
 ### 0.1 Transaction
 So in order to calculate all of that, we need to record the following things about a Transaction:
@@ -43,8 +43,8 @@ So in order to calculate all of that, we need to record the following things abo
 - description to record details which does not conform to any other transaction details
 - what material/service was involved - to be able to separate operating and capital expenses
 - how much quantity and what unit  - for various reasons
-- what was the price in what currency? - for expense calculation
-- to keep track the run distances between refuellins, we need the status of the odometer when it happened
+- What was the price in what currency? - for expense calculation
+- to keep track the run distances between refuellings, we need the status of the odometer when it happened
 
 ### 0.2 Car
 In the Car entity we need a couple of identifiers:
@@ -79,14 +79,14 @@ If we take the car out of the registration country, we might need to pay in a di
 - target currency
 - exchange rate: unit source currency value expressed in target currency value, e.g. 1 EUR => 0.89080 GBP on 01/01/2018
 
-For simplicity, we allow the conversion calculation in both directions, e.g the GBP->EUR rate will serve for the EUR->GBP conversion as well. Furthermore, any rate is valid from the validity date until a newer rate is recorded. This way we do not need rate for every day, but we could have.
+For simplicity, we allow the conversion calculation in both directions, e.g the GBP->EUR rate will serve for the EUR->GBP conversion as well. Furthermore, any rate is valid from the validity date until a newer rate is recorded. This way we do not need a rate for every day, but we could have.
 
 ### 0.6 Image
 This is a collection only concerned about images. It stores them in the DB as opposed to a possible file system storage. This puts a limit on possible file sizes of 5MB. If an entity has an image associated, this collection provides a unique ID for that entity so the image will not be stored in the entity itself.
 - Images also stores the original file name the image was uploaded with
 
 ### 0.7 User-Car
-A car can be driven by several persons. To distinguish which user can record transactions to which car, we need a User-Car relationship record. In that we store
+A car can be driven by several people. To distinguish which user can record transactions to which car, we need a User-Car relationship record. In that we store
 - the user
 - the car
 - the relationship the user has with a car
@@ -107,7 +107,7 @@ A Parter identifies a business or government entity who we paid for goods or ser
 This is the thing we buy or pay for during a transaction. We keep it simple, oly have 3 fields:
 - material name
 - description
-- material type - allows grouping of materials of the same tzpe
+- material type - allows grouping of materials of the same type
 
 ### 0.11 Expenditure Type
 The Expenditure Types has 2 entries so far
@@ -126,7 +126,7 @@ Also we need
 - material type description
 
 ### 0.13 Measure Type
-Measure Type determines the approcah how we measure someting. These are the entries in the Measure Types collection:
+Measure Type determines the approach how we measure something. These are the entries in the Measure Types collection:
 
 |Measure Type Name|Description|
 |:---------------:|:----------|
@@ -141,7 +141,7 @@ Measure Type determines the approcah how we measure someting. These are the entr
 
 ### 0.14 Unit of Measure
 A unit of measurement is a definite magnitude of a quantity (from [wikipedia](https://en.wikipedia.org/wiki/Unit_of_measurement))
-We use in quantifying the purchase, the distance took, the fuel consumption, etc. For us it is
+We use in quantifying the purchase, the distance taken, the fuel consumption, etc. For us it is
 - a name,
 - a description,
 - and a measure type
@@ -154,7 +154,7 @@ Here are 2 example records from the collection:
 |L|Litre|VOL|
 
 ### 0.15 Unit Conversion
-When we have two Unit of Measures of the same type, we want to know how many of unit A equals of unit B. This collection stores some prominent conversion rates, like `km` <-> `miles`
+When we have two Unit of Measures of the same type, we want to know how many units of A equals unit of B. This collection stores some prominent conversion rates, like `km` <-> `miles`
 - source unit of measure
 - target unit of measure
 - conversion factor
@@ -168,7 +168,7 @@ We see earlier, that if we want users to restrict access to cars, we set up User
 - when was the last change on this user record
 
 ### 0.17 Fieldcatalog
-The data structure descriptors of every collections are stored in the Fieldcatalog collection. The following example describes the User entity.
+The data structure descriptors of every collection are stored in the Fieldcatalog collection. The following example describes the User entity.
 ```JSON
 { "collection_name": "users",
   "entity_name":     "user",
@@ -188,16 +188,16 @@ The data structure descriptors of every collections are stored in the Fieldcatal
 ```
 
 ### 0.18 Note on foreign keys
-The data is stored in a Mongo database where the unit of storage is *document*. Every document has a unique identifier, in the DB it has the `_id` name. The docuemnts are stored in *collections*. In our data structure we equate an entity representative with a document. E.g. one Car is stored as a document. Many representatives of the same entity are stored in the Cars collection.
+The data is stored in a Mongo database where the unit of storage is *document*. Every document has a unique identifier, in the DB it has the `_id` name. The documnents are stored in *collections*. In our data structure we equate an entity representative with a document. E.g. one Car is stored as a document. Many representatives of the same entity are stored in the Cars collection.
 
-If one entity refers to an other entity with an attribute, we call that attribute as foreign key. E.g. one User-Car relationship contains 3 foreign keys: User, Car and Relationship Type. We store these references to the foreign entities by their `_id`
+If one entity refers to another entity with an attribute, we call that attribute as foreign key. E.g. one User-Car relationship contains 3 foreign keys: User, Car and Relationship Type. We store these references to the foreign entities by their `_id`
 So instead of having a (`user_id`:`user1`, `car_id`:`yaris`, `relationship_id`:`owner`) we store (`user_id`: `611986fa17a24010b762fd6c`, `car_id`: `611986fe17a24010b762fd7c`, `relationship_id`: `611986f917a24010b762fd69`) where 611986fa17a24010b762fd6c refers to the `_id` of `user1` in Users, `611986fe17a24010b762fd7c` refers to the `_id` of `yaris` in Cars and `611986f917a24010b762fd69` refers to the `_id` of `owner` in Relationship Types.
 
 ## 1. User Experience design
 ### 1.1 Strategy Plane
 Stakeholders of the website:
 - members of a family or employee of small enterprise with a pool of cars
-- chosen persons to perform certain database entry maintenace for the benefit of other users within the group
+- chosen persons to perform certain database entry maintenance for the benefit of other users within the group
 - developer of the My Car application
 
 #### 1.1.1 Goals and Objectives of Stakeholders (users)
@@ -225,20 +225,20 @@ This is the list of planned features:
 - a normal user can be promoted to an administrator user
 - an administrator can be demoted to a normal user
 - a normal user can change its own password
-- an adminitrator user can change any user's password in the Users collection
+- an administrator user can change any user's password in the Users collection
 - a normal user can create, modify or delete any record in Partners collection
 - a normal user can create, modify or delete records in Transactions if the Transaction's car associated with the User in the Users-Cars collection
-- the list of Transactions on the Maintain Transactions page can be filtered with single car valus, but only those Cars can be selected which are associated with the User in the Users-Cars collection
+- the list of Transactions on the Maintain Transactions page can be filtered with single car values, but only those Cars can be selected which are associated with the User in the Users-Cars collection
 - an administrative user can create, modify or delete any record in any collection
-- every webpage has a sticky navigation bar on the top of the page
+- every web page has a sticky navigation bar on the top of the page
 - every page has a flash messages section which is only revealed if the previous operation generated one or more messages
-- the Home page without logged in user shows no information from the data base
-- the Home page with logged in user shows links in the navbar to the maintence of Partners and Transactions collections
+- the Home page without logged in user shows no information from the database
+- the Home page with logged in user shows links in the navbar to the maintenance of Partners and Transactions collections
 - the Home page with logged in user shows a list of Cars and their data
-- the Home page with logged in *administrative* user also provides links for the maintenace of all collections
-- the Maintenace page of any collection has a uniform way of listing existing records, creating a new record, modifying an existing record or deleting an existing record
+- the Home page with logged in *administrative* user also provides links for the maintenance of all collections
+- the Maintenance page of any collection has a uniform way of listing existing records, creating a new record, modifying an existing record or deleting an existing record
 - a deletion of a record must be preceded with a request of confirmation
-- a deletion is performed in isolation regardless if the record itself is still referenced in an other record somewhere else
+- a deletion is performed in isolation regardless if the record itself is still referenced in another record somewhere else
 - in an input field, which is a foreign key, a value is presented which the foreign key refers to (not the foreign key value itself)
 - every REST API endpoint needs to be protected (where it makes sense) by checking if there is a valid user logged in
 
@@ -254,7 +254,7 @@ The structure of the website to be built consist of these pages:
 - Update &lt;entity&gt; page in 16 variants, where entity can be: Transaction / Partner / User / Image / Currency / Currency Rate / Measure Type / Unit of Measure / Unit Conversion / Country / Expenditure Type / Material Type / Material / Car / Relationship Type / Users-Car
 
 The following navigation links are left off from the diagram below:
-- Home: awailable on all pages
+- Home: available on all pages
 - Log Out, Partners, Transactions: once logged in, every page contains these links in the navbar
 
 <p style="text-align: center;"><img src="./docs/my-car-website-structure.png" alt="Website structure" title="pages with navigation links"><p>
@@ -445,7 +445,7 @@ The following navigation links are left off from the diagram below:
 </details>
 
 ### 1.6 Surface plane
-Chose default settings of MDBootstrap:
+Choose default settings of MDBootstrap:
 - font family `Roboto`
 - class `bg-secondary` (purple) for administrator user's navbar background color
 - class `bg-primary` (blue) for normal user's navbar background color
@@ -454,19 +454,19 @@ Chose default settings of MDBootstrap:
 ## 2. Code design
 * utilizing the [Flask](https://flask.palletsprojects.com/) framework for handling REST API calls
   - The `run.py` file contains code related to Flask only, no database or form reference can appear in there.
-  - The `formdb.py` file is a module and contains code related to the database and webpage forms.
-* generating webpages from HTML templates with [Jinja](https://jinja.palletsprojects.com/) templating inserts
-  - the `base.html` file contains the base HTML structure of all webpages generated in the app
+  - The `formdb.py` file is a module and contains code related to the database and web page forms.
+* generating web pages from HTML templates with [Jinja](https://jinja.palletsprojects.com/) templating inserts
+  - the `base.html` file contains the base HTML structure of all web pages generated in the app
   - the `index.html` extends the `base.html` into the 3 versions of the Home page
   - the `reglog.html` extends the `base.html` into the Login and Register User pages
   - the `profile.html` extends the `base.html` into the Profile page
   - the `maintain.html` extends the `base.html` into the 32 versions of the Maintain page: 16 collections * (`/maintain/<collection>` + `/update/<collection>/<record_id>`)
-* The dabase structure and content can be initialized programmatically. It is governed by environment variable `MONGO_INIT`. If it equals with `True`, then the content of every collections is deleted and initialized using 2 project files.
+* The database structure and content can be initialized programmatically. It is governed by the environment variable `MONGO_INIT`. If it equals `True`, then the content of every collection is deleted and initialized using 2 project files.
   - `db_base.json` contains the entity structure descriptions (which are deposited in the Fieldcatalog) and selected basic content)
   - `db_base.json` demo content with 3 users, 3 cars and some recorded transactions)
 
 ## 3. Features Left to Implement
-* develop a "view" fieldcatalog functionality to enable calculated columns on the generated tables, e.g. fuel consumption column
+* develop a "view" field catalog functionality to enable calculated columns on the generated tables, e.g. fuel consumption column
 * on the "Home" page instead of listing the car records from the "Cars" collection, list cars with the following calculated statistics:
   * picture of car
   * car's current book value: based on initial purchase price, planned length of keep, capital expense type of transactions recorded
@@ -499,21 +499,21 @@ Chose default settings of MDBootstrap:
 - Generated favicon with [Favicon & App Icon Generator](https://www.favicon-generator.org/)
 - Generated tables for this readme with [Tables Generator](https://www.tablesgenerator.com/) web service
 - Generated one image (on top of this Readme) of how the website looks on different size devices with [Am I Responsive](http://ami.responsivedesign.is/)
-- Searched the internet to find content, documentation and solution for issues using [Google](https://www.google.com)'s search service.
+- Searched the internet to find content, documentation and solutions for issues using [Google](https://www.google.com)'s search service.
 
 ## 5. Issues
 ### Issues solved during development
 * on the `maintain.html` page there is one modal pop-up embedded for record deletion confirmation. The suggestion I received was to have as many modals as many rows are generated on the page. I successfully generalized the modal with a javascript function, so one modal is enough.
 * separated the web server (Flask) code part from the form-database codes
 ### Known issues
-* "Unit Conversions" table is sorted by `*_id` foreign key fields and not the referred foreign value Unit Name. Although this still groups values together, but not alphabetically as one would expect.
-* input form and database related codes are co-dependent, because there is only one set of field names which are used by both code parts
+* "Unit Conversions" collection is sorted by `*_id` foreign key fields and not by the referred foreign value `Unit Name`. Although this still groups values together, but not alphabetically sorts as one would expect. To solve it, the sorting needs to be moved from the DB into the application.
+* input form and database related codes are co-dependent, because there is only one set of field names which are used by both code parts. An additionla logic needs to be written to discover records still referencing the record to be deleted and do a cascading deletion.
 
 ## 6. Testing
 First step in testing was the validation of HTML, CSS and JS code with [Markup Validation Service](https://validator.w3.org/), [CSS Validation Service](https://jigsaw.w3.org/css-validator/), [JS Hint](https://jshint.com/) respectively. 
-The whole testing was conducted manually on Windows 10 desktop device running Chrome browser on a 1920x1080 resolution screen and on an Android tablet. Not tested on mobile phone, because the limited screen estate does not allow wide tables handling comfortably.
+The whole testing was conducted manually on a Windows 10 desktop device running Chrome browser on a 1920x1080 resolution screen and on an Android tablet. Not tested on mobile phones, because the limited screen estate does not allow wide tables handling comfortably.
 
-See the whole <a href="https://ruszkipista.github.io/cims03-my-car/my-car-test-suite.html" target="_blank">test suite</a> in a webpage.
+See the whole <a href="https://ruszkipista.github.io/cims03-my-car/my-car-test-suite.html" target="_blank">test suite</a> in a web page.
 
 <details>
   <summary>Test results</summary>
@@ -587,14 +587,14 @@ Make sure, that [Python](https://www.python.org/downloads/) and [Git](https://gi
 * Sign up for a free account on [MongoDB](https://www.mongodb.com/)
 * create a new organisation and a new project
 * inside the project at Database Deployments, create a new cluster
-  * choose Shared / free tier cloud privider and region / M0 tier / choose cluster name
+  * choose Shared / free tier cloud provider and region / M0 tier / choose cluster name
 * inside the newly created cluster create a database, e.g. `my_car`
 * in Deployment Security / Database Access, create a user with password authentication, select role `readWriteAnyDatabase`
 
 Note down the following details:
 - cluster name
 - database name
-- database user name and password
+- database username and password
 
 #### 7.2 Clone the project's GitHub repository
 
@@ -622,7 +622,7 @@ os.environ.setdefault("FLASK_IP",         "127.0.0.1")
 os.environ.setdefault("PORT",             "5500")
 os.environ.setdefault("FLASK_DEBUG",      "True")
 ```
-The `<secret key>` can be any random charater string from your keyboard.
+The `<secret key>` can be any random character string from your keyboard.
 
 Create file `envDB.py` into the root of the project folder with the following content:
 ```
@@ -635,7 +635,7 @@ os.environ.setdefault("MONGO_INIT",       "True")
 ```
 Take `<cluster name>`, `<username>`, `<password>` from the MongoDB creation item at 7.1
 
-The `MONGO_INIT=True` parameter triggers the initialization of the database content, every time the application is started. To prevent that, set it to `False` so your changes in the DB are preserved between sessions. If you make a change in the DB structure, the DB content needs to be initialized or you need to do the fieldcatalog and collection changes manually on the DB.
+The `MONGO_INIT=True` parameter triggers the initialization of the database content, every time the application is started. To prevent that, set it to `False` so your changes in the DB are preserved between sessions. If you make a change in the DB structure, the DB content needs to be initialized or you need to do the field catalog and collection changes manually on the DB.
   
 #### 7.4 Set up the Python environment
 In your development environment, upgrade `pip` if needed
@@ -660,9 +660,9 @@ python app.py
 ### Deployment on Heroku
 [Heroku](https://www.heroku.com/) is a PaaS cloud service, you can deploy this project for free on it.
 
-#### 7.6 Prequisites:
+#### 7.6 Prerequisites:
 - you forked or copied this project into your repository on GitHub.
-- Heroku requires theese files to deploy successfully, they are both in the root folder of the project:
+- Heroku requires these files to deploy successfully, they are both in the root folder of the project:
 - `requirements.txt`
 - `Procfile`
 - you already have a Heroku account, or you need to register one.
@@ -671,7 +671,7 @@ python app.py
 Follow these steps to deploy the app from GitHub to Heroku:
 - In Heroku, Create New App, give it a platform-unique name, choose region, click on `Create App` button
 - On the app/Deployment page select GitHub as Deployment method, underneath click on `Connect GitHub` button
-- In the GitHub authorization popup window login into GitHub with yout GitHub usename and click on `Authorize Heroku` button
+- In the GitHub authorization popup window login into GitHub with your GitHub username and click on `Authorize Heroku` button
 - Type in your repo name and click `search`. It lists your repos. Choose the one and click on `connect` next to it.
 - either enable automatic deployment on every push to the chosen branch or stick to manual deployment
 - go to app/Settings page, click on `Reveal Config Vars` and enter the following variables and their values from the `envWS.py` and `envDB` files:
@@ -683,7 +683,7 @@ Follow these steps to deploy the app from GitHub to Heroku:
   * MONGO_INIT
 
 The `MONGO_INIT=True` parameter triggers the initialization of the database content, be mindful when you allow this to happen.
-Furthermore, if you youse the same MongoDB database as in development, the init can ruin your data on Heroku an vica versa.
+Furthermore, if you you use the same MongoDB database as in development, the init can ruin your data on Heroku an vica versa.
 
 ## 8. Credits
 
@@ -692,7 +692,7 @@ My inspiration for this project came from my own booking where I keep car relate
 
 The technical solution started out from the [Task Manager](https://github.com/ruszkipista/ci12-task-master) code along mini project taught in the Code Institute curriculum.
 
-I thank [Nishant Kumar](https://github.com/nishant8BITS) for mentoring me during the project. He suggested to study [Clean Code](http://cleancoder.com/) by Uncle Bob and split up the monolith code into small functions. Despite much of my efforts, Uncle Bob still would not approve the current state of the code, there are still much to learn ...
+I thank [Nishant Kumar](https://github.com/nishant8BITS) for mentoring me during the project. He suggested to study [Clean Code](http://cleancoder.com/) by Uncle Bob and split up the monolith code into small functions. Despite much of my efforts, Uncle Bob still would not approve the current state of the code, there is still much to learn ...
 
 ### Media
 Used 3 car images from the following places:
