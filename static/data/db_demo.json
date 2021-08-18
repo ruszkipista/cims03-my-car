@@ -56,19 +56,19 @@
   "users_cars": [
     {"user_id": "user1", "car_id":  "mazda3", "relationship_type_id":"owner"},
     {"user_id": "user1", "car_id":  "yaris",  "relationship_type_id":"owner"},
-    {"user_id": "user2",  "car_id":  "yaris",  "relationship_type_id":"driver"},
-    {"user_id": "user2",  "car_id":  "PT",     "relationship_type_id":"owner"},
+    {"user_id": "user2",  "car_id":  "yaris", "relationship_type_id":"driver"},
+    {"user_id": "user2",  "car_id":  "PT",    "relationship_type_id":"owner"},
     {"user_id": "user1", "car_id":  "PT",     "relationship_type_id":"driver"}
   ],
 
   "partners": [
-    {"partner_id": "parkwayshop",       "description": "Parkway Shopping Centre", "country_id": "IE", "address": "Parkway, Limerick"},
-    {"partner_id": "nctlimerick",       "description": "NCT Limerick",            "country_id": "IE", "address": "Eastway Business Park, Tipperary Road, Limerick"},
-    {"partner_id": "allianzie",         "description": "Allianz.ie",              "country_id": "IE", "address": "www.allianz.ie"},
-    {"partner_id": "motortax",          "description": "Motor Tax",               "country_id": "IE", "address": "www.motortax.ie"},
-    {"partner_id": "sebastiangarage",   "description": "Sebastian's Garage",      "country_id": "IE", "address": "Unit 5 Eastlink Business Park  Ballysimon Road Limerick"},
-    {"partner_id": "onetimeseller",     "description": "One Time Seller (IE)",    "country_id": "IE", "address": "somewhere in Ireland"},
-    {"partner_id": "circlekcastletroy", "description": "Circle K Castletroy",     "country_id": "IE", "address": "Dublin Road, Castletroy, Limerick"}
+    {"partner_name": "parkwayshop",       "description": "Parkway Shopping Centre", "country_id": "IE", "address": "Parkway, Limerick"},
+    {"partner_name": "nctlimerick",       "description": "NCT Limerick",            "country_id": "IE", "address": "Eastway Business Park, Tipperary Road, Limerick"},
+    {"partner_name": "allianzie",         "description": "Allianz.ie",              "country_id": "IE", "address": "www.allianz.ie"},
+    {"partner_name": "motortax",          "description": "Motor Tax",               "country_id": "IE", "address": "www.motortax.ie"},
+    {"partner_name": "sebastiangarage",   "description": "Sebastian's Garage",      "country_id": "IE", "address": "Unit 5 Eastlink Business Park  Ballysimon Road Limerick"},
+    {"partner_name": "onetimeseller",     "description": "One Time Seller (IE)",    "country_id": "IE", "address": "somewhere in Ireland"},
+    {"partner_name": "circlekcastletroy", "description": "Circle K Castletroy",     "country_id": "IE", "address": "Dublin Road, Castletroy, Limerick"}
   ],
 
   "transactions": [

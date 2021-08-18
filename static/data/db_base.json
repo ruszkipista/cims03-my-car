@@ -277,12 +277,12 @@
       "admin":       false,
       "buffered":    true,
       "fields":[
-         {"name": "partner_id",  "heading": "Partner Name", "input_type": "text"},
+         {"name": "partner_name",  "heading": "Partner Name", "input_type": "text"},
          {"name": "description", "heading": "Description",  "input_type": "text"},
          {"name": "country_id",  "heading": "Country",      "input_type": "select", "values": "countries"},
          {"name": "address",     "heading": "Address",      "input_type": "text"}
       ],
-      "select_field": "partner_id"
+      "select_field": "partner_name"
     }
   ],
 
