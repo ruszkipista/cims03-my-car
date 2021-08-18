@@ -95,3 +95,63 @@ Table Materials {
   description varchar
   material_type_id int
 }
+Ref: Materials.material_type_id > Material_Types._id  
+
+Table Cars {
+  _id int [pk, increment] // auto-increment
+  car_id varchar
+  description varchar
+  reg_country_id int
+  plate_number varchar
+  odometer_unit_id int
+  fuel_material_id int
+  fuel_economy_unit_id int
+}
+Ref: Cars.reg_country_id > Countries._id  
+Ref: Cars.odometer_unit_id > Unit_Of_Measures._id 
+Ref: Cars.fuel_material_id > Materials._id 
+Ref: Cars.fuel_economy_unit_id > Unit_Of_Measures._id
+
+Table Relationship_Types {
+  _id int [pk, increment] // auto-increment
+  relationship_type_name varchar
+  description varchar
+}
+
+Table Users_Cars {
+  _id int [pk, increment] // auto-increment
+  user_id int
+  car_id int
+  relationship_type_id int
+}
+Ref: Users_Cars.user_id > Users._id  
+Ref: Users_Cars.car_id > Cars._id  
+Ref: Users_Cars.relationship_type_id > Relationship_Types._id  
+
+Table Partners {
+  _id int [pk, increment] // auto-increment
+  partner_name varchar
+  description varchar
+  country_id int
+  address varchar
+}
+Ref: Partners.country_id > Countries._id
+
+Table Transactions {
+  _id int [pk, increment] // auto-increment
+  car_id int
+  transaction_date date
+  partner_id int
+  description varchar
+  material_id int
+  odometer int
+  quantity decimal
+  uom_id int
+  price decimal
+  currency_id int
+}
+Ref: Transactions.car_id > Cars._id
+Ref: Transactions.partner_id > Partners._id
+Ref: Transactions.material_id > Materials._id
+Ref: Transactions.uom_id > Unit_Of_Measures._id
+Ref: Transactions.currency_id > Currencies._id

@@ -29,11 +29,14 @@ The Project Repository can be found - [here](https://github.com/ruszkipista/cims
 ## 0. Data structures design
 Let's briefly introduce the data structures of the My Car application. It is necessary to learn some features to understand the reason behind arrangements in the data.
 
-The main entity is the Car. We want collect financial transactions occurring around cars in order to answer such questions
+The main entity is the Car. We want to collect financial transactions occurring around cars in order to answer such questions
 - What is the fuel economy look like, how much fuel it consumes on a set distance or how much distance it can take on a set amount of fuel?
 - How much do we spend on the car to run daily, monthly, yearly?
 - How much does it cost to run 100 km?
 - How much is the book value of the car today?
+
+Here is the database schema in relational terms:
+![database schema](./docs/my-car-db-diagram.png "My Car database schema")
 
 ### 0.1 Transaction
 So in order to calculate all of that, we need to record the following things about a Transaction:
