@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, flash, send_file, session, url_for
 from io import BytesIO
+import utilities
 import formdb
 
 # envWS.py should exist only in Development
@@ -73,7 +74,7 @@ def login():
         password_stored = formdb.get_db_user_password(user_old)
     # check if username does not exist in db
     # or stored and entered passwords differ
-    if not user_old or not formdb.is_password_hash_correct(password_stored, password_entered):
+    if not user_old or not utilities.is_password_hash_correct(password_stored, password_entered):
         flash(f"Incorrect Username and/or Password", 'danger')
         return redirect(url_for("login"))
 
@@ -105,12 +106,12 @@ def profile():
     # request.method == POST
     password_old = formdb.get_form_profile_field_password_old(request)
     password_stored = formdb.get_db_user_password(loggedin_user)
-    if not formdb.is_password_hash_correct(password_stored, password_old):
+    if not utilities.is_password_hash_correct(password_stored, password_old):
         flash("Wrong old password", 'danger')
         return redirect(url_for("profile"))
 
     password_new = formdb.get_form_profile_field_password_new(request)
-    if formdb.is_password_hash_correct(password_stored, password_new):
+    if utilities.is_password_hash_correct(password_stored, password_new):
         flash("Old and New passwords are the same, not changed!", "warning")
         return redirect(url_for("profile"))
 
@@ -279,7 +280,7 @@ def _jinja2_filter_objectid(id: str):
 
 @app.template_filter('unix_time_ago')
 def _jinja2_filter_time_ago(unix_timestamp: int):
-    return formdb.translate_unix_timestamp_to_time_ago_text(unix_timestamp)
+    return utilities.translate_unix_timestamp_to_time_ago_text(unix_timestamp)
 
 
 # Flask pattern from https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3/

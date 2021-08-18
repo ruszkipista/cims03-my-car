@@ -68,7 +68,8 @@
     {"partner_name": "motortax",          "description": "Motor Tax",               "country_id": "IE", "address": "www.motortax.ie"},
     {"partner_name": "sebastiangarage",   "description": "Sebastian's Garage",      "country_id": "IE", "address": "Unit 5 Eastlink Business Park  Ballysimon Road Limerick"},
     {"partner_name": "onetimeseller",     "description": "One Time Seller (IE)",    "country_id": "IE", "address": "somewhere in Ireland"},
-    {"partner_name": "circlekcastletroy", "description": "Circle K Castletroy",     "country_id": "IE", "address": "Dublin Road, Castletroy, Limerick"}
+    {"partner_name": "circlekcastletroy", "description": "Circle K Castletroy",     "country_id": "IE", "address": "Dublin Road, Castletroy, Limerick"},
+    {"partner_name": "mol",               "description": "MOL benzinkút",           "country_id": "HU", "address": "Budapest"}
   ],
 
   "transactions": [
@@ -131,7 +132,8 @@
     {"car_id":"mazda3","currency_id":"EUR","transaction_date":"2019-10-23","partner_id":"onetimeseller",    "material_id":"carpart",         "quantity": 4,   "uom_id":"pc",   "price":50,                      "description":"tyres"},
     {"car_id":"mazda3","currency_id":"EUR","transaction_date":"2020-09-12","partner_id":"onetimeseller",    "material_id":"carpart",         "quantity": 1,   "uom_id":"pc",   "price":48.57,                   "description":"battery Euro Car Parts Lion battery 063 40AH 340 CCA"},
     {"car_id":"mazda3","currency_id":"EUR","transaction_date":"2019-03-22","partner_id":"onetimeseller",    "material_id":"servicematerial", "quantity": 1,   "uom_id":"pc",   "price":5.00,                    "description":"bulbs"},
-    {"car_id":"mazda3","currency_id":"EUR","transaction_date":"2019-03-13","partner_id":"onetimeseller",    "material_id":"servicematerial", "quantity": 5,   "uom_id":"L",    "price":7.80,                    "description":"engine oil 5L 5W-30"}
+    {"car_id":"mazda3","currency_id":"EUR","transaction_date":"2019-03-13","partner_id":"onetimeseller",    "material_id":"servicematerial", "quantity": 5,   "uom_id":"L",    "price":7.80,                    "description":"engine oil 5L 5W-30"},
+    {"car_id":"PT",    "currency_id":"HUF","transaction_date":"2021-08-10","partner_id":"mol",              "material_id":"petrol95",        "quantity": 28.37,"uom_id":"L",   "price":423,                     "description":"95-ös benzin"}
   ]
 
 }

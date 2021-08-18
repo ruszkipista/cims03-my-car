@@ -1,12 +1,11 @@
-from math import floor
 import os
+import utilities
 # Support for mongodb+srv:// URIs requires dnspython:
 #!pip install dnspython pymongo
 import pymongo
 import json
-import time
-from datetime import date, datetime
-from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 import certifi
 from flask import g, session
@@ -57,53 +56,6 @@ class Result:
     def __init__(self, record={}, messages=[]):
         self.record = record
         self.messages = messages
-
-
-# inspired by https://stackoverflow.com/questions/4830535/how-do-i-format-a-date-in-jinja2
-def translate_unix_timestamp_to_time_ago_text(unix_timestamp: int):
-    time_formats = (
-        (60, 'seconds', 1),                           # 60
-        (120, '1 minute ago', '1 minute from now'),   # 60*2
-        (3600, 'minutes', 60),                        # 60*60, 60
-        (7200, '1 hour ago', '1 hour from now'),      # 60*60*2
-        (86400, 'hours', 3600),                       # 60*60*24, 60*60
-        (172800, 'Yesterday', 'Tomorrow'),            # 60*60*24*2
-        (604800, 'days', 86400),                      # 60*60*24*7, 60*60*24
-        (1209600, 'Last week', 'Next week'),          # 60*60*24*7*4*2
-        (2419200, 'weeks', 604800),                   # 60*60*24*7*4, 60*60*24*7
-        (4838400, 'Last month', 'Next month'),        # 60*60*24*7*4*2
-        (29030400, 'months', 2419200),                # 60*60*24*7*4*12, 60*60*24*7*4
-        (58060800, 'Last year', 'Next year'),         # 60*60*24*7*4*12*2
-        (2903040000, 'years', 29030400),              # 60*60*24*7*4*12*100, 60*60*24*7*4*12
-        (5806080000, 'Last century', 'Next century'), # 60*60*24*7*4*12*100*2
-        (58060800000, 'centuries', 2903040000)        # 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
-    )
-    seconds = get_utc_timestamp() - unix_timestamp
-    if 0 <= seconds < 1:
-        return 'Just now'
-    if seconds < 0:
-        seconds = abs(seconds)
-        token = 'from now'
-        list_choice = 2
-    else:
-        token = 'ago'
-        list_choice = 1
-
-    for format in time_formats:
-        if seconds < format[0]:
-            if type(format[2]) == str:
-                return format[list_choice]
-            else:
-                return f"{floor(seconds / format[2])} {format[1]} {token}"
-    return time
-
-
-def is_password_hash_correct(pwhash, password: str):
-    return check_password_hash(pwhash, password)
-
-
-def get_utc_timestamp():
-    return datetime.utcnow().timestamp()
 
 
 def get_form_reglog_field_username(request):
@@ -165,7 +117,7 @@ def insert_db_user(username, password, is_admin=False):
     user_new = {
         "username": username,
         "password": generate_password_hash(password),
-        "date_time_insert": get_utc_timestamp()
+        "date_time_insert": utilities.get_utc_timestamp()
     }
     if is_admin:
         user_new["user_is_admin"] = True
@@ -226,7 +178,7 @@ def set_db_user_password(user_id, password_new):
     user_update = {
         "password":         generate_password_hash(password_new),
         "changed_by":       ObjectId(session['user_id']),
-        "date_time_update": get_utc_timestamp()
+        "date_time_update": utilities.get_utc_timestamp()
     }
     coll = get_db_collection(dbConfig["MONGO_USERS"])
     result = coll.update_one({'_id': user_id}, {"$set": user_update})
@@ -434,10 +386,10 @@ def translate_db_external_to_internal(source_field_name, input_type, lookup_coll
             internal_value = datetime.fromisoformat(external_value)
 
     elif input_type == 'timestamp_update':
-        internal_value = get_utc_timestamp()
+        internal_value = utilities.get_utc_timestamp()
 
     elif input_type == 'timestamp_insert':
-        internal_value = get_utc_timestamp()
+        internal_value = utilities.get_utc_timestamp()
 
     else:
         lookup = get_db_select_field_lookup(lookup_collection_name)
@@ -522,7 +474,7 @@ def init_db_users(collection_name, records):
     for record in records:
         # encrypt password
         # set timestamp of creation
-        record['date_time_insert'] = get_utc_timestamp()
+        record['date_time_insert'] = utilities.get_utc_timestamp()
         for field, type, lookup in field_type_lookup_triples:
             translate_db_external_to_internal(field, type, lookup, record)
     return records
