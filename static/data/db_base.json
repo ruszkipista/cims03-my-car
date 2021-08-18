@@ -248,14 +248,14 @@
       "admin":       true,
       "buffered":    true,
       "fields":[
-         {"name": "relationship_id", "heading": "Code",        "input_type": "text"},
+         {"name": "relationship_type_name", "heading": "Code",        "input_type": "text"},
          {"name": "description",     "heading": "Description", "input_type": "text"}
       ],
-      "select_field": "relationship_id"
+      "select_field": "relationship_type_name"
     }, 
-    {"relationship_id": "owner",   "description": "Owner"},
-    {"relationship_id": "driver",  "description": "Driver"},
-    {"relationship_id": "insured", "description": "Insured"}
+    {"relationship_type_name": "owner",   "description": "Owner"},
+    {"relationship_type_name": "driver",  "description": "Driver"},
+    {"relationship_type_name": "insured", "description": "Insured"}
   ],
 
   "users_cars": [
@@ -266,7 +266,7 @@
       "fields":[
          {"name": "user_id",         "heading": "Username",     "input_type": "select", "values": "users"},
          {"name": "car_id",          "heading": "Car",          "input_type": "select", "values": "cars"},
-         {"name": "relationship_id", "heading": "Relationship", "input_type": "select", "values": "relationship_types"}
+         {"name": "relationship_type_id", "heading": "Relationship", "input_type": "select", "values": "relationship_types"}
       ]
     }
   ],

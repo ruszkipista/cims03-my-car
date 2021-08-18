@@ -5,7 +5,7 @@ My aim with this project is to demonstrate backend development skills, REST API 
 
 ![the web page on different devices](./docs/responsive-am-i.png "the web page on different size devices")
 
-A live demo can be found - [here](https://my-car-ruszkipista.herokuapp.com/)
+A live demo can be found - [here](https://my-car-ruszkipista.herokuapp.com/), use username/password: user1/user1 for a normal user or admin/admin for an administrator.
 
 The Project Repository can be found - [here](https://github.com/ruszkipista/cims03-my-car)
 

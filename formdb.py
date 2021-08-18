@@ -609,11 +609,11 @@ def init_db_cars(collection_name, records):
 
 
 def init_db_users_cars(collection_name, records):
-    field_names = ['user_id', 'car_id', 'relationship_id']
+    field_names = ['user_id', 'car_id', 'relationship_type_id']
     field_type_lookup_triples = get_db_field_type_lookup_triples(
         collection_name, field_names)
     for record in records:
-        # convert User Name, Car ID, Relationship ID to _id
+        # convert User Name, Car Name, Relationship Type Name to _id
         for field, type, lookup in field_type_lookup_triples:
             translate_db_external_to_internal(field, type, lookup, record)
     return records

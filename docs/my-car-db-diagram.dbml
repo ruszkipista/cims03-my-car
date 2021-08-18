@@ -1,0 +1,97 @@
+// https://dbdiagram.io/
+
+Table Users {
+  _id int [pk, increment] // auto-increment
+  username varchar
+  password varchar
+  user_is_admin boolean
+  date_time_insert timestamp
+  date_time_update timestamp
+  changed_by int
+}
+// Creating references
+// You can also define relaionship separately
+// > many-to-one; < one-to-many; - one-to-one
+Ref: Users.changed_by > Users._id  
+
+Table Images {
+  _id int [pk, increment] // auto-increment
+  source varchar
+  image blob
+}
+
+Table Currencies {
+  _id int [pk, increment] // auto-increment
+  currency_id varchar
+  description varchar
+  sign varchar
+}
+
+Table Currency_Conversions {
+  _id int [pk, increment] // auto-increment
+  currency_id_from int
+  currency_id_to int
+  from_date date
+  rate float
+}
+Ref: Currency_Conversions.currency_id_from > Currencies._id  
+Ref: Currency_Conversions.currency_id_to   > Currencies._id  
+
+Table Measure_Types {
+  _id int [pk, increment] // auto-increment
+  measure_type_id int
+  description varchar
+}
+
+Table Unit_Of_Measures {
+  _id int [pk, increment] // auto-increment
+  uom_id varchar
+  description varchar
+  measure_type_id int
+}
+Ref: Unit_Of_Measures.measure_type_id > Measure_Types._id  
+
+Table Unit_Conversions {
+  _id int [pk, increment] // auto-increment
+  currency_id_from int
+  currency_id_to int
+  from_date date
+  rate float
+}
+Ref: Unit_Conversions.currency_id_from > Unit_Of_Measures._id  
+Ref: Unit_Conversions.currency_id_to   > Unit_Of_Measures._id
+
+Table Countries {
+  _id int [pk, increment] // auto-increment
+  country_id varchar
+  description varchar
+  currency_id int
+  distance_unit_id int
+  fuel_unit_id int
+}
+Ref: Countries.currency_id > Currencies._id
+Ref: Countries.distance_unit_id > Unit_Of_Measures._id
+Ref: Countries.fuel_unit_id > Unit_Of_Measures._id
+
+Table Expenditure_Types {
+  _id int [pk, increment] // auto-increment
+  expenditure_type_id varchar
+  description varchar
+}
+
+Table Material_Types {
+  _id int [pk, increment] // auto-increment
+  material_type_id varchar
+  description varchar
+  measure_type_id int
+  expenditure_type_id int
+}
+Ref: Material_Types.measure_type_id > Measure_Types._id  
+Ref: Material_Types.expenditure_type_id > Expenditure_Types._id  
+
+Table Materials {
+  _id int [pk, increment] // auto-increment
+  material_id varchar
+  description varchar
+  material_type_id int
+}
